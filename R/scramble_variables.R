@@ -10,7 +10,7 @@
 #'
 #' @examples
 #'
-#' df <- tibble(x = 1:6, y = letters[1:6], group = c("A", "A", "A", "B", "B", "B"))
+#' df <- data.frame(x = 1:6, y = letters[1:6], group = c("A", "A", "A", "B", "B", "B"))
 #'
 #' set.seed(123)
 #' # Example without grouping. Variables scrambled across the entire data frame.
@@ -35,8 +35,6 @@
 #'     ungroup()
 #'
 #' @export
-library(dplyr)
-
 scramble_variables <- function(data, cols, .groups = NULL) {
     stopifnot(is.data.frame(data))
 
@@ -49,13 +47,13 @@ scramble_variables <- function(data, cols, .groups = NULL) {
     if (!is.null(.groups)) {
         # Grouped scrambling with native pipe
         data <- data |>
-            group_by(across(all_of(.groups))) |>
-            group_modify(\(df, ...) {
+            dplyr::group_by(dplyr::across(dplyr::all_of(.groups))) |>
+            dplyr::group_modify(\(df, ...) {
                 df[cols] <- lapply(df[cols], sample)
                 df
             }) |>
-            ungroup() |>
-            select(all_of(orig_order))  # restore original column order
+            dplyr::ungroup() |>
+            dplyr::select(dplyr::all_of(orig_order))  # restore original column order
     } else {
         # Non-grouped
         data[cols] <- lapply(data[cols], sample)
