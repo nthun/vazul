@@ -2,14 +2,25 @@ Package: vazul
 Title: Package for data blinding
 Version: 0.0.0.9000
 Authors@R: 
-    person("Tamás", "Nagy", , "nagytamas.hungary@gmail.com", role = c("aut", "cre"))
-    person("Alexandra", "Sarafoglou", , "alexandra.sarafoglou@gmail.com", role = c("aut", "cre"))
-    person("Márton", "Kovács", , "marton.balazs.kovacs@gmail.com", role = c("aut", "cre"))
+    c(
+    person(given = "Tamás", 
+           family = "Nagy", 
+           email = "nagytamas.hungary@gmail.com", 
+           role = c("aut", "cre")),
+    person(given = "Alexandra", 
+           family = "Sarafoglou", 
+           email = "alexandra.sarafoglou@gmail.com", 
+           role = c("aut", "dtc")),
+    person(given = "Márton", 
+           family = "Kovács", 
+           email = "marton.balazs.kovacs@gmail.com", 
+           role = c("aut"))
+           )
 Description: The vazul package provides functions for data blinding.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Depends: 
     R (>= 3.5)
 Imports:

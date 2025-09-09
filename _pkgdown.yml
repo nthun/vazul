@@ -1,4 +1,7 @@
-url: ~
-template:
-  bootstrap: 5
-
+home:
+  title: vazul
+  description: The vazul package provides functions for data blinding.
+  authors:
+    Tamás Nagy: https://github.com/nthun
+    Alexandra Sarafoglou: https://github.com/ASarafoglou
+    Márton Kovács: https://github.com/marton-balazs-kovacs
