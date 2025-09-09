@@ -2,7 +2,9 @@
 
 ## 2025-09-09 
 
-* Add scramble_values() and scramble_variables() functions.
+* Add `scramble_values()` and `scramble_variables()` functions.
+* Build package using `pkgdown::build_site()`.
+* Add README
 
 ## 2025-08-29 
 
