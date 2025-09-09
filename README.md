@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/nthun/vazul/workflows/R-CMD-check/badge.svg)](https://github.com/nthun/vazul/actions)
 <!-- badges: end -->
 
-**vazul** is an R package that provides functions for data blinding, allowing researchers to scramble sensitive data while preserving its statistical properties. The package includes two main functions for data scrambling and two research datasets for demonstration and practice.
+**vazul** is an R package that provides functions for data blinding, allowing researchers to scramble data while preserving its statistical properties. 
 
 ## Installation
 
@@ -120,15 +120,6 @@ williams |>
 - `Opport_*`: Long-term planning opportunity measures
 - `age`, `gender`: Participant demographics
 
-## Use Cases
-
-The vazul package is particularly useful for:
-
-- **Data sharing**: Scramble sensitive variables before sharing datasets
-- **Simulation studies**: Create variations of existing data while preserving structure
-- **Teaching**: Demonstrate statistical concepts with modified real data
-- **Robustness testing**: Test analysis pipelines with scrambled data
-
 ## Documentation
 
 - Package documentation: `help(package = "vazul")`
@@ -139,7 +130,7 @@ The vazul package is particularly useful for:
 ## Authors
 
 - **Tamás Nagy** - Package author and maintainer
-- **Alexandra Sarafoglou** - Data contributor  
+- **Alexandra Sarafoglou** - Data contributor and author  
 - **Márton Kovács** - Author
 
 ## License
