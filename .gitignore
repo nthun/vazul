@@ -2,10 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-
 # R package build artifacts
 *.tar.gz
 *.Rcheck/
 ..Rcheck/
-man/
-docs
