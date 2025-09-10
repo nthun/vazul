@@ -62,6 +62,13 @@ df |>
   group_by(group) |> 
   scramble_variables("x") |>
   ungroup()
+  
+# Can use multiple groups
+marp |> 
+    group_by(country, gender) |> 
+    scramble_variables(c("rel_1", "rel_2")) |> 
+    unroup()
+  
 ```
 
 ## Included Datasets
@@ -95,7 +102,7 @@ marp |>
 
 ### Williams Dataset  
 
-A stereotyping study dataset with 112 participants examining perceptions of high-wealth individuals in different ecological contexts.
+A study dataset with 112 participants examining the risk taking behavior behavior of high or low wealth individuals.
 
 ``` r
 data(williams)
@@ -115,10 +122,14 @@ williams |>
 
 **Key variables:**
 - `ecology`: Experimental condition ("Desperate" vs "Hopeful")
-- `SexUnres_*`: Sexual unrestrictedness measures  
+- `SexUnres_*`: Sexual unresponsiveness measures  
 - `Impuls_*`: Impulsivity measures
 - `Opport_*`: Long-term planning opportunity measures
 - `age`, `gender`: Participant demographics
+
+## Explanation of the package name
+
+Vazul was a historical figure (Hungarian price) in the 11. century. He was blinded by the king to become unfit for the throne. More info: https://en.wikipedia.org/wiki/Vazul
 
 ## Documentation
 
