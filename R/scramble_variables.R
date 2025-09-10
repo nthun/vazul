@@ -34,6 +34,13 @@
 #'     scramble_variables(c("ecology", "age")) |>
 #'     ungroup()
 #'
+#' # The function is compatible with tidy selecting helpers
+#'
+#' marp |>
+#'     group_by(country, gender) |>
+#'     scramble_variables(starts_with("rel_")) |>
+#'     ungroup()
+#'
 #' @export
 
 scramble_variables <- function(data, cols, .groups = NULL) {
