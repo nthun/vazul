@@ -35,30 +35,36 @@
 #'     ungroup()
 #'
 #' @export
+
 scramble_variables <- function(data, cols, .groups = NULL) {
+    # Input validation
     stopifnot(is.data.frame(data))
 
+    # Capture original column order
     orig_order <- names(data)
 
-    # Ensure column names
-    if (is.numeric(cols)) cols <- names(data)[cols]
-    if (!all(cols %in% names(data))) stop("Some target columns not found in data.")
+    # Handle column selection using tidyselect
+    cols <- tidyselect::eval_select(enquo(cols), data)
 
+    # Handle group selection similarly if provided
     if (!is.null(.groups)) {
-        # Grouped scrambling with native pipe
+        .groups <- tidyselect::eval_select(enquo(.groups), data)
+    }
+
+    # Perform scrambling
+    if (!is.null(.groups)) {
         data <- data |>
-            dplyr::group_by(dplyr::across(dplyr::all_of(.groups))) |>
-            dplyr::group_modify(\(df, ...) {
+            dplyr::group_by(dplyr::across(all_of(.groups))) |>
+            dplyr::group_modify(function(df, ...) {
                 df[cols] <- lapply(df[cols], sample)
                 df
             }) |>
             dplyr::ungroup() |>
-            dplyr::select(dplyr::all_of(orig_order))  # restore original column order
+            dplyr::select(all_of(orig_order))  # Restore original column order
     } else {
-        # Non-grouped
+        # Non-grouped: directly scramble selected columns
         data[cols] <- lapply(data[cols], sample)
     }
 
     data
 }
-
