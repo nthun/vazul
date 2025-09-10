@@ -1,3 +1,6 @@
+url: https://nthun.github.io/vazul/
+template:
+  bootstrap: 5
 home:
   title: vazul
   description: The vazul package provides functions for data blinding.
