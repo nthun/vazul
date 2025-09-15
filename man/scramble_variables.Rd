@@ -31,24 +31,16 @@ df |> scramble_variables(c("x", "y"))
 
 df |> scramble_variables("y", .groups = "group")
 
-df |> group_by(group) |> scramble_variables("x")
-
 # Example with the 'williams' dataset
 
 data(williams)
 williams |> scramble_variables(c("ecology", "age"))
 
 williams |> scramble_variables(1:5)
-williams |>
-    group_by(gender) |>
-    scramble_variables(c("ecology", "age")) |>
-    ungroup()
+williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
 
-# The function is compatible with tidy selecting helpers
+# The function is compatible with column indices
 
-marp |>
-    group_by(country, gender) |>
-    scramble_variables(starts_with("rel_")) |>
-    ungroup()
+williams |> scramble_variables(c(1, 2), .groups = c(3))
 
 }
