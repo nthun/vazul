@@ -14,12 +14,13 @@
 #' nums <- 1:5
 #' scramble_values(nums)
 #'
-#' # Scramble the 'ecology' variable in the 'williams' dataset using dplyr
-#' library(dplyr)
+#' # Scramble a column in the 'williams' dataset 
 #' data(williams)
 #'
-#' williams |>
-#' mutate(ecology = scramble_values(ecology))
+#' # Simple scrambling of a single column
+#' set.seed(123)
+#' williams$ecology_scrambled <- scramble_values(williams$ecology)
+#' head(williams[c("ecology", "ecology_scrambled")])
 #'
 #' @export
 scramble_values <- function(x) {
