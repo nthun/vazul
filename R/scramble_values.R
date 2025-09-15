@@ -37,6 +37,12 @@ scramble_values <- function(x) {
         stop("Input 'x' cannot be an empty vector. Please provide a vector with at least one element.", call. = FALSE)
     }
 
+    # Handle the special case where length(x) == 1
+    # This prevents R's sample() from treating a single integer as 1:x
+    if (length(x) == 1) {
+        return(x)
+    }
+
     sample(x, length(x), replace = FALSE)
 
 }
