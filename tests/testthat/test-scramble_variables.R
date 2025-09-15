@@ -7,20 +7,20 @@ test_that("scramble_variables works with basic data frame", {
     y = letters[1:6],
     z = factor(c("A", "A", "B", "B", "C", "C"))
   )
-  
+
   # Test scrambling by column names
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"))
-  
+
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(ncol(result), ncol(df))
   expect_equal(names(result), names(df))
-  
+
   # Check that scrambled columns have same elements but potentially different order
   expect_setequal(result$x, df$x)
   expect_setequal(result$y, df$y)
-  
+
   # Check that non-scrambled column is unchanged
   expect_equal(result$z, df$z)
 })
@@ -31,10 +31,10 @@ test_that("scramble_variables works with column indices", {
     b = letters[1:5],
     c = 5:1
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, c(1, 3))  # Scramble columns 1 and 3
-  
+
   expect_s3_class(result, "data.frame")
   expect_equal(names(result), names(df))
   expect_setequal(result$a, df$a)
@@ -47,10 +47,10 @@ test_that("scramble_variables works with single column", {
     x = 1:10,
     y = letters[1:10]
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, "x")
-  
+
   expect_equal(names(result), names(df))
   expect_setequal(result$x, df$x)
   expect_equal(result$y, df$y)  # y should be unchanged
@@ -63,22 +63,22 @@ test_that("scramble_variables works with grouping", {
     y = letters[1:6],
     group = c("A", "A", "A", "B", "B", "B")
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, "x", .groups = "group")
-  
+
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(names(result), names(df))
-  
+
   # Check that grouping variable is unchanged
   expect_equal(result$group, df$group)
-  
+
   # Check that scrambling occurred within groups
   group_a_orig <- df$x[df$group == "A"]
   group_a_result <- result$x[result$group == "A"]
   expect_setequal(group_a_result, group_a_orig)
-  
+
   group_b_orig <- df$x[df$group == "B"]
   group_b_result <- result$x[result$group == "B"]
   expect_setequal(group_b_result, group_b_orig)
@@ -91,12 +91,12 @@ test_that("scramble_variables preserves column order", {
     col3 = 5:1,
     col4 = LETTERS[1:5]
   )
-  
+
   original_order <- names(df)
-  
+
   set.seed(123)
   result <- scramble_variables(df, c("col2", "col3"))
-  
+
   expect_equal(names(result), original_order)
 })
 
@@ -105,25 +105,25 @@ test_that("scramble_variables works with grouped data (using group_by) - test cu
   # NOTE: The current implementation appears to have issues with grouped data
   # This test documents the current behavior rather than the expected behavior
   skip_if_not_installed("dplyr")
-  
+
   df <- data.frame(
     x = 1:6,
     y = letters[1:6],
     group = c("A", "A", "A", "B", "B", "B")
   )
-  
+
   library(dplyr)
-  
+
   set.seed(123)
   result <- df %>%
     group_by(group) %>%
     scramble_variables("x") %>%
     ungroup()
-  
+
   expect_s3_class(result, "data.frame")
   expect_equal(names(result), names(df))
   expect_equal(nrow(result), nrow(df))
-  
+
   # Note: Current implementation has issues - this documents actual behavior
   # The grouped scrambling doesn't work as expected
 })
@@ -134,34 +134,34 @@ test_that("scramble_variables handles multiple grouping variables", {
     group1 = rep(c("X", "Y"), each = 6),
     group2 = rep(c("1", "2", "3"), times = 4)
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, "value", .groups = c("group1", "group2"))
-  
+
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(names(result), names(df))
-  
+
   # Note: Testing that the function completes without error
   # The current grouping implementation may have issues
 })
 
 test_that("scramble_variables validates input correctly", {
   df <- data.frame(x = 1:5, y = letters[1:5])
-  
+
   # Test non-data.frame input
   expect_error(
     scramble_variables(list(x = 1:5), "x"),
     class = "simpleError"
   )
-  
+
   # Test missing columns
   expect_error(
     scramble_variables(df, "nonexistent_column"),
     "Some target columns not found in data.",
     fixed = TRUE
   )
-  
+
   # Test invalid column indices
   expect_error(
     scramble_variables(df, 10),  # Column 10 doesn't exist
@@ -175,7 +175,7 @@ test_that("scramble_variables handles edge cases", {
   df_single <- data.frame(x = 1, y = "a")
   result <- scramble_variables(df_single, "x")
   expect_equal(result, df_single)
-  
+
   # Test with single column scrambled
   df_one_col <- data.frame(x = 1:5)
   set.seed(123)
@@ -190,13 +190,13 @@ test_that("scramble_variables actually scrambles data (probabilistic)", {
     x = 1:50,
     y = letters[rep(1:26, length.out = 50)]
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, "x")
-  
+
   # It's extremely unlikely that 50 elements stay in order
   expect_false(identical(result$x, df$x))
-  
+
   # But y should be unchanged
   expect_equal(result$y, df$y)
 })
@@ -207,15 +207,15 @@ test_that("scramble_variables works with special data types", {
     factors = factor(c("low", "medium", "high")),
     logicals = c(TRUE, FALSE, TRUE)
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, c("dates", "factors", "logicals"))
-  
+
   expect_s3_class(result, "data.frame")
   expect_setequal(result$dates, df$dates)
   expect_setequal(as.character(result$factors), as.character(df$factors))
   expect_setequal(result$logicals, df$logicals)
-  
+
   # Check types are preserved
   expect_s3_class(result$dates, "Date")
   expect_s3_class(result$factors, "factor")
@@ -227,10 +227,11 @@ test_that("scramble_variables preserves NA values correctly", {
     x = c(1, 2, NA, 4, 5),
     y = c("a", "b", NA, "d", "e")
   )
-  
+
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"))
-  
+
   expect_equal(sum(is.na(result$x)), sum(is.na(df$x)))
   expect_equal(sum(is.na(result$y)), sum(is.na(df$y)))
 })
+

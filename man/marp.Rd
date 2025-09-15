@@ -9,15 +9,15 @@ A data frame with 10,535 rows (participants) and 46 variables:
 \describe{
 \item{subject}{Integer subject identifier (row id in processed file).}
 \item{country}{Country of participant (character).}
-\item{rel_1 \dots rel_9}{Religiosity items. Many are proportion-style or binary indicators
+\item{rel_1 rel_2 rel_3 rel_4 rel_5 rel_6 rel_7 rel_8 rel_9}{Religiosity items. Many are proportion-style or binary indicators
 derived from self-report (values in 0,1 or integer/binary).}
 \item{cnorm_1, cnorm_2}{Perceived cultural norm variables: importance of a religious lifestyle
 and importance of belief for the average person in the participant's country
 (numeric scales).}
 \item{wb_gen_1, wb_gen_2}{General well-being items (single-item self-assessments; integer Likert).}
-\item{wb_phys_1 \dots wb_phys_7}{Well-being — physical domain items; integer Likert responses (e.g., 1–5).}
-\item{wb_psych_1 \dots wb_psych_6}{Well-being — psychological domain items; integer Likert responses.}
-\item{wb_soc_1 \dots wb_soc_3}{Well-being — social domain items; integer Likert responses.}
+\item{wb_phys_1 wb_phys_2 wb_phys_3 wb_phys_4 wb_phys_5 wb_phys_6 wb_phys_7}{Well-being — physical domain items; integer Likert responses (e.g., 1–5).}
+\item{wb_psych_1 wb_psych_2 wb_psych_3 wb_psych_4 wb_psych_5 wb_psych_6}{Well-being — psychological domain items; integer Likert responses.}
+\item{wb_soc_1 wb_soc_2 wb_soc_3}{Well-being — social domain items; integer Likert responses.}
 \item{wb_overall_mean}{Participant-level mean across all well-being items (numeric).}
 \item{wb_phys_mean}{Mean of the physical well-being items (numeric).}
 \item{wb_psych_mean}{Mean of the psychological well-being items (numeric).}

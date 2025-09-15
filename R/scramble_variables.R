@@ -34,8 +34,10 @@
 #' williams |> scramble_variables(c(1, 2), .groups = c(3))
 #'
 #' @export
+#'
 
 scramble_variables <- function(data, cols, .groups = NULL) {
+
     # Input validation
     stopifnot(is.data.frame(data))
 
@@ -91,7 +93,7 @@ scramble_variables <- function(data, cols, .groups = NULL) {
         # Group by the specified columns and scramble selected columns within each group
         data <- dplyr::group_by(data, !!!rlang::syms(group_cols))  |>
             dplyr::mutate(
-                across(
+                dplyr::across(
                     .cols = {{ col_indices }},
                     .fns = ~ sample(.x)
                 )
@@ -105,7 +107,7 @@ scramble_variables <- function(data, cols, .groups = NULL) {
         # Non-grouped case: directly scramble selected columns
         data <- dplyr::mutate(
             data,
-            across(
+            dplyr::across(
                 .cols = {{ col_indices }},
                 .fns = ~ sample(.x)
             )
