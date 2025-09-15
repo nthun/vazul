@@ -42,7 +42,7 @@ scramble_variables <- function(data, cols, .groups = NULL) {
     # Capture original column order
     orig_order <- names(data)
 
-    # Handle column selection 
+    # Handle column selection
     if (is.character(cols)) {
         # Check if column names exist
         missing_cols <- setdiff(cols, names(data))
@@ -82,37 +82,36 @@ scramble_variables <- function(data, cols, .groups = NULL) {
 
     # Perform scrambling
     if (!is.null(group_indices)) {
-        # Get unique group combinations
-        group_data <- data[, group_indices, drop = FALSE]
-        unique_groups <- unique(group_data)
-        
-        # Process each group
-        result_list <- list()
-        for (i in seq_len(nrow(unique_groups))) {
-            # Find rows that match this group combination
-            group_match <- rep(TRUE, nrow(data))
-            for (j in seq_len(ncol(unique_groups))) {
-                group_match <- group_match & (data[, group_indices[j]] == unique_groups[i, j])
-            }
-            group_rows <- which(group_match)
-            
-            # Scramble the selected columns within this group
-            group_subset <- data[group_rows, , drop = FALSE]
-            group_subset[, col_indices] <- lapply(group_subset[, col_indices, drop = FALSE], sample)
-            result_list[[i]] <- group_subset
-        }
-        
-        # Combine results back together
-        data <- do.call(rbind, result_list)
-        
-        # Restore original row order (approximately)
-        row_order <- order(as.numeric(rownames(data)))
-        data <- data[row_order, , drop = FALSE]
-        rownames(data) <- NULL
+        # Extract group column names
+        group_cols <- names(data)[group_indices]
+
+        # Add original row order as a column to restore later
+        data <- dplyr::mutate(data, .row_id = dplyr::row_number())
+
+        # Group by the specified columns and scramble selected columns within each group
+        data <- dplyr::group_by(data, !!!rlang::syms(group_cols))  |>
+            dplyr::mutate(
+                across(
+                    .cols = {{ col_indices }},
+                    .fns = ~ sample(.x)
+                )
+            ) |>
+            dplyr::ungroup()
+
+        # Restore original row order using .row_id, then drop it
+        data <- dplyr::arrange(data, .row_id) |>
+                dplyr::select(-.row_id)
     } else {
-        # Non-grouped: directly scramble selected columns
-        data[, col_indices] <- lapply(data[, col_indices, drop = FALSE], sample)
+        # Non-grouped case: directly scramble selected columns
+        data <- dplyr::mutate(
+            data,
+            across(
+                .cols = {{ col_indices }},
+                .fns = ~ sample(.x)
+            )
+        )
     }
 
+    # Return modified data
     data
 }

@@ -1,5 +1,11 @@
 # vazul 0.0.0.9000
 
+## 2025-09-15
+
+* Unit tests added using `testthat`.
+* Add error handling to `scramble_variables()`
+* Add imports: dplyr, rlang
+
 ## 2025-09-09 
 
 * Add `scramble_values()` and `scramble_variables()` functions.

@@ -33,7 +33,7 @@
 #'   \item{attention_check}{Attention-check variable (integer).}
 #' }
 #'
-#' @source Many Analysts Religion Project — Team 40 exploratory notebook (processed MARP data). See Team 40 MARP notebook for preprocessing and analysis details. :contentReference[oaicite:2]{index=2}
+#' @source Many Analysts Religion Project. See: https://doi.org/10.1080/2153599X.2023.2254980
 #'
 #' @usage data(marp)
 #' @keywords datasets religion well-being cross-cultural

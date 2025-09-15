@@ -36,7 +36,7 @@ and importance of belief for the average person in the participant's country
 }
 }
 \source{
-Many Analysts Religion Project — Team 40 exploratory notebook (processed MARP data). See Team 40 MARP notebook for preprocessing and analysis details. :contentReference[oaicite:2]{index=2}
+Many Analysts Religion Project. See: https://doi.org/10.1080/2153599X.2023.2254980
 }
 \usage{
 data(marp)
