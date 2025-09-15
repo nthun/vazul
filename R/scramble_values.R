@@ -14,12 +14,13 @@
 #' nums <- 1:5
 #' scramble_values(nums)
 #'
-#' # Scramble the 'ecology' variable in the 'williams' dataset using dplyr
-#' library(dplyr)
+#' # Scramble a column in the 'williams' dataset 
 #' data(williams)
 #'
-#' williams |>
-#' mutate(ecology = scramble_values(ecology))
+#' # Simple scrambling of a single column
+#' set.seed(123)
+#' williams$ecology_scrambled <- scramble_values(williams$ecology)
+#' head(williams[c("ecology", "ecology_scrambled")])
 #'
 #' @export
 scramble_values <- function(x) {
@@ -35,6 +36,12 @@ scramble_values <- function(x) {
 
     if (length(x) == 0) {
         stop("Input 'x' cannot be an empty vector. Please provide a vector with at least one element.", call. = FALSE)
+    }
+
+    # Handle the special case where length(x) == 1
+    # This prevents R's sample() from treating a single integer as 1:x
+    if (length(x) == 1) {
+        return(x)
     }
 
     sample(x, length(x), replace = FALSE)

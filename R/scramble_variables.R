@@ -20,8 +20,6 @@
 #'
 #' df |> scramble_variables("y", .groups = "group")
 #'
-#' df |> group_by(group) |> scramble_variables("x")
-#'
 #' # Example with the 'williams' dataset
 #'
 #' data(williams)
@@ -29,17 +27,11 @@
 #'
 #' williams |> scramble_variables(1:5)
 
-#' williams |>
-#'     group_by(gender) |>
-#'     scramble_variables(c("ecology", "age")) |>
-#'     ungroup()
+#' williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
 #'
-#' # The function is compatible with tidy selecting helpers
+#' # The function is compatible with column indices
 #'
-#' marp |>
-#'     group_by(country, gender) |>
-#'     scramble_variables(starts_with("rel_")) |>
-#'     ungroup()
+#' williams |> scramble_variables(c(1, 2), .groups = c(3))
 #'
 #' @export
 
@@ -50,27 +42,76 @@ scramble_variables <- function(data, cols, .groups = NULL) {
     # Capture original column order
     orig_order <- names(data)
 
-    # Handle column selection using tidyselect
-    cols <- tidyselect::eval_select(enquo(cols), data)
+    # Handle column selection 
+    if (is.character(cols)) {
+        # Check if column names exist
+        missing_cols <- setdiff(cols, names(data))
+        if (length(missing_cols) > 0) {
+            stop("Some target columns not found in data.", call. = FALSE)
+        }
+        col_indices <- match(cols, names(data))
+    } else if (is.numeric(cols)) {
+        # Check if indices are valid
+        if (any(cols < 1 | cols > ncol(data))) {
+            stop("Some target columns not found in data.", call. = FALSE)
+        }
+        col_indices <- cols
+    } else {
+        stop("'cols' must be character vector (column names) or numeric vector (column indices).", call. = FALSE)
+    }
 
     # Handle group selection similarly if provided
     if (!is.null(.groups)) {
-        .groups <- tidyselect::eval_select(enquo(.groups), data)
+        if (is.character(.groups)) {
+            missing_groups <- setdiff(.groups, names(data))
+            if (length(missing_groups) > 0) {
+                stop("Some grouping columns not found in data.", call. = FALSE)
+            }
+            group_indices <- match(.groups, names(data))
+        } else if (is.numeric(.groups)) {
+            if (any(.groups < 1 | .groups > ncol(data))) {
+                stop("Some grouping columns not found in data.", call. = FALSE)
+            }
+            group_indices <- .groups
+        } else {
+            stop("'.groups' must be character vector (column names) or numeric vector (column indices).", call. = FALSE)
+        }
+    } else {
+        group_indices <- NULL
     }
 
     # Perform scrambling
-    if (!is.null(.groups)) {
-        data <- data |>
-            dplyr::group_by(dplyr::across(all_of(.groups))) |>
-            dplyr::group_modify(function(df, ...) {
-                df[cols] <- lapply(df[cols], sample)
-                df
-            }) |>
-            dplyr::ungroup() |>
-            dplyr::select(all_of(orig_order))  # Restore original column order
+    if (!is.null(group_indices)) {
+        # Get unique group combinations
+        group_data <- data[, group_indices, drop = FALSE]
+        unique_groups <- unique(group_data)
+        
+        # Process each group
+        result_list <- list()
+        for (i in seq_len(nrow(unique_groups))) {
+            # Find rows that match this group combination
+            group_match <- rep(TRUE, nrow(data))
+            for (j in seq_len(ncol(unique_groups))) {
+                group_match <- group_match & (data[, group_indices[j]] == unique_groups[i, j])
+            }
+            group_rows <- which(group_match)
+            
+            # Scramble the selected columns within this group
+            group_subset <- data[group_rows, , drop = FALSE]
+            group_subset[, col_indices] <- lapply(group_subset[, col_indices, drop = FALSE], sample)
+            result_list[[i]] <- group_subset
+        }
+        
+        # Combine results back together
+        data <- do.call(rbind, result_list)
+        
+        # Restore original row order (approximately)
+        row_order <- order(as.numeric(rownames(data)))
+        data <- data[row_order, , drop = FALSE]
+        rownames(data) <- NULL
     } else {
         # Non-grouped: directly scramble selected columns
-        data[cols] <- lapply(data[cols], sample)
+        data[, col_indices] <- lapply(data[, col_indices, drop = FALSE], sample)
     }
 
     data
