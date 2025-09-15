@@ -10,7 +10,7 @@ A data frame with 10,535 rows (participants) and 46 variables:
 \item{subject}{Integer subject identifier (row id in processed file).}
 \item{country}{Country of participant (character).}
 \item{rel_1 \dots rel_9}{Religiosity items. Many are proportion-style or binary indicators
-derived from self-report (values in \link{0,1} or integer/binary).}
+derived from self-report (values in 0,1 or integer/binary).}
 \item{cnorm_1, cnorm_2}{Perceived cultural norm variables: importance of a religious lifestyle
 and importance of belief for the average person in the participant's country
 (numeric scales).}

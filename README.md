@@ -1,7 +1,8 @@
 # vazul
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/nthun/vazul/workflows/R-CMD-check/badge.svg)](https://github.com/nthun/vazul/actions)
+[![R-CMD-check](https://github.com/nthun/vazul/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nthun/vazul/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/nthun/vazul/graph/badge.svg)](https://app.codecov.io/gh/nthun/vazul)
 <!-- badges: end -->
 
 **vazul** is an R package that provides functions for data blinding, allowing researchers to scramble data while preserving its statistical properties. 
