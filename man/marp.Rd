@@ -3,63 +3,91 @@
 \docType{data}
 \name{marp}
 \alias{marp}
-\title{MARP: Many Analysts Religion Project dataset}
+\title{MARP: Many Analysts Religion Project Dataset}
 \format{
-A data frame with 10,535 rows (participants) and 46 variables:
+A data frame with 10,535 rows (participants) and 48 variables:
 \describe{
-\item{subject}{Integer subject identifier (row id in processed file).}
-\item{country}{Country of participant (character).}
-\item{rel_1 rel_2 rel_3 rel_4 rel_5 rel_6 rel_7 rel_8 rel_9}{Religiosity items. Many are proportion-style or binary indicators
-derived from self-report (values in 0,1 or integer/binary).}
-\item{cnorm_1, cnorm_2}{Perceived cultural norm variables: importance of a religious lifestyle
-and importance of belief for the average person in the participant's country
-(numeric scales).}
-\item{wb_gen_1, wb_gen_2}{General well-being items (single-item self-assessments; integer Likert).}
-\item{wb_phys_1 wb_phys_2 wb_phys_3 wb_phys_4 wb_phys_5 wb_phys_6 wb_phys_7}{Well-being — physical domain items; integer Likert responses (e.g., 1–5).}
-\item{wb_psych_1 wb_psych_2 wb_psych_3 wb_psych_4 wb_psych_5 wb_psych_6}{Well-being — psychological domain items; integer Likert responses.}
-\item{wb_soc_1 wb_soc_2 wb_soc_3}{Well-being — social domain items; integer Likert responses.}
-\item{wb_overall_mean}{Participant-level mean across all well-being items (numeric).}
-\item{wb_phys_mean}{Mean of the physical well-being items (numeric).}
-\item{wb_psych_mean}{Mean of the psychological well-being items (numeric).}
-\item{wb_soc_mean}{Mean of the social well-being items (numeric).}
-\item{age}{Age of participant in years (integer).}
-\item{gender}{Self-reported gender (character). In the notebook gender was recoded to "Male", "Female", "Other".}
-\item{ses}{Socio-economic status (numeric/integer scale used in the dataset).}
-\item{education}{Education level coded as integers (ordinal).}
+\item{subject}{Unique subject identifier (integer).}
+\item{country}{Country of residence (character string).}
+\item{rel_1}{Importance of religion in daily life (0–10 scale).}
+\item{rel_2}{Frequency of religious service attendance (ordinal).}
+\item{rel_3}{Self-rated religiosity (0–10 scale).}
+\item{rel_4}{Belief in God (binary: yes/no).}
+\item{rel_5}{Prayer frequency (ordinal).}
+\item{rel_6}{Bible/study frequency (ordinal).}
+\item{rel_7}{Religious upbringing (binary: yes/no).}
+\item{rel_8}{Current religious denomination (categorical).}
+\item{rel_9}{Change in religiosity over lifetime (ordinal).}
+\item{cnorm_1}{Perceived cultural norm: importance of religious lifestyle for average person in country (0–10).}
+\item{cnorm_2}{Perceived cultural norm: importance of belief in God for average person in country (0–10).}
+\item{wb_gen_1}{Overall life satisfaction (1–5 Likert).}
+\item{wb_gen_2}{Overall happiness (1–5 Likert).}
+\item{wb_phys_1}{Energy level (1–5).}
+\item{wb_phys_2}{Sleep quality (1–5).}
+\item{wb_phys_3}{Appetite (1–5).}
+\item{wb_phys_4}{Physical pain/discomfort (1–5).}
+\item{wb_phys_5}{General health (1–5).}
+\item{wb_phys_6}{Exercise frequency (1–5).}
+\item{wb_phys_7}{Illness burden (1–5).}
+\item{wb_psych_1}{Positive affect (1–5).}
+\item{wb_psych_2}{Negative affect (reverse coded; 1–5).}
+\item{wb_psych_3}{Meaning in life (1–5).}
+\item{wb_psych_4}{Purpose in life (1–5).}
+\item{wb_psych_5}{Hopefulness (1–5).}
+\item{wb_psych_6}{Anxiety (reverse coded; 1–5).}
+\item{wb_soc_1}{Social support (1–5).}
+\item{wb_soc_2}{Loneliness (reverse coded; 1–5).}
+\item{wb_soc_3}{Community belonging (1–5).}
+\item{wb_overall_mean}{Mean of all well-being items (numeric).}
+\item{wb_phys_mean}{Mean of physical well-being items (numeric).}
+\item{wb_psych_mean}{Mean of psychological well-being items (numeric).}
+\item{wb_soc_mean}{Mean of social well-being items (numeric).}
+\item{age}{Age in years (integer).}
+\item{gender}{Self-reported gender (character: e.g., "Male", "Female", "Other").}
+\item{ses}{Socioeconomic status composite (numeric).}
+\item{education}{Highest education level completed (ordinal integer).}
 \item{ethnicity}{Self-reported ethnicity (character).}
 \item{denomination}{Religious denomination (character).}
-\item{gdp}{Country-level GDP per capita (numeric).}
-\item{gdp_scaled}{Scaled GDP used for models (numeric).}
-\item{sample_type}{Sample recruitment type (character; e.g., "online panel", "student sample").}
-\item{compensation}{Compensation type (character; e.g., "monetary reward").}
-\item{attention_check}{Attention-check variable (integer).}
+\item{gdp}{GDP per capita (PPP, USD) for country (numeric).}
+\item{gdp_scaled}{Scaled GDP (mean = 0, sd = 1) used in analyses (numeric).}
+\item{sample_type}{Recruitment method: e.g., "online panel", "student sample" (character).}
+\item{compensation}{Type of compensation: e.g., "monetary", "entry into lottery" (character).}
+\item{attention_check}{Score on embedded attention check task (integer).}
 }
 }
 \source{
-Many Analysts Religion Project. See: https://doi.org/10.1080/2153599X.2023.2254980
+Hoogeveen, S., Sarafoglou, A., Aczel, B., et al. (2022).
+A many-analysts approach to the relation between religiosity and well-being.
+\emph{Religion, Brain & Behavior}. \doi{10.1080/2153599X.2023.2254980}
 }
 \usage{
 data(marp)
 }
 \description{
-Dataset from the Many Analysts Religion Project.
-Analysts explored relations between religiosity and well-being across multiple countries.
+A cross-cultural dataset from the Many-Analysts Religion Project (MARP),
+which investigated the relationship between religiosity and well-being
+across 24 countries and diverse religious traditions.
 }
 \examples{
 \dontrun{
 library(dplyr)
 data(marp)
-## quick checks
+# Dimensions
 dim(marp)
-glimpse(marp)
-## country-level mean religiosity
-marp  |>
-  select(country, starts_with("rel_")) |>
-  group_by(country) |>
-  summarise(across(starts_with("rel_"), ~ mean(.x, na.rm = TRUE)))
+# Quick overview
+dplyr::glimpse(marp)
+# Mean religiosity by country
+marp |>
+  dplyr::select(country, starts_with("rel_")) |>
+  dplyr::group_by(country) |>
+  dplyr::summarise(
+    across(starts_with("rel_"), ~ mean(.x, na.rm = TRUE)),
+    .groups = "drop"
+  )
 }
 }
 \keyword{cross-cultural}
 \keyword{datasets}
 \keyword{religion}
+\keyword{reproducibility}
 \keyword{well-being}
