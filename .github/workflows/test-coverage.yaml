@@ -40,10 +40,11 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          file: ./cobertura.xml
-          name: github-actions-ci
+          files: ./cobertura.xml
           flags: unittests
+          name: github-actions-ci
           fail_ci_if_error: ${{ !github.event.pull_request }}
+          use_oidc: true
 
       - name: Show testthat output
         if: always()
