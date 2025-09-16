@@ -40,14 +40,13 @@ jobs:
           covr::to_cobertura(cov)
         shell: Rscript {0}
 
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           files: ./cobertura.xml
           flags: unittests
           name: github-actions-ci
           fail_ci_if_error: ${{ !github.event.pull_request }}
           use_oidc: true
-          use_legacy_upload_endpoint: true  # Add this to avoid 500s
 
       - name: Show testthat output
         if: always()
@@ -55,9 +54,9 @@ jobs:
           find "${{ runner.temp }}/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
-      - name: Upload test results
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-test-failures
-          path: ${{ runner.temp }}/package
+      - name: Upload coverage
+        run: |
+          cov <- covr::package_coverage()
+          covr::codecov(coverage = cov, token = "${{ secrets.CODECOV_TOKEN }}")
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
