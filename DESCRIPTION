@@ -25,7 +25,8 @@ Depends:
     R (>= 4.1.0)
 LazyData: true
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat,
+    covr
 Config/testthat/edition: 3
 URL: https://nthun.github.io/vazul/
 Imports: 
