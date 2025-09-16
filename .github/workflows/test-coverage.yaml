@@ -30,15 +30,18 @@ jobs:
 
       - name: Test coverage
         run: |
-          # Optional: debug file structure
-          # ls -la
-          # find . -path './tests/**'
-
           # Generate coverage report
           cov <- covr::package_coverage(quiet = FALSE, clean = FALSE)
           print(cov)
-          covr::to_cobertura(cov)
+          # Write the cobertura file
+          covr::to_cobertura(cov, "cobertura.xml")
         shell: Rscript {0}
+
+      - name: Check coverage file
+        run: |
+          ls -la
+          head -n 10 cobertura.xml
+          wc -l cobertura.xml
 
       - uses: codecov/codecov-action@v5
         with:
@@ -46,17 +49,5 @@ jobs:
           flags: unittests
           name: github-actions-ci
           fail_ci_if_error: ${{ !github.event.pull_request }}
-          use_oidc: true
-
-      - name: Show testthat output
-        if: always()
-        run: |
-          find "${{ runner.temp }}/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
-        shell: bash
-
-      - name: Upload coverage
-        run: |
-          cov <- covr::package_coverage()
-          covr::codecov(coverage = cov, token = "${{ secrets.CODECOV_TOKEN }}")
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}   # if using token
+          use_legacy_upload_endpoint: true   # try legacy if necessary
