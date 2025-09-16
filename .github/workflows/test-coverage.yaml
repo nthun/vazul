@@ -1,6 +1,12 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-# At top level
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: test-coverage
+
 permissions:
   id-token: write
   contents: read
@@ -8,6 +14,8 @@ permissions:
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +30,11 @@ jobs:
 
       - name: Test coverage
         run: |
+          # Optional: debug file structure
+          # ls -la
+          # find . -path './tests/**'
+
+          # Generate coverage report
           cov <- covr::package_coverage(quiet = FALSE, clean = FALSE)
           print(cov)
           covr::to_cobertura(cov)
@@ -35,3 +48,16 @@ jobs:
           fail_ci_if_error: ${{ !github.event.pull_request }}
           use_oidc: true
           use_legacy_upload_endpoint: true  # Add this to avoid 500s
+
+      - name: Show testthat output
+        if: always()
+        run: |
+          find "${{ runner.temp }}/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package
