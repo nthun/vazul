@@ -31,6 +31,7 @@ df |> scramble_variables(c("x", "y"))
 df |> scramble_variables("y", .groups = "group")
 
 # Example with tidyselect helpers
+library(dplyr)
 df |> scramble_variables(starts_with("x"))
 df |> scramble_variables(where(is.numeric), .groups = "group")
 

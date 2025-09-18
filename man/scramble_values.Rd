@@ -27,7 +27,7 @@ scramble_values(x)
 nums <- 1:5
 scramble_values(nums)
 
-# Scramble a column in the 'williams' dataset 
+# Scramble a column in the 'williams' dataset
 data(williams)
 
 # Simple scrambling of a single column

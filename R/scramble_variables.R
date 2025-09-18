@@ -20,6 +20,7 @@
 #' df |> scramble_variables("y", .groups = "group")
 #'
 #' # Example with tidyselect helpers
+#' library(dplyr)
 #' df |> scramble_variables(starts_with("x"))
 #' df |> scramble_variables(where(is.numeric), .groups = "group")
 #'
@@ -42,24 +43,12 @@ scramble_variables <- function(data, cols, .groups = NULL) {
     # Capture original column order
     orig_order <- names(data)
 
-    # Handle column selection using tidyselect, but preserve original error message
-    cols_quo <- rlang::enquo(cols)
-    col_indices <- tryCatch(
-        tidyselect::eval_select(cols_quo, data),
-        error = function(e) {
-            stop("Some target columns not found in data.", call. = FALSE)
-        }
-    )
+    # Handle column selection using tidyselect — throws its own meaningful errors
+    col_indices <- tidyselect::eval_select(rlang::enquo(cols), data)
 
     # Handle group selection similarly if provided
     if (!is.null(.groups)) {
-        groups_quo <- rlang::enquo(.groups)
-        group_indices <- tryCatch(
-            tidyselect::eval_select(groups_quo, data),
-            error = function(e) {
-                stop("Some grouping columns not found in data.", call. = FALSE)
-            }
-        )
+        group_indices <- tidyselect::eval_select(rlang::enquo(.groups), data)
     } else {
         group_indices <- NULL
     }
@@ -76,8 +65,8 @@ scramble_variables <- function(data, cols, .groups = NULL) {
         data <- dplyr::group_by(data, !!!rlang::syms(group_cols))  |>
             dplyr::mutate(
                 dplyr::across(
-                    .cols = {{ col_indices }},
-                    .fns = ~ sample(.x)
+                    .cols = tidyselect::all_of(col_indices),
+                    .fns = ~ scramble_values(.x)
                 )
             ) |>
             dplyr::ungroup()
@@ -90,8 +79,8 @@ scramble_variables <- function(data, cols, .groups = NULL) {
         data <- dplyr::mutate(
             data,
             dplyr::across(
-                .cols = {{ col_indices }},
-                .fns = ~ sample(.x)
+                .cols = tidyselect::all_of(col_indices),
+                .fns = ~ scramble_values(.x)
             )
         )
     }

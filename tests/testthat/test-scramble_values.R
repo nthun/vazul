@@ -29,14 +29,11 @@ test_that("scramble_values works with different vector types", {
   expect_type(result_logicals, "logical")
 })
 
-test_that("scramble_values rejects factors correctly", {
-  # Test with factor - should fail as factors are not vectors according to is.vector()
-  factors <- factor(c("A", "B", "C"))
-  expect_error(
-    scramble_values(factors),
-    "Input 'x' must be a vector. Received object of class: factor.",
-    fixed = TRUE
-  )
+test_that("scramble_values works with factors", {
+    factors <- factor(c("low", "medium", "high"))
+    result <- scramble_values(factors)
+    expect_s3_class(result, "factor")
+    expect_setequal(as.character(result), as.character(factors))
 })
 
 test_that("scramble_values produces consistent results with set.seed", {
@@ -88,11 +85,11 @@ test_that("scramble_values validates input correctly", {
   )
 
   # Test non-vector input
-  expect_error(
-    scramble_values(data.frame(a = 1:3)),
-    "Input 'x' must be a vector. Received object of class: data.frame.",
-    fixed = TRUE
-  )
+    expect_error(
+        scramble_values(data.frame(a = 1:3)),
+        "Input 'x' must be a 1-dimensional vector",
+        fixed = TRUE
+    )
 
   # Test empty vector
   expect_error(
@@ -104,7 +101,7 @@ test_that("scramble_values validates input correctly", {
   # Test with matrix (should fail as it's not a vector)
   expect_error(
     scramble_values(matrix(1:6, nrow = 2)),
-    "Input 'x' must be a vector. Received object of class: matrix, array.",
+    "Input 'x' must be a 1-dimensional vector",
     fixed = TRUE
   )
 })

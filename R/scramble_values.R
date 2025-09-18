@@ -14,7 +14,7 @@
 #' nums <- 1:5
 #' scramble_values(nums)
 #'
-#' # Scramble a column in the 'williams' dataset 
+#' # Scramble a column in the 'williams' dataset
 #' data(williams)
 #'
 #' # Simple scrambling of a single column
@@ -29,8 +29,12 @@ scramble_values <- function(x) {
         stop("Input 'x' cannot be NULL. Please provide a vector.", call. = FALSE)
     }
 
-    if (!is.vector(x)) {
-        stop("Input 'x' must be a vector. Received object of class: ",
+    if (!is.atomic(x) && !is.list(x)) {
+        stop("Input 'x' must be an atomic vector or list. Received object of class: ",
+             paste(class(x), collapse = ", "), ".", call. = FALSE)
+    }
+    if (is.matrix(x) || is.data.frame(x)) {
+        stop("Input 'x' must be a 1-dimensional vector. Received object of class: ",
              paste(class(x), collapse = ", "), ".", call. = FALSE)
     }
 
