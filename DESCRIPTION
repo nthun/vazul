@@ -32,4 +32,5 @@ URL: https://nthun.github.io/vazul/
 Imports: 
     dplyr,
     rlang,
+    tidyselect,
     utils

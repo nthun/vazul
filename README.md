@@ -68,7 +68,12 @@ df |>
 marp |> 
     group_by(country, gender) |> 
     scramble_variables(c("rel_1", "rel_2")) |> 
-    unroup()
+    ungroup()
+    
+# Can use tidyselect helpers
+marp |> 
+    scramble_variables(starts_with("rel_")) |> 
+    ungroup()
   
 ```
 

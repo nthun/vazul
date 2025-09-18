@@ -3,8 +3,8 @@
 #' Scramble the values of several variables in a data frame.
 #'
 #' @param data a data frame
-#' @param cols a vector of column names or indices to scramble
-#' @param .groups a vector of group names to scramble within groups (default is NULL, meaning no grouping)
+#' @param cols <tidy-select> Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
+#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
@@ -17,25 +17,23 @@
 #' df |> scramble_variables(c("x", "y"))
 #'
 #' # Example with grouping. Variable only scrambled within groups.
-#'
 #' df |> scramble_variables("y", .groups = "group")
 #'
+#' # Example with tidyselect helpers
+#' df |> scramble_variables(starts_with("x"))
+#' df |> scramble_variables(where(is.numeric), .groups = "group")
+#'
 #' # Example with the 'williams' dataset
-#'
-#' data(williams)
-#' williams |> scramble_variables(c("ecology", "age"))
-#'
-#' williams |> scramble_variables(1:5)
-
-#' williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
-#'
-#' # The function is compatible with column indices
-#'
-#' williams |> scramble_variables(c(1, 2), .groups = c(3))
+#' if (requireNamespace("dplyr", quietly = TRUE)) {
+#'   data(williams, package = "dplyr")
+#'   williams |> scramble_variables(c("ecology", "age"))
+#'   williams |> scramble_variables(1:5)
+#'   williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
+#'   williams |> scramble_variables(c(1, 2), .groups = c(3))
+#' }
 #'
 #' @export
 #'
-
 scramble_variables <- function(data, cols, .groups = NULL) {
 
     # Input validation
@@ -44,40 +42,24 @@ scramble_variables <- function(data, cols, .groups = NULL) {
     # Capture original column order
     orig_order <- names(data)
 
-    # Handle column selection
-    if (is.character(cols)) {
-        # Check if column names exist
-        missing_cols <- setdiff(cols, names(data))
-        if (length(missing_cols) > 0) {
+    # Handle column selection using tidyselect, but preserve original error message
+    cols_quo <- rlang::enquo(cols)
+    col_indices <- tryCatch(
+        tidyselect::eval_select(cols_quo, data),
+        error = function(e) {
             stop("Some target columns not found in data.", call. = FALSE)
         }
-        col_indices <- match(cols, names(data))
-    } else if (is.numeric(cols)) {
-        # Check if indices are valid
-        if (any(cols < 1 | cols > ncol(data))) {
-            stop("Some target columns not found in data.", call. = FALSE)
-        }
-        col_indices <- cols
-    } else {
-        stop("'cols' must be character vector (column names) or numeric vector (column indices).", call. = FALSE)
-    }
+    )
 
     # Handle group selection similarly if provided
     if (!is.null(.groups)) {
-        if (is.character(.groups)) {
-            missing_groups <- setdiff(.groups, names(data))
-            if (length(missing_groups) > 0) {
+        groups_quo <- rlang::enquo(.groups)
+        group_indices <- tryCatch(
+            tidyselect::eval_select(groups_quo, data),
+            error = function(e) {
                 stop("Some grouping columns not found in data.", call. = FALSE)
             }
-            group_indices <- match(.groups, names(data))
-        } else if (is.numeric(.groups)) {
-            if (any(.groups < 1 | .groups > ncol(data))) {
-                stop("Some grouping columns not found in data.", call. = FALSE)
-            }
-            group_indices <- .groups
-        } else {
-            stop("'.groups' must be character vector (column names) or numeric vector (column indices).", call. = FALSE)
-        }
+        )
     } else {
         group_indices <- NULL
     }
@@ -102,7 +84,7 @@ scramble_variables <- function(data, cols, .groups = NULL) {
 
         # Restore original row order using .row_id, then drop it
         data <- dplyr::arrange(data, .row_id) |>
-                dplyr::select(-.row_id)
+            dplyr::select(-.row_id)
     } else {
         # Non-grouped case: directly scramble selected columns
         data <- dplyr::mutate(

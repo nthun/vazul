@@ -9,9 +9,9 @@ scramble_variables(data, cols, .groups = NULL)
 \arguments{
 \item{data}{a data frame}
 
-\item{cols}{a vector of column names or indices to scramble}
+\item{cols}{\if{html}{\out{<tidy-select>}} Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.}
 
-\item{.groups}{a vector of group names to scramble within groups (default is NULL, meaning no grouping)}
+\item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.}
 }
 \value{
 A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
@@ -28,19 +28,19 @@ set.seed(123)
 df |> scramble_variables(c("x", "y"))
 
 # Example with grouping. Variable only scrambled within groups.
-
 df |> scramble_variables("y", .groups = "group")
 
+# Example with tidyselect helpers
+df |> scramble_variables(starts_with("x"))
+df |> scramble_variables(where(is.numeric), .groups = "group")
+
 # Example with the 'williams' dataset
-
-data(williams)
-williams |> scramble_variables(c("ecology", "age"))
-
-williams |> scramble_variables(1:5)
-williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
-
-# The function is compatible with column indices
-
-williams |> scramble_variables(c(1, 2), .groups = c(3))
+if (requireNamespace("dplyr", quietly = TRUE)) {
+  data(williams, package = "dplyr")
+  williams |> scramble_variables(c("ecology", "age"))
+  williams |> scramble_variables(1:5)
+  williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
+  williams |> scramble_variables(c(1, 2), .groups = c(3))
+}
 
 }
