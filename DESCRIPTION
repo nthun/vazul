@@ -31,6 +31,7 @@ Config/testthat/edition: 3
 URL: https://nthun.github.io/vazul/
 Imports: 
     dplyr,
+    purrr,
     rlang,
     tidyselect,
     utils
