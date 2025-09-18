@@ -77,6 +77,54 @@ marp |>
   
 ```
 
+### `scramble_variables_rowwise()`
+
+Scrambles the values of defined variable sets rowwise in a data frame. For each row, values within each variable set are shuffled while keeping the values within the same row.
+
+``` r
+# Create example data with multiple variable sets
+df <- data.frame(
+  day_1 = c(1, 4, 7),
+  day_2 = c(2, 5, 8), 
+  day_3 = c(3, 6, 9),
+  score_a = c(10, 40, 70),
+  score_b = c(20, 50, 80),
+  id = 1:3
+)
+
+# Scramble a single set of variables rowwise
+set.seed(123)
+df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
+#>   day_1 day_2 day_3 score_a score_b id
+#> 1     3     1     2      10      20  1
+#> 2     5     4     6      40      50  2
+#> 3     8     9     7      70      80  3
+
+# Scramble multiple sets of variables
+df |> scramble_variables_rowwise(list(
+  c("day_1", "day_2", "day_3"),
+  c("score_a", "score_b")
+))
+
+# Using tidyselect helpers for single sets
+library(dplyr)
+df |> scramble_variables_rowwise(starts_with("day_"))
+
+# Example with the 'williams' dataset
+data(williams)
+
+# Scramble sexual unrestrictedness items within each row
+williams |> scramble_variables_rowwise(
+  c("SexUnres_1", "SexUnres_2", "SexUnres_3")
+)
+
+# Scramble multiple construct sets
+williams |> scramble_variables_rowwise(list(
+  c("SexUnres_1", "SexUnres_2", "SexUnres_3"),
+  c("Impuls_1", "Impuls_2_r", "Impul_3_r")
+))
+```
+
 ## Included Datasets
 
 ### MARP Dataset
