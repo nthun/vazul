@@ -39,7 +39,7 @@
 #'
 #' # Using tidyselect helpers
 #' library(dplyr)
-#' df |> scramble_variables_rowwise(starts_with("day_"))
+#' df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
 #'
 #' # Multiple sets with character vectors (tidyselect helpers in list not yet supported)
 #' df |> scramble_variables_rowwise(list(
@@ -64,7 +64,7 @@
 #'   
 #'   # With grouping by ecology condition
 #'   williams |> scramble_variables_rowwise(
-#'     starts_with("SexUnres_"), 
+#'     c("SexUnres_1", "SexUnres_2", "SexUnres_3"), 
 #'     .groups = "ecology"
 #'   )
 #' }
