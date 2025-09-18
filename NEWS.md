@@ -1,4 +1,10 @@
-# vazul 0.0.0.9000
+# vazul 0.1.0
+
+## 2025-09-18
+* Scramble_values() can now use tidyselect helpers
+* Improved unit tests
+* Add imports: tidyselect, utils
+
 
 ## 2025-09-15
 
