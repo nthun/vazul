@@ -9,10 +9,10 @@ scramble_variables_rowwise(data, variable_sets, .groups = NULL)
 \arguments{
 \item{data}{a data frame}
 
-\item{variable_sets}{Either a vector of column names/indices, or a list of
-vectors where each vector contains column names/indices that should be
-scrambled together within each row. Supports tidyselect helpers like
-\code{starts_with()}, \code{contains()}, \code{where()}, etc.}
+\item{variable_sets}{Either a vector of column names/indices (supports tidyselect
+helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.),
+or a list of character/numeric vectors where each vector contains column
+names/indices that should be scrambled together within each row.}
 
 \item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be
 done within each group. Supports same tidyselect syntax as \code{variable_sets}.}
@@ -49,12 +49,13 @@ df |> scramble_variables_rowwise(list(
 ))
 
 # Using tidyselect helpers
+library(dplyr)
 df |> scramble_variables_rowwise(starts_with("day_"))
 
-# Multiple sets with tidyselect helpers  
+# Multiple sets with character vectors (tidyselect helpers in list not yet supported)
 df |> scramble_variables_rowwise(list(
-  starts_with("day_"),
-  starts_with("score_")
+  c("day_1", "day_2", "day_3"),
+  c("score_a", "score_b")
 ))
 
 # Example with the 'williams' dataset - scramble related measures rowwise
@@ -66,10 +67,10 @@ if (requireNamespace("dplyr", quietly = TRUE)) {
     c("SexUnres_1", "SexUnres_2", "SexUnres_3")
   )
   
-  # Scramble multiple construct sets
+  # Scramble multiple construct sets using character vectors
   williams |> scramble_variables_rowwise(list(
-    starts_with("SexUnres_"),
-    starts_with("Impuls_")
+    c("SexUnres_1", "SexUnres_2", "SexUnres_3"),
+    c("Impuls_1", "Impuls_2_r", "Impul_3_r")
   ))
   
   # With grouping by ecology condition

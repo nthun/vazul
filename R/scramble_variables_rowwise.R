@@ -38,6 +38,7 @@
 #' ))
 #'
 #' # Using tidyselect helpers
+#' library(dplyr)
 #' df |> scramble_variables_rowwise(starts_with("day_"))
 #'
 #' # Multiple sets with character vectors (tidyselect helpers in list not yet supported)
