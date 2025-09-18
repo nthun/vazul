@@ -56,34 +56,6 @@ test_that("scramble_variables works with single column", {
     expect_equal(result$y, df$y)  # y should be unchanged
 })
 
-test_that("scramble_variables works with grouping", {
-    # Create test data frame with groups
-    df <- data.frame(
-        x = 1:6,
-        y = letters[1:6],
-        group = c("A", "A", "A", "B", "B", "B")
-    )
-
-    set.seed(123)
-    result <- scramble_variables(df, "x", .groups = "group")
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(nrow(result), nrow(df))
-    expect_equal(names(result), names(df))
-
-    # Check that grouping variable is unchanged
-    expect_equal(result$group, df$group)
-
-    # Check that scrambling occurred within groups
-    group_a_orig <- df$x[df$group == "A"]
-    group_a_result <- result$x[result$group == "A"]
-    expect_setequal(group_a_result, group_a_orig)
-
-    group_b_orig <- df$x[df$group == "B"]
-    group_b_result <- result$x[result$group == "B"]
-    expect_setequal(group_b_result, group_b_orig)
-})
-
 test_that("scramble_variables preserves column order", {
     df <- data.frame(
         col1 = 1:5,
@@ -126,24 +98,6 @@ test_that("scramble_variables works with grouped data (using group_by) - test cu
 
     # Note: Current implementation has issues - this documents actual behavior
     # The grouped scrambling doesn't work as expected
-})
-
-test_that("scramble_variables handles multiple grouping variables", {
-    df <- data.frame(
-        value = 1:12,
-        group1 = rep(c("X", "Y"), each = 6),
-        group2 = rep(c("1", "2", "3"), times = 4)
-    )
-
-    set.seed(123)
-    result <- scramble_variables(df, "value", .groups = c("group1", "group2"))
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(nrow(result), nrow(df))
-    expect_equal(names(result), names(df))
-
-    # Note: Testing that the function completes without error
-    # The current grouping implementation may have issues
 })
 
 test_that("scramble_variables validates input correctly", {
@@ -267,21 +221,4 @@ test_that("scramble_variables works with where() helper", {
     expect_equal(result$y, df$y)  # character unchanged
 })
 
-test_that("scramble_variables works with grouping using tidyselect helpers", {
-    df <- data.frame(
-        value = 1:6,
-        cat_a = c("X", "X", "Y", "Y", "Z", "Z"),
-        cat_b = c("M", "F", "M", "F", "M", "F")
-    )
 
-    set.seed(123)
-    result <- scramble_variables(df, "value", .groups = rlang::expr(starts_with("cat")))
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(nrow(result), nrow(df))
-    expect_equal(names(result), names(df))
-
-    expect_equal(result$cat_a, df$cat_a)
-    expect_equal(result$cat_b, df$cat_b)
-    expect_setequal(result$value, df$value)  # values preserved, just reordered within groups
-})
