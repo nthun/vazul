@@ -112,50 +112,23 @@ scramble_variables_rowwise <- function(data, variable_sets) {
     }
   }, resolved_sets, seq_along(resolved_sets), SIMPLIFY = FALSE)
   
-  # Apply scrambling rowwise using apply instead of for loops
+  # Apply scrambling rowwise using mapping functions instead of for loops
   result <- data
   
-  # Function to scramble a single row across all variable sets
-  scramble_row <- function(row_idx) {
-    # For each variable set, scramble within this row
+  # Process each row using lapply
+  lapply(seq_len(nrow(data)), function(row_idx) {
+    # Process each variable set for this row
     lapply(resolved_sets, function(col_set) {
       if (length(col_set) > 1) {
         # Get values for this row and variable set
         row_values <- data[row_idx, col_set, drop = FALSE]
         # Scramble indices
         scrambled_indices <- scramble_values(seq_along(col_set))
-        # Reorder values and return them
-        row_values[, scrambled_indices, drop = FALSE]
-      } else {
-        # Return original values for single column sets
-        data[row_idx, col_set, drop = FALSE]
+        # Reorder values and assign back to result
+        result[row_idx, col_set] <<- row_values[, scrambled_indices, drop = FALSE]
       }
+      # Single column sets remain unchanged (no scrambling needed)
     })
-  }
-  
-  # Apply to each row using lapply instead of for loop
-  row_results <- lapply(seq_len(nrow(data)), function(row_idx) {
-    scrambled_sets <- lapply(resolved_sets, function(col_set) {
-      if (length(col_set) > 1) {
-        # Get values for this row and variable set
-        row_values <- data[row_idx, col_set, drop = FALSE]
-        # Scramble indices
-        scrambled_indices <- scramble_values(seq_along(col_set))
-        # Reorder values
-        scrambled_values <- row_values[, scrambled_indices, drop = FALSE]
-        # Return as named list for reconstruction
-        list(col_set = col_set, values = scrambled_values)
-      } else {
-        NULL  # Skip single column sets
-      }
-    })
-    
-    # Apply changes to result for this row
-    for (set_result in scrambled_sets) {
-      if (!is.null(set_result)) {
-        result[row_idx, set_result$col_set] <<- set_result$values
-      }
-    }
   })
   
   result
