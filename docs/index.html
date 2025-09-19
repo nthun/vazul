@@ -122,11 +122,54 @@
 <span>  </span></code></pre></div>
 </div>
 <div class="section level3">
+<h3 id="scramble_values_rowwise">
+<code>scramble_values_rowwise()</code><a class="anchor" aria-label="anchor" href="#scramble_values_rowwise"></a>
+</h3>
+<p>Scrambles the values across selected columns within each row of a data frame. For each row, values are shuffled between the selected columns while preserving the values within that row.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create example data</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  day_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
+<span>  day_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>, </span>
+<span>  day_3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span><span class="op">)</span>,</span>
+<span>  score_a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">70</span><span class="op">)</span>,</span>
+<span>  score_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">80</span><span class="op">)</span>,</span>
+<span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Scramble values across day columns within each row</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"day_1"</span>, <span class="st">"day_2"</span>, <span class="st">"day_3"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
+<span><span class="co">#&gt; 1     3     1     2      10      20  1</span></span>
+<span><span class="co">#&gt; 2     5     4     6      40      50  2</span></span>
+<span><span class="co">#&gt; 3     8     9     7      70      80  3</span></span>
+<span></span>
+<span><span class="co"># Using tidyselect helpers</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Scramble score columns</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"score_a"</span>, <span class="st">"score_b"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
+<span><span class="co">#&gt; 1     1     2     3      20      10  1</span></span>
+<span><span class="co">#&gt; 2     4     5     6      50      40  2</span></span>
+<span><span class="co">#&gt; 3     7     8     9      70      80  3</span></span>
+<span></span>
+<span><span class="co"># Example with the 'williams' dataset  </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Scramble sexual unrestrictedness items within each row</span></span>
+<span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SexUnres_1"</span>, <span class="st">"SexUnres_2"</span>, <span class="st">"SexUnres_3"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
 <h3 id="scramble_variables_rowwise">
 <code>scramble_variables_rowwise()</code><a class="anchor" aria-label="anchor" href="#scramble_variables_rowwise"></a>
 </h3>
 <p>Scrambles the values of defined variable sets rowwise in a data frame. For each row, values within each variable set are shuffled while keeping the values within the same row.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create example data with multiple variable sets</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  day_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
@@ -177,7 +220,7 @@
 <h3 id="marp-dataset">MARP Dataset<a class="anchor" aria-label="anchor" href="#marp-dataset"></a>
 </h3>
 <p>The <strong>Many Analysts Religion Project (MARP)</strong> dataset contains data from 10,535 participants across 24 countries, exploring the relationship between religiosity and well-being.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 10535    46</span></span>
@@ -197,7 +240,7 @@
 <h3 id="williams-dataset">Williams Dataset<a class="anchor" aria-label="anchor" href="#williams-dataset"></a>
 </h3>
 <p>A study dataset with 112 participants examining the risk taking behavior behavior of high or low wealth individuals.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 112  25</span></span>
@@ -226,7 +269,7 @@
 <ul>
 <li>Package documentation: <code><a href="https://nthun.github.io/vazul/reference">help(package = "vazul")</a></code>
 </li>
-<li>Function help: <code><a href="reference/scramble_values.html">?scramble_values</a></code>, <code><a href="reference/scramble_variables.html">?scramble_variables</a></code><br>
+<li>Function help: <code><a href="reference/scramble_values.html">?scramble_values</a></code>, <code><a href="reference/scramble_variables.html">?scramble_variables</a></code>, <code><a href="reference/scramble_values_rowwise.html">?scramble_values_rowwise</a></code>, <code><a href="reference/scramble_variables_rowwise.html">?scramble_variables_rowwise</a></code><br>
 </li>
 <li>Dataset documentation: <code><a href="reference/marp.html">?marp</a></code>, <code><a href="reference/williams.html">?williams</a></code>
 </li>

@@ -96,9 +96,20 @@ scramble_variables_rowwise <- function(data, ...) {
         return(data)
     }
 
-    # Merge results and preserve column order
-    changed_cols <- unlist(lapply(scrambled_dfs, names))
-    untouched_cols <- setdiff(names(data), changed_cols)
-    result <- cbind(data[untouched_cols], do.call(cbind, scrambled_dfs))
-    result[names(data)]  # restore original column order
+    # Start with original data to preserve class
+    result <- data
+    
+    # Use functional approach to assign scrambled columns back
+    # This preserves the original data frame type (tibble vs data.frame)
+    result <- Reduce(
+        f = function(acc, scrambled_df) {
+            acc[names(scrambled_df)] <- scrambled_df
+            acc
+        },
+        x = scrambled_dfs,
+        init = result
+    )
+    
+    # Restore original column order (same as original implementation)
+    result[names(data)]
 }

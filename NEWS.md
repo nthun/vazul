@@ -1,4 +1,4 @@
-# vazul 0.2.0
+# vazul 0.2.1
 ## 2025-09-19
 * Add rowwise functions with unit tests
 * Add a devel branch to do development from now on
