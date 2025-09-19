@@ -1,8 +1,5 @@
 # Tests for scramble_values_rowwise function
 
-library(testthat)
-library(vazul)
-
 test_that("scramble_values_rowwise works with basic numeric columns", {
     df <- data.frame(
         x = c(1, 4, 7),
@@ -252,33 +249,81 @@ test_that("scramble_values_rowwise works with advanced tidyselect helpers", {
     expect_equal(result1$score_a, df$score_a)
     expect_equal(result1$category, df$category)
 
-    # Test with where (numeric columns)
+    # Test with where (numeric columns) — integer + double is allowed without warning
     set.seed(123)
     result2 <- scramble_values_rowwise(df, where(is.numeric))
-    # This should scramble all numeric columns together: day_1, day_2, score_a, score_b, id
+
+    # Should return a data frame with same dimensions
+    expect_s3_class(result2, "data.frame")
     expect_equal(nrow(result2), 3)
+    expect_equal(ncol(result2), ncol(df))
+
     # Check row 1 has the same values as original row 1 for numeric columns
-    original_numeric_row1 <- c(df$day_1[1], df$day_2[1], df$score_a[1], df$score_b[1], df$id[1])
-    result_numeric_row1 <- c(result2$day_1[1], result2$day_2[1], result2$score_a[1], result2$score_b[1], result2$id[1])
+    numeric_cols <- c("day_1", "day_2", "score_a", "score_b", "id")
+    original_numeric_row1 <- unname(unlist(df[1, numeric_cols, drop = TRUE]))
+    result_numeric_row1 <- unname(unlist(result2[1, numeric_cols, drop = TRUE]))
     expect_setequal(original_numeric_row1, result_numeric_row1)
+
     # Character column should be unchanged
     expect_equal(result2$category, df$category)
 })
 
 test_that("scramble_values_rowwise preserves input data frame type", {
-  skip_if_not_installed("tibble")
-  
-  # Test data
-  df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
-  tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
-  
-  # Test with data.frame input
-  set.seed(123)
-  result_df <- scramble_values_rowwise(df, c("x", "z"))
-  expect_equal(class(result_df), class(df))
-  
-  # Test with tibble input
-  set.seed(123)
-  result_tbl <- scramble_values_rowwise(tbl, c("x", "z"))
-  expect_equal(class(result_tbl), class(tbl))
+    skip_if_not_installed("tibble")
+
+    # Test data
+    df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
+    tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
+
+    # Test with data.frame input
+    set.seed(123)
+    result_df <- scramble_values_rowwise(df, c("x", "z"))
+    expect_equal(class(result_df), class(df))
+
+    # Test with tibble input
+    set.seed(123)
+    result_tbl <- scramble_values_rowwise(tbl, c("x", "z"))
+    expect_equal(class(result_tbl), class(tbl))
+})
+
+test_that("scramble_values_rowwise warns on mixed column types", {
+    df <- data.frame(
+        num = c(1, 2, 3),
+        char = c("a", "b", "c"),
+        stringsAsFactors = FALSE
+    )
+
+    expect_warning(
+        result <- scramble_values_rowwise(df, c("num", "char")),
+        "Columns have mixed types: double, character. Scrambling may cause coercion.",
+        fixed = TRUE
+    )
+
+    # Still should scramble — but with coercion to character
+    expect_type(result$num, "character")
+    expect_type(result$char, "character")
+    expect_setequal(c(result$num[1], result$char[1]), c("1", "a"))
+    expect_setequal(c(result$num[2], result$char[2]), c("2", "b"))
+    expect_setequal(c(result$num[3], result$char[3]), c("3", "c"))
+})
+
+test_that("scramble_values_rowwise does not warn for integer + double", {
+    df <- data.frame(
+        int_col = c(1L, 2L),
+        dbl_col = c(3.3, 4.4)
+    )
+
+    w <- NULL
+    result <- withCallingHandlers(
+        scramble_values_rowwise(df, c("int_col", "dbl_col")),
+        warning = function(warn) {
+            w <<- c(w, conditionMessage(warn))
+            invokeRestart("muffleWarning")
+        }
+    )
+
+    expect_null(w)  # No warnings
+    expect_type(result$int_col, "double")  # Coerced to double
+    expect_type(result$dbl_col, "double")
+    expect_setequal(c(result$int_col[1], result$dbl_col[1]), c(1, 3.3))
 })

@@ -1,7 +1,7 @@
 #' Scramble values rowwise in a data frame
 #'
 #' For each row, shuffle the values across the selected columns.
-#' All selected columns must be of compatible types (e.g., all numeric or all character).
+#' Columns can be mixed types, but note that R may coerce types during the process (function throws warning if mixed types detected).
 #'
 #' @param data a data frame
 #' @param cols <tidy-select> Columns to scramble rowwise. Supports helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
@@ -40,6 +40,22 @@ scramble_values_rowwise <- function(data, cols) {
         return(data)
     }
 
+       # Check for type compatibility — but allow integer + double
+    col_types <- vapply(data[col_names], typeof, character(1))
+    unique_types <- unique(col_types)
+    if (length(unique_types) > 1) {
+        # Only warn if types are NOT just integer and double
+        if (!setequal(unique_types, c("integer", "double"))) {
+            warning(
+                "Columns have mixed types: ",
+                paste(unique_types, collapse = ", "),
+                ". Scrambling may cause coercion.",
+                call. = FALSE
+            )
+        }
+        # else: silently allow integer + double (safe coercion)
+    }
+
     # Copy data
     result <- data
 
@@ -51,7 +67,7 @@ scramble_values_rowwise <- function(data, cols) {
         row[scramble_values(seq_along(row))]
     }))
 
-    # Assign scrambled values back — preserves types
+    # Assign scrambled values back — preserves types (but R may coerce if types were mixed!)
     result[col_names] <- as.data.frame(scrambled_mat)
 
     result
