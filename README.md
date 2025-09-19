@@ -226,7 +226,7 @@ williams |>
 
 ## Explanation of the package name
 
-Vazul was a historical figure (Hungarian price) in the 11. century. He was blinded by the king to become unfit for the throne. More info: https://en.wikipedia.org/wiki/Vazul
+Vazul was a Hungarian price in the 11. century. He was blinded by the king to become unfit for the throne. More info: https://en.wikipedia.org/wiki/Vazul
 
 ## Documentation
 
