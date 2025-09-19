@@ -2,32 +2,30 @@
 % Please edit documentation in R/scramble_variables_rowwise.R
 \name{scramble_variables_rowwise}
 \alias{scramble_variables_rowwise}
-\title{Scrambling variables rowwise in a data frame}
+\title{Scramble multiple column sets rowwise in a data frame}
 \usage{
-scramble_variables_rowwise(data, variable_sets)
+scramble_variables_rowwise(data, ...)
 }
 \arguments{
-\item{data}{a data frame}
+\item{data}{A data frame.}
 
-\item{variable_sets}{Either a vector of column names/indices (supports tidyselect
-helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.),
-or a list of character/numeric vectors where each vector contains column
-names/indices that should be scrambled together within each row.}
+\item{...}{\if{html}{\out{<tidy-select>}} One or more column sets. Each can be:
+\itemize{
+\item A tidyselect expression (e.g., \code{starts_with("day_")})
+\item A character vector of column names (e.g., \code{c("day_1", "day_2")})
+\item Multiple sets can be provided as separate arguments
+}}
 }
 \value{
-A data frame with the specified variable sets scrambled rowwise.
+A data frame with values scrambled rowwise within each selected column set.
 }
 \description{
-Scramble the values of defined variable sets rowwise in a data frame.
-For each row, values within each variable set are shuffled while keeping
-the values within the same row.
+For each row, independently shuffle values within each group of selected columns.
 }
 \examples{
-
-# Create example data with multiple variable sets
 df <- data.frame(
   day_1 = c(1, 4, 7),
-  day_2 = c(2, 5, 8), 
+  day_2 = c(2, 5, 8),
   day_3 = c(3, 6, 9),
   score_a = c(10, 40, 70),
   score_b = c(20, 50, 80),
@@ -35,39 +33,10 @@ df <- data.frame(
 )
 
 set.seed(123)
-# Scramble a single set of variables rowwise
-df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
-
-# Scramble multiple sets of variables
-df |> scramble_variables_rowwise(list(
-  c("day_1", "day_2", "day_3"),
-  c("score_a", "score_b")
-))
-
-# Using tidyselect helpers
-library(dplyr)
 df |> scramble_variables_rowwise(starts_with("day_"))
-
-# Multiple sets with character vectors 
-df |> scramble_variables_rowwise(list(
-  c("day_1", "day_2", "day_3"),
+df |> scramble_variables_rowwise(c("day_1", "day_2"))
+df |> scramble_variables_rowwise(
+  starts_with("day_"),
   c("score_a", "score_b")
-))
-
-# Example with the 'williams' dataset - scramble related measures rowwise
-if (requireNamespace("dplyr", quietly = TRUE)) {
-  data(williams)
-  
-  # Scramble sexual unrestrictedness items within each row
-  williams |> scramble_variables_rowwise(
-    c("SexUnres_1", "SexUnres_2", "SexUnres_3")
-  )
-  
-  # Scramble multiple construct sets using character vectors
-  williams |> scramble_variables_rowwise(list(
-    c("SexUnres_1", "SexUnres_2", "SexUnres_3"),
-    c("Impuls_1", "Impuls_2_r", "Impul_3_r")
-  ))
-}
-
+)
 }

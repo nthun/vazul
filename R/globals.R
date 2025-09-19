@@ -4,5 +4,6 @@
 utils::globalVariables(c(".row_id"))
 
 # Ensure 'utils' is visibly used (avoids false "not imported" NOTE)
-if (FALSE) utils::tar
+# Use a condition that is not statically FALSE
+utils::capture.output(NULL)
 

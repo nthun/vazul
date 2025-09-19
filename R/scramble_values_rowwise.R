@@ -36,7 +36,7 @@ scramble_values_rowwise <- function(data, cols) {
 
     # Warn if only one column (no scrambling possible)
     if (length(col_names) == 1) {
-        warning("Only one column selected — no scrambling performed.", call. = FALSE)
+        warning("Only one column selected - no scrambling performed.", call. = FALSE)
         return(data)
     }
 
