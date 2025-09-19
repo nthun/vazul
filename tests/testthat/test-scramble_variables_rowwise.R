@@ -292,3 +292,27 @@ test_that("scramble_variables_rowwise works with tidyselect expressions", {
     expect_setequal(c(result2$score_a[1], result2$score_b[1]), c(10, 20))
     expect_equal(result2$id, df$id)
 })
+
+test_that("scramble_variables_rowwise preserves input data frame type", {
+  skip_if_not_installed("tibble")
+  
+  # Test data
+  df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
+  tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
+  
+  # Test with data.frame input
+  set.seed(123)
+  result_df <- scramble_variables_rowwise(df, c("x", "y"))
+  expect_s3_class(result_df, "data.frame")
+  expect_false(inherits(result_df, "tbl_df"))  # Should not be a tibble
+  
+  # Test with tibble input  
+  set.seed(123)
+  result_tbl <- scramble_variables_rowwise(tbl, c("x", "y"))
+  expect_s3_class(result_tbl, "tbl_df")  # Should be a tibble
+  expect_s3_class(result_tbl, "data.frame")  # Should also be a data.frame
+  
+  # Verify classes match exactly
+  expect_equal(class(result_df), class(df))
+  expect_equal(class(result_tbl), class(tbl))
+})

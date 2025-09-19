@@ -285,3 +285,21 @@ test_that("scramble_variables works with grouping using tidyselect helpers", {
     expect_equal(result$cat_b, df$cat_b)
     expect_setequal(result$value, df$value)  # values preserved, just reordered within groups
 })
+
+test_that("scramble_variables preserves input data frame type", {
+  skip_if_not_installed("tibble")
+  
+  # Test data
+  df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
+  tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
+  
+  # Test with data.frame input
+  set.seed(123)
+  result_df <- scramble_variables(df, c("x", "y"))
+  expect_equal(class(result_df), class(df))
+  
+  # Test with tibble input
+  set.seed(123)
+  result_tbl <- scramble_variables(tbl, c("x", "y"))
+  expect_equal(class(result_tbl), class(tbl))
+})

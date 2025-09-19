@@ -264,3 +264,21 @@ test_that("scramble_values_rowwise works with advanced tidyselect helpers", {
     # Character column should be unchanged
     expect_equal(result2$category, df$category)
 })
+
+test_that("scramble_values_rowwise preserves input data frame type", {
+  skip_if_not_installed("tibble")
+  
+  # Test data
+  df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
+  tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
+  
+  # Test with data.frame input
+  set.seed(123)
+  result_df <- scramble_values_rowwise(df, c("x", "z"))
+  expect_equal(class(result_df), class(df))
+  
+  # Test with tibble input
+  set.seed(123)
+  result_tbl <- scramble_values_rowwise(tbl, c("x", "z"))
+  expect_equal(class(result_tbl), class(tbl))
+})

@@ -96,9 +96,13 @@ scramble_variables_rowwise <- function(data, ...) {
         return(data)
     }
 
-    # Merge results and preserve column order
-    changed_cols <- unlist(lapply(scrambled_dfs, names))
-    untouched_cols <- setdiff(names(data), changed_cols)
-    result <- cbind(data[untouched_cols], do.call(cbind, scrambled_dfs))
-    result[names(data)]  # restore original column order
+    # Start with original data to preserve class
+    result <- data
+    
+    # Assign scrambled columns back to preserve data frame type
+    for (df in scrambled_dfs) {
+        result[names(df)] <- df
+    }
+    
+    result
 }
