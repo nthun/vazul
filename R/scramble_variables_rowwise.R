@@ -99,10 +99,17 @@ scramble_variables_rowwise <- function(data, ...) {
     # Start with original data to preserve class
     result <- data
     
-    # Assign scrambled columns back to preserve data frame type
-    for (df in scrambled_dfs) {
-        result[names(df)] <- df
-    }
+    # Use functional approach to assign scrambled columns back
+    # This preserves the original data frame type (tibble vs data.frame)
+    result <- Reduce(
+        f = function(acc, scrambled_df) {
+            acc[names(scrambled_df)] <- scrambled_df
+            acc
+        },
+        x = scrambled_dfs,
+        init = result
+    )
     
-    result
+    # Restore original column order (same as original implementation)
+    result[names(data)]
 }
