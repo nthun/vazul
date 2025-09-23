@@ -16,7 +16,7 @@ A data frame with values scrambled rowwise across the selected columns.
 }
 \description{
 For each row, shuffle the values across the selected columns.
-All selected columns must be of compatible types (e.g., all numeric or all character).
+Columns can be mixed types, but note that R may coerce types during the process (function throws warning if mixed types detected).
 }
 \examples{
 df <- data.frame(
