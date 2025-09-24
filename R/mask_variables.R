@@ -38,11 +38,20 @@
 #' # Using tidyselect helpers
 #' mask_variables(df, where(is.character))
 #'
-#' # Example with williams dataset
-#' data(williams)
+#' # Example with multiple categorical columns
+#' df2 <- data.frame(
+#'   group = c("A", "B", "A", "B"),
+#'   condition = c("ctrl", "test", "ctrl", "test")
+#' )
 #' set.seed(123)
-#' williams_masked <- mask_variables(williams, c("ecology", "gender"))
-#' head(williams_masked[c("ecology", "gender")])
+#' result <- mask_variables(df2, c("group", "condition"))
+#' print(result)
+#'
+#' # Example with williams dataset (multiple categorical columns)
+#' data(williams)
+#' set.seed(456)
+#' williams_masked <- mask_variables(williams, c("subject", "ecology"))
+#' head(williams_masked[c("subject", "ecology")])
 #'
 #' @export
 mask_variables <- function(data, cols, across_variables = FALSE) {
