@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,229 +50,156 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><strong>vazul</strong> is an R package that provides functions for data blinding, allowing researchers to scramble data while preserving its statistical properties.</p>
+<p><strong>vazul</strong> is an R package for data blinding in research contexts. It offers two main approaches to anonymize data while preserving analytical validity: <strong>masking</strong> (replacing values with anonymous labels) and <strong>scrambling</strong> (randomizing the order of existing values).</p>
+<div class="section level2">
+<h2 id="data-blinding-approaches">Data Blinding Approaches<a class="anchor" aria-label="anchor" href="#data-blinding-approaches"></a>
+</h2>
+<p><strong>Masking</strong> replaces original values with anonymous labels, completely hiding the original information:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">treatment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "masked_group_01" "masked_group_02" "masked_group_01"</span></span></code></pre></div>
+<p><strong>Scrambling</strong> preserves all original values but randomizes their order:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span> </span>
+<span><span class="co">#&gt; "treatment" "control" "control"  # Same values, different order</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of vazul from <a href="https://github.com/nthun/vazul" class="external-link">GitHub</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"nthun/vazul"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="main-functions">Main Functions<a class="anchor" aria-label="anchor" href="#main-functions"></a>
+<h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
 </h2>
 <div class="section level3">
-<h3 id="scramble_values">
-<code>scramble_values()</code><a class="anchor" aria-label="anchor" href="#scramble_values"></a>
+<h3 id="masking-functions">Masking Functions<a class="anchor" aria-label="anchor" href="#masking-functions"></a>
 </h3>
-<p>Scrambles the values within a vector without replacement, preserving the original values but changing their order.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>Replace categorical values with anonymous labels to completely hide original information.</p>
+<div class="section level4">
+<h4 id="mask_labels---mask-vector-values">
+<code>mask_labels()</code> - Mask vector values<a class="anchor" aria-label="anchor" href="#mask_labels---mask-vector-values"></a>
+</h4>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nthun.github.io/vazul/">vazul</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Scramble numeric values</span></span>
+<span><span class="co"># Basic masking</span></span>
+<span><span class="va">treatment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span>, <span class="st">"treatment"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1]  3 10  2  8  6  9  1  7  5  4</span></span>
+<span><span class="fu"><a href="reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"</span></span>
 <span></span>
-<span><span class="co"># Scramble character values  </span></span>
-<span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "b" "c" "a" "d" "e"</span></span>
-<span></span>
-<span><span class="co"># Scramble logical values</span></span>
-<span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE  TRUE FALSE  TRUE</span></span></code></pre></div>
+<span><span class="co"># Custom prefix</span></span>
+<span><span class="fu"><a href="reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">treatment</span>, prefix <span class="op">=</span> <span class="st">"group_"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "group_01" "group_02" "group_01" "group_02"</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="scramble_variables">
-<code>scramble_variables()</code><a class="anchor" aria-label="anchor" href="#scramble_variables"></a>
-</h3>
-<p>Scrambles the values of specified variables (columns) within a data frame, with optional grouping.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create example data</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, </span>
-<span>  y <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, </span>
-<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"B"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Scramble variables across entire dataset</span></span>
-<span><span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Scramble within groups using .groups parameter</span></span>
-<span><span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"y"</span>, .groups <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Or using dplyr grouping</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  </span>
-<span><span class="co"># Can use multiple groups</span></span>
-<span><span class="va">marp</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">country</span>, <span class="va">gender</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rel_1"</span>, <span class="st">"rel_2"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>    </span>
-<span><span class="co"># Can use tidyselect helpers</span></span>
-<span><span class="va">marp</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"rel_"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  </span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="scramble_values_rowwise">
-<code>scramble_values_rowwise()</code><a class="anchor" aria-label="anchor" href="#scramble_values_rowwise"></a>
-</h3>
-<p>Scrambles the values across selected columns within each row of a data frame. For each row, values are shuffled between the selected columns while preserving the values within that row.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create example data</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  day_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
-<span>  day_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>, </span>
-<span>  day_3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span><span class="op">)</span>,</span>
-<span>  score_a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">70</span><span class="op">)</span>,</span>
-<span>  score_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">80</span><span class="op">)</span>,</span>
-<span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Scramble values across day columns within each row</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"day_1"</span>, <span class="st">"day_2"</span>, <span class="st">"day_3"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
-<span><span class="co">#&gt; 1     3     1     2      10      20  1</span></span>
-<span><span class="co">#&gt; 2     5     4     6      40      50  2</span></span>
-<span><span class="co">#&gt; 3     8     9     7      70      80  3</span></span>
-<span></span>
-<span><span class="co"># Using tidyselect helpers</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Scramble score columns</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"score_a"</span>, <span class="st">"score_b"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
-<span><span class="co">#&gt; 1     1     2     3      20      10  1</span></span>
-<span><span class="co">#&gt; 2     4     5     6      50      40  2</span></span>
-<span><span class="co">#&gt; 3     7     8     9      70      80  3</span></span>
-<span></span>
-<span><span class="co"># Example with the 'williams' dataset  </span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Scramble sexual unrestrictedness items within each row</span></span>
-<span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SexUnres_1"</span>, <span class="st">"SexUnres_2"</span>, <span class="st">"SexUnres_3"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="scramble_variables_rowwise">
-<code>scramble_variables_rowwise()</code><a class="anchor" aria-label="anchor" href="#scramble_variables_rowwise"></a>
-</h3>
-<p>Scrambles the values of defined variable sets rowwise in a data frame. For each row, values within each variable set are shuffled while keeping the values within the same row.</p>
+<div class="section level4">
+<h4 id="mask_variables---mask-data-frame-columns">
+<code>mask_variables()</code> - Mask data frame columns<a class="anchor" aria-label="anchor" href="#mask_variables---mask-data-frame-columns"></a>
+</h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create example data with multiple variable sets</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  day_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
-<span>  day_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>, </span>
-<span>  day_3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span><span class="op">)</span>,</span>
-<span>  score_a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">70</span><span class="op">)</span>,</span>
-<span>  score_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">80</span><span class="op">)</span>,</span>
-<span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ctrl"</span>, <span class="st">"test"</span>, <span class="st">"ctrl"</span>, <span class="st">"test"</span><span class="op">)</span>,</span>
+<span>  score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">85</span>, <span class="fl">92</span>, <span class="fl">78</span>, <span class="fl">88</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Scramble a single set of variables rowwise</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"day_1"</span>, <span class="st">"day_2"</span>, <span class="st">"day_3"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
-<span><span class="co">#&gt; 1     3     1     2      10      20  1</span></span>
-<span><span class="co">#&gt; 2     5     4     6      40      50  2</span></span>
-<span><span class="co">#&gt; 3     8     9     7      70      80  3</span></span>
+<span><span class="co"># Mask multiple columns</span></span>
+<span><span class="fu"><a href="reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"treatment"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Scramble multiple sets of variables</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"day_1"</span>, <span class="st">"day_2"</span>, <span class="st">"day_3"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"score_a"</span>, <span class="st">"score_b"</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Use tidyselect helpers</span></span>
+<span><span class="fu"><a href="reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu">where</span><span class="op">(</span><span class="va">is.character</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="mask_variables_rowwise--mask_labels_rowwise---row-level-masking">
+<code>mask_variables_rowwise()</code> &amp; <code>mask_labels_rowwise()</code> - Row-level masking<a class="anchor" aria-label="anchor" href="#mask_variables_rowwise--mask_labels_rowwise---row-level-masking"></a>
+</h4>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Consistent masking across rows for categorical data</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/mask_variables_rowwise.html">mask_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"treatment"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="scrambling-functions">Scrambling Functions<a class="anchor" aria-label="anchor" href="#scrambling-functions"></a>
+</h3>
+<p>Randomize the order of values while preserving the original data content.</p>
+<div class="section level4">
+<h4 id="scramble_values---scramble-vector-order">
+<code>scramble_values()</code> - Scramble vector order<a class="anchor" aria-label="anchor" href="#scramble_values---scramble-vector-order"></a>
+</h4>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Numeric data</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 3 2 5 4 1</span></span>
 <span></span>
-<span><span class="co"># Using tidyselect helpers for single sets</span></span>
+<span><span class="co"># Categorical data</span></span>
+<span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "B" "A" "C" "B" "A"</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="scramble_variables---scramble-data-frame-columns">
+<code>scramble_variables()</code> - Scramble data frame columns<a class="anchor" aria-label="anchor" href="#scramble_variables---scramble-data-frame-columns"></a>
+</h4>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Scramble across entire column</span></span>
+<span><span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"x"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Scramble within groups</span></span>
+<span><span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"x"</span>, .groups <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Using dplyr grouping</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Example with the 'williams' dataset</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Scramble sexual unrestrictedness items within each row</span></span>
-<span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SexUnres_1"</span>, <span class="st">"SexUnres_2"</span>, <span class="st">"SexUnres_3"</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="scramble_values_rowwise--scramble_variables_rowwise---row-level-scrambling">
+<code>scramble_values_rowwise()</code> &amp; <code>scramble_variables_rowwise()</code> - Row-level scrambling<a class="anchor" aria-label="anchor" href="#scramble_values_rowwise--scramble_variables_rowwise---row-level-scrambling"></a>
+</h4>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Scramble values within each row</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  item1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
+<span>  item2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>, </span>
+<span>  item3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Scramble multiple construct sets</span></span>
-<span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SexUnres_1"</span>, <span class="st">"SexUnres_2"</span>, <span class="st">"SexUnres_3"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Impuls_1"</span>, <span class="st">"Impuls_2_r"</span>, <span class="st">"Impul_3_r"</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item1"</span>, <span class="st">"item2"</span>, <span class="st">"item3"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   item1 item2 item3</span></span>
+<span><span class="co">#&gt; 1     3     1     2</span></span>
+<span><span class="co">#&gt; 2     5     4     6  </span></span>
+<span><span class="co">#&gt; 3     8     9     7</span></span></code></pre></div>
+</div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="included-datasets">Included Datasets<a class="anchor" aria-label="anchor" href="#included-datasets"></a>
+<h2 id="datasets">Datasets<a class="anchor" aria-label="anchor" href="#datasets"></a>
 </h2>
 <div class="section level3">
 <h3 id="marp-dataset">MARP Dataset<a class="anchor" aria-label="anchor" href="#marp-dataset"></a>
 </h3>
-<p>The <strong>Many Analysts Religion Project (MARP)</strong> dataset contains data from 10,535 participants across 24 countries, exploring the relationship between religiosity and well-being.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 10535    46</span></span>
-<span></span>
-<span><span class="co"># Explore countries in the dataset</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">marp</span><span class="op">$</span><span class="va">country</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 24</span></span>
-<span></span>
-<span><span class="co"># Example: scramble religiosity variables by country</span></span>
-<span><span class="va">marp</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">country</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rel_1"</span>, <span class="st">"rel_2"</span>, <span class="st">"rel_3"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Variables include:</strong> - <code>rel_1</code> to <code>rel_9</code>: Religiosity measures - <code>wb_*</code>: Well-being indicators (general, physical, psychological, social) - <code>country</code>: Participant country - <code>age</code>, <code>gender</code>, <code>ses</code>, <code>education</code>: Demographics - <code>gdp</code>: Country-level GDP data</p>
+<p>Many Analysts Religion Project data: 10,535 participants across 24 countries studying religiosity and well-being.</p>
 </div>
 <div class="section level3">
 <h3 id="williams-dataset">Williams Dataset<a class="anchor" aria-label="anchor" href="#williams-dataset"></a>
 </h3>
-<p>A study dataset with 112 participants examining the risk taking behavior behavior of high or low wealth individuals.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 112  25</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">williams</span><span class="op">$</span><span class="va">ecology</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Desperate   Hopeful </span></span>
-<span><span class="co">#&gt;        56        56</span></span>
-<span></span>
-<span><span class="co"># Example: scramble perception measures within ecology conditions</span></span>
-<span><span class="va">williams</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">ecology</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SexUnres_1"</span>, <span class="st">"Impuls_1"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Key variables:</strong> - <code>ecology</code>: Experimental condition (“Desperate” vs “Hopeful”) - <code>SexUnres_*</code>: Sexual unresponsiveness measures<br>
-- <code>Impuls_*</code>: Impulsivity measures - <code>Opport_*</code>: Long-term planning opportunity measures - <code>age</code>, <code>gender</code>: Participant demographics</p>
+<p>Experimental study data: 112 participants examining risk-taking behavior under different wealth conditions.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="explanation-of-the-package-name">Explanation of the package name<a class="anchor" aria-label="anchor" href="#explanation-of-the-package-name"></a>
 </h2>
-<p>Vazul was a Hungarian price in the 11. century. He was blinded by the king to become unfit for the throne. More info: <a href="https://en.wikipedia.org/wiki/Vazul" class="external-link uri">https://en.wikipedia.org/wiki/Vazul</a></p>
+<p>Vazul was a Hungarian prince in the 11. century. He was blinded by the king to become unfit for the throne. More info: <a href="https://en.wikipedia.org/wiki/Vazul" class="external-link uri">https://en.wikipedia.org/wiki/Vazul</a></p>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
-<li>Package documentation: <code><a href="https://nthun.github.io/vazul/reference">help(package = "vazul")</a></code>
-</li>
-<li>Function help: <code><a href="reference/scramble_values.html">?scramble_values</a></code>, <code><a href="reference/scramble_variables.html">?scramble_variables</a></code>, <code><a href="reference/scramble_values_rowwise.html">?scramble_values_rowwise</a></code>, <code><a href="reference/scramble_variables_rowwise.html">?scramble_variables_rowwise</a></code><br>
-</li>
-<li>Dataset documentation: <code><a href="reference/marp.html">?marp</a></code>, <code><a href="reference/williams.html">?williams</a></code>
-</li>
+<li>Function help: <code><a href="reference/mask_labels.html">?mask_labels</a></code>, <code><a href="reference/scramble_values.html">?scramble_values</a></code>, etc.</li>
 <li>Package website: <a href="https://nthun.github.io/vazul/" class="uri">https://nthun.github.io/vazul/</a>
 </li>
 </ul>
@@ -282,10 +209,10 @@
 </h2>
 <ul>
 <li>
-<strong>Tamás Nagy</strong> - Package author and maintainer</li>
-<li>
-<strong>Alexandra Sarafoglou</strong> - Data contributor and author<br>
+<strong>Tamás Nagy</strong> - Package author and maintainer<br>
 </li>
+<li>
+<strong>Alexandra Sarafoglou</strong> - Data contributor and author</li>
 <li>
 <strong>Márton Kovács</strong> - Author</li>
 </ul>
@@ -293,7 +220,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+<p>MIT License - see <a href="LICENSE">LICENSE</a> file for details.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
