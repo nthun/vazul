@@ -4,7 +4,7 @@
 \alias{mask_variables}
 \title{Mask categorical variables with random labels in a data frame}
 \usage{
-mask_variables(data, cols, shared_labels = FALSE, prefix = "masked_group_")
+mask_variables(data, cols, across_variables = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
@@ -14,19 +14,14 @@ or tidyselect helpers like \code{starts_with()}, \code{contains()},
 \code{where()}, etc. Only character and factor columns will be
 processed.}
 
-\item{shared_labels}{logical. If \code{TRUE}, all selected variables will use
+\item{across_variables}{logical. If \code{TRUE}, all selected variables will use
 the same set of masked labels. If \code{FALSE} (default), each variable
 gets its own independent set of masked labels using the column name as
 prefix.}
-
-\item{prefix}{character string to use as prefix for masked labels when
-\code{shared_labels = TRUE}. Default is "masked_group_". For independent
-masking, column names are used as prefixes.}
 }
 \value{
 A data frame with the specified categorical columns masked.
-Non-categorical columns in the selection are left unchanged with a
-warning.
+Only character and factor columns can be processed.
 }
 \description{
 Applies masked labels to multiple categorical variables in a data frame using
@@ -48,12 +43,8 @@ set.seed(123)
 mask_variables(df, c("treatment", "outcome"))
 
 set.seed(456)
-# Shared masking across variables (uses provided prefix)
-mask_variables(df, c("treatment", "outcome"), shared_labels = TRUE)
-
-set.seed(789)
-# Custom prefix for shared masking
-mask_variables(df, c("treatment", "outcome"), shared_labels = TRUE, prefix = "group_")
+# Shared masking across variables
+mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
 
 # Using tidyselect helpers
 mask_variables(df, where(is.character))

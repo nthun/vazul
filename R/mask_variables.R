@@ -10,17 +10,13 @@
 #'   or tidyselect helpers like \code{starts_with()}, \code{contains()},
 #'   \code{where()}, etc. Only character and factor columns will be
 #'   processed.
-#' @param shared_labels logical. If \code{TRUE}, all selected variables will use
+#' @param across_variables logical. If \code{TRUE}, all selected variables will use
 #'   the same set of masked labels. If \code{FALSE} (default), each variable
 #'   gets its own independent set of masked labels using the column name as
 #'   prefix.
-#' @param prefix character string to use as prefix for masked labels when
-#'   \code{shared_labels = TRUE}. Default is "masked_group_". For independent
-#'   masking, column names are used as prefixes.
 #'
 #' @return A data frame with the specified categorical columns masked.
-#'   Non-categorical columns in the selection are left unchanged with a
-#'   warning.
+#'   Only character and factor columns can be processed.
 #'
 #' @examples
 #'
@@ -36,12 +32,8 @@
 #' mask_variables(df, c("treatment", "outcome"))
 #'
 #' set.seed(456)
-#' # Shared masking across variables (uses provided prefix)
-#' mask_variables(df, c("treatment", "outcome"), shared_labels = TRUE)
-#'
-#' set.seed(789)
-#' # Custom prefix for shared masking
-#' mask_variables(df, c("treatment", "outcome"), shared_labels = TRUE, prefix = "group_")
+#' # Shared masking across variables
+#' mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
 #'
 #' # Using tidyselect helpers
 #' mask_variables(df, where(is.character))
@@ -53,8 +45,7 @@
 #' head(williams_masked[c("ecology", "gender")])
 #'
 #' @export
-mask_variables <- function(data, cols, shared_labels = FALSE,
-                           prefix = "masked_group_") {
+mask_variables <- function(data, cols, across_variables = FALSE) {
   # Input validation
   if (is.null(data)) {
     stop("Input 'data' cannot be NULL. Please provide a data frame.", call. = FALSE)
@@ -70,26 +61,15 @@ mask_variables <- function(data, cols, shared_labels = FALSE,
     stop("Input 'data' cannot be an empty data frame.", call. = FALSE)
   }
 
-  # Validate shared_labels parameter
-  if (is.null(shared_labels)) {
-    stop("Parameter 'shared_labels' cannot be NULL. ",
+  # Validate across_variables parameter
+  if (is.null(across_variables)) {
+    stop("Parameter 'across_variables' cannot be NULL. ",
          "Please provide a logical value.", call. = FALSE)
   }
   
-  if (!is.logical(shared_labels) || length(shared_labels) != 1) {
-    stop("Parameter 'shared_labels' must be a single logical value ",
+  if (!is.logical(across_variables) || length(across_variables) != 1) {
+    stop("Parameter 'across_variables' must be a single logical value ",
          "(TRUE or FALSE).", call. = FALSE)
-  }
-  
-  # Validate prefix parameter (delegate to mask_labels for detailed validation)
-  if (is.null(prefix)) {
-    stop("Parameter 'prefix' cannot be NULL. ",
-         "Please provide a character string.", call. = FALSE)
-  }
-  
-  if (!is.character(prefix) || length(prefix) != 1) {
-    stop("Parameter 'prefix' must be a single character string.",
-         call. = FALSE)
   }
   
   # Handle column selection using tidyselect
@@ -104,36 +84,28 @@ mask_variables <- function(data, cols, shared_labels = FALSE,
     return(data)
   }
   
-  # Filter to only character and factor columns
+  # Validate that all selected columns are categorical
   selected_cols <- names(data)[col_indices]
   is_categorical <- vapply(data[selected_cols], function(x) {
     is.character(x) || is.factor(x)
   }, logical(1))
   
-  categorical_cols <- selected_cols[is_categorical]
   non_categorical_cols <- selected_cols[!is_categorical]
   
-  # Warn about non-categorical columns
+  # Error if non-categorical columns are selected
   if (length(non_categorical_cols) > 0) {
-    warning(
-      "The following selected columns are not character or factor and ",
-      "will be left unchanged: ",
-      paste(non_categorical_cols, collapse = ", "), call. = FALSE
+    stop(
+      "The following selected columns are not character or factor: ",
+      paste(non_categorical_cols, collapse = ", "),
+      ". Only character and factor columns can be masked.", call. = FALSE
     )
   }
   
-  # If no categorical columns, return original data
-  if (length(categorical_cols) == 0) {
-    warning(
-      "No categorical (character or factor) columns found in selection. ",
-      "Returning original data unchanged.", call. = FALSE
-    )
-    return(data)
-  }
+  categorical_cols <- selected_cols
   
   # Apply masking
-  if (shared_labels) {
-    # For shared labels, we need to create a unified mapping
+  if (across_variables) {
+    # For across_variables masking, create shared mapping using mask_labels
     # First, collect all unique values across all selected categorical columns
     all_values <- unique(unlist(lapply(data[categorical_cols], function(x) {
       if (is.factor(x)) {
@@ -154,15 +126,9 @@ mask_variables <- function(data, cols, shared_labels = FALSE,
       return(data)
     }
     
-    # Create a single mapping for all unique values
-    n_unique <- length(all_values_no_na)
-    padding_width <- max(2, nchar(as.character(n_unique)))
-    masked_labels <- paste0(
-      prefix,
-      sprintf(paste0("%0", padding_width, "d"), seq_len(n_unique))
-    )
-    random_assignment <- sample(masked_labels, n_unique, replace = FALSE)
-    shared_mapping <- stats::setNames(random_assignment, all_values_no_na)
+    # Use mask_labels to create the shared mapping
+    masked_values <- mask_labels(all_values_no_na, prefix = "masked_group_")
+    shared_mapping <- stats::setNames(masked_values, all_values_no_na)
     
     # Apply shared mapping to each column
     data[categorical_cols] <- lapply(data[categorical_cols], function(x) {
@@ -177,7 +143,7 @@ mask_variables <- function(data, cols, shared_labels = FALSE,
       if (is.factor(x)) {
         # For factors with shared labels, use all possible masked labels as
         # levels
-        result <- factor(result, levels = masked_labels)
+        result <- factor(result, levels = unique(masked_values))
       }
       
       return(result)

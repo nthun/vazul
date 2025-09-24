@@ -49,7 +49,7 @@ test_that("mask_variables works with shared masking", {
   )
   
   set.seed(123)
-  result <- mask_variables(df, c("var1", "var2"), shared_labels = TRUE)
+  result <- mask_variables(df, c("var1", "var2"), across_variables = TRUE)
   
   # Check that both columns are masked
   expect_true(all(grepl("^masked_group_", result$var1)))
@@ -110,22 +110,6 @@ test_that("mask_variables independent masking works as requested in issue", {
   expect_equal(result$outcome[1], result$outcome[3])      # both "success"
 })
 
-test_that("mask_variables uses custom prefix correctly with shared masking", {
-  df <- data.frame(
-    x = c("A", "B", "A"),
-    y = c("X", "Y", "X"),
-    stringsAsFactors = FALSE
-  )
-  
-  set.seed(123)
-  result <- mask_variables(df, c("x", "y"), shared_labels = TRUE, prefix = "test_")
-  
-  expect_true(all(grepl("^test_", result$x)))
-  expect_true(all(grepl("^test_", result$y)))
-  expect_false(any(grepl("masked_group_", result$x)))
-  expect_false(any(grepl("masked_group_", result$y)))
-})
-
 test_that("mask_variables works with tidyselect helpers", {
   df <- data.frame(
     char1 = c("A", "B", "A"),
@@ -150,14 +134,10 @@ test_that("mask_variables handles non-categorical columns correctly", {
     stringsAsFactors = FALSE
   )
   
-  expect_warning(
-    result <- mask_variables(df, c("x", "y", "z")),
-    "The following selected columns are not character or factor and will be left unchanged: y, z"
+  expect_error(
+    mask_variables(df, c("x", "y", "z")),
+    "The following selected columns are not character or factor: y, z. Only character and factor columns can be masked."
   )
-  
-  expect_true(all(grepl("^x_group_", result$x)))
-  expect_equal(result$y, df$y)
-  expect_equal(result$z, df$z)
 })
 
 test_that("mask_variables validates input correctly", {
@@ -184,41 +164,22 @@ test_that("mask_variables validates input correctly", {
     fixed = TRUE
   )
   
-  # Test invalid shared_labels parameter
+  # Test invalid across_variables parameter
   expect_error(
-    mask_variables(df, "x", shared_labels = NULL),
-    "Parameter 'shared_labels' cannot be NULL. Please provide a logical value.",
+    mask_variables(df, "x", across_variables = NULL),
+    "Parameter 'across_variables' cannot be NULL. Please provide a logical value.",
     fixed = TRUE
   )
 
   expect_error(
-    mask_variables(df, "x", shared_labels = "TRUE"),
-    "Parameter 'shared_labels' must be a single logical value",
+    mask_variables(df, "x", across_variables = "TRUE"),
+    "Parameter 'across_variables' must be a single logical value",
     fixed = TRUE
   )
 
   expect_error(
-    mask_variables(df, "x", shared_labels = c(TRUE, FALSE)),
-    "Parameter 'shared_labels' must be a single logical value",
-    fixed = TRUE
-  )
-  
-  # Test invalid prefix parameter
-  expect_error(
-    mask_variables(df, "x", prefix = NULL),
-    "Parameter 'prefix' cannot be NULL. Please provide a character string.",
-    fixed = TRUE
-  )
-
-  expect_error(
-    mask_variables(df, "x", prefix = 123),
-    "Parameter 'prefix' must be a single character string.",
-    fixed = TRUE
-  )
-
-  expect_error(
-    mask_variables(df, "x", prefix = c("pre1", "pre2")),
-    "Parameter 'prefix' must be a single character string.",
+    mask_variables(df, "x", across_variables = c(TRUE, FALSE)),
+    "Parameter 'across_variables' must be a single logical value",
     fixed = TRUE
   )
 })
@@ -250,12 +211,10 @@ test_that("mask_variables handles edge cases", {
   expect_equal(result, df)
   
   # Test with only non-categorical columns selected
-  expect_warning(
-    result <- mask_variables(df, "y"),
-    "No categorical \\(character or factor\\) columns found in selection",
-    fixed = FALSE
+  expect_error(
+    mask_variables(df, "y"),
+    "The following selected columns are not character or factor: y. Only character and factor columns can be masked."
   )
-  expect_equal(result, df)
 })
 
 test_that("mask_variables handles NA values correctly", {
@@ -351,7 +310,7 @@ test_that("mask_variables shared labels work with complex scenario", {
   )
   
   set.seed(123)
-  result <- mask_variables(df, c("var1", "var2", "var3"), shared_labels = TRUE)
+  result <- mask_variables(df, c("var1", "var2", "var3"), across_variables = TRUE)
   
   # Check that same values across columns get same labels
   # Find where "A" appears in original data
