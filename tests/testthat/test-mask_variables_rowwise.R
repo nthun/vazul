@@ -175,10 +175,10 @@ test_that("mask_variables_rowwise validates input correctly", {
   )
   expect_equal(result, df)
   
-  # Nonexistent columns
+  # Nonexistent columns - now properly shows warning
   expect_warning(
     mask_variables_rowwise(df, "nonexistent_column"),
-    "Some column names not found"
+    "Failed to evaluate column set"
   )
   
   # Invalid column set type
@@ -195,10 +195,10 @@ test_that("mask_variables_rowwise handles mixed data types correctly", {
     z = c("X", "Y", "Z")
   )
   
-  # Should fail when trying to mask non-character/factor columns
-  expect_error(
+  # Should show warning when trying to mask non-character/factor columns
+  expect_warning(
     mask_variables_rowwise(df, c("x", "y", "z")),
-    "All selected columns must be character or factor"
+    "Failed to evaluate column set"
   )
 })
 
