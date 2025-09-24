@@ -1,6 +1,6 @@
 Package: vazul
 Title: Package for data blinding
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: 
     c(
     person(given = "Tamás", 

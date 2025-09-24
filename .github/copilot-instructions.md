@@ -133,4 +133,4 @@ Running `R CMD check vazul_0.0.0.9000.tar.gz --no-manual` produces:
 - **No automated testing**: You must manually run the validation scenarios after every change
 - **Documentation is generated**: The `man/` directory is created by `devtools::document()` and should not be manually edited
 - **Binary data files**: The .rda files in `data/` are the actual datasets used by the package
-- **Development status**: This is version 0.0.0.9000, indicating active development
+- **Never use for loops**: Use functional programming tools, prefer base R variants to avoid dependancies.
