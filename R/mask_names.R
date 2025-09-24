@@ -29,60 +29,65 @@
 #' )
 #'
 #' # Mask two variable sets with default prefixes
-#' mask_names(df, 
-#'   starts_with("treat_"), 
+#' mask_names(df,
+#'   starts_with("treat_"),
 #'   starts_with("outcome_")
 #' )
 #'
 #' # Using character vectors
-#' mask_names(df, 
-#'   c("treat_1", "treat_2"), 
+#' mask_names(df,
+#'   c("treat_1", "treat_2"),
 #'   c("outcome_a", "outcome_b")
 #' )
 #'
 #' # Custom prefix
-#' mask_names(df, 
-#'   starts_with("treat_"), 
+#' mask_names(df,
+#'   starts_with("treat_"),
 #'   prefix = "masked_var_"
 #' )
 #'
 #' @export
 mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
   stopifnot(is.data.frame(data))
-  
+
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
-  
+
   # If no sets provided, return data unchanged
   if (length(column_sets) == 0) {
-    warning("No variable sets provided. Returning data unchanged.", call. = FALSE)
+    warning("No variable sets provided. Returning data unchanged.",
+            call. = FALSE)
     return(data)
   }
-  
+
   # Validate prefix parameter
   if (is.null(prefix)) {
-    stop("Parameter 'prefix' cannot be NULL. Please provide a character string.", call. = FALSE)
+    stop("Parameter 'prefix' cannot be NULL. Please provide a ",
+         "character string.", call. = FALSE)
   }
-  
+
   if (!is.character(prefix) || length(prefix) != 1) {
-    stop("Parameter 'prefix' must be a single character string.", call. = FALSE)
+    stop("Parameter 'prefix' must be a single character string.",
+         call. = FALSE)
   }
-  
+
   # Validate suffix parameter if provided
   if (!is.null(suffix)) {
     if (!is.character(suffix)) {
-      stop("Parameter 'suffix' must be a character vector or NULL.", call. = FALSE)
+      stop("Parameter 'suffix' must be a character vector or NULL.",
+           call. = FALSE)
     }
     if (length(suffix) != length(column_sets)) {
-      stop("If 'suffix' is provided, it must have the same length as the number of variable sets.", call. = FALSE)
+      stop("If 'suffix' is provided, it must have the same length as ",
+           "the number of variable sets.", call. = FALSE)
     }
   }
-  
+
   # Helper function to resolve one column set and generate masked names
   resolve_and_mask_set <- function(set_quo, set_index) {
     # First, resolve the column names from the quosure
     selected_cols <- NULL
-    
+
     # Try evaluating as character vector first
     try_char <- tryCatch(
       expr = {
@@ -90,7 +95,8 @@ mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
         if (is.character(set)) {
           missing <- setdiff(set, names(data))
           if (length(missing) > 0) {
-            warning("Some column names not found: ", paste(missing, collapse = ", "), call. = FALSE)
+            warning("Some column names not found: ",
+                    paste(missing, collapse = ", "), call. = FALSE)
             return(NULL)
           }
           set  # Return the character vector
@@ -104,7 +110,7 @@ mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
         NULL
       }
     )
-    
+
     if (!is.null(try_char)) {
       selected_cols <- try_char
     } else {
@@ -113,7 +119,8 @@ mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
         selected <- tryCatch(
           tidyselect::eval_select(set_quo, data),
           error = function(e) {
-            warning("Failed to evaluate variable set: ", conditionMessage(e), call. = FALSE)
+            warning("Failed to evaluate variable set: ",
+                    conditionMessage(e), call. = FALSE)
             return(integer(0))
           }
         )
@@ -122,67 +129,73 @@ mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
         }
         selected_cols <- names(data)[selected]
       } else {
-        warning("Each variable set must be a character vector or tidyselect expression.", call. = FALSE)
+        warning("Each variable set must be a character vector or ",
+                "tidyselect expression.", call. = FALSE)
         return(NULL)
       }
     }
-    
+
     if (is.null(selected_cols) || length(selected_cols) == 0) {
       return(NULL)
     }
-    
+
     # Generate suffix for this set
     if (is.null(suffix)) {
       set_suffix <- LETTERS[set_index]
     } else {
       set_suffix <- suffix[set_index]
     }
-    
+
     # Create masked names for this set using numeric sequence
     set_prefix <- paste0(prefix, set_suffix, "_")
     n_cols <- length(selected_cols)
     padding_width <- max(2, nchar(as.character(n_cols)))
-    masked_names <- paste0(set_prefix, sprintf(paste0("%0", padding_width, "d"), seq_len(n_cols)))
-    
+    masked_names <- paste0(set_prefix,
+                           sprintf(paste0("%0", padding_width, "d"),
+                                   seq_len(n_cols)))
+
     # Return mapping from original to masked names
     stats::setNames(masked_names, selected_cols)
   }
-  
+
   # Apply to each set and collect all name mappings
   all_mappings <- Map(resolve_and_mask_set, column_sets, seq_along(column_sets))
   all_mappings <- Filter(Negate(is.null), all_mappings)
-  
+
   # If no valid sets were processed, return original data
   if (length(all_mappings) == 0) {
-    warning("No valid variable sets found. Returning data unchanged.", call. = FALSE)
+    warning("No valid variable sets found. Returning data unchanged.",
+            call. = FALSE)
     return(data)
   }
-  
+
   # Combine all mappings into a single named vector
   final_mapping <- unlist(all_mappings, use.names = TRUE)
-  
+
   # Check for name collisions with existing column names
   new_names <- as.character(final_mapping)
   existing_names <- setdiff(names(data), names(final_mapping))
   name_collisions <- intersect(new_names, existing_names)
-  
+
   if (length(name_collisions) > 0) {
-    stop("Name collision detected. The following masked names already exist in the data: ", 
-         paste(name_collisions, collapse = ", "), 
+    stop("Name collision detected. The following masked names already ",
+         "exist in the data: ", paste(name_collisions, collapse = ", "),
          ". Please use different prefixes or suffixes.", call. = FALSE)
   }
-  
+
   # Check for duplicate masked names across different sets
   if (length(new_names) != length(unique(new_names))) {
     duplicates <- new_names[duplicated(new_names)]
-    stop("Duplicate masked names generated: ", paste(unique(duplicates), collapse = ", "), 
-         ". This may occur when different variable sets have the same column names. ",
-         "Please use different prefixes or suffixes.", call. = FALSE)
+    stop("Duplicate masked names generated: ",
+         paste(unique(duplicates), collapse = ", "),
+         ". This may occur when different variable sets have the same ",
+         "column names. Please use different prefixes or suffixes.",
+         call. = FALSE)
   }
-  
+
   # Apply the name changes to the data frame
   result <- data
   names(result)[match(names(final_mapping), names(result))] <- final_mapping
-  
+
   return(result)
 }
