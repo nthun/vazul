@@ -2,7 +2,7 @@
 % Please edit documentation in R/mask_variables_rowwise.R
 \name{mask_variables_rowwise}
 \alias{mask_variables_rowwise}
-\title{Mask categorical labels rowwise across multiple column sets}
+\title{Mask categorical labels across multiple column sets rowwise in a data frame}
 \usage{
 mask_variables_rowwise(data, ..., prefix = "masked_group_")
 }
@@ -11,10 +11,8 @@ mask_variables_rowwise(data, ..., prefix = "masked_group_")
 
 \item{...}{\if{html}{\out{<tidy-select>}} One or more column sets. Each can be:
 \itemize{
-\item A tidyselect expression (e.g.,
-\code{starts_with("condition_")})
-\item A character vector of column names (e.g.,
-\code{c("treat_1", "treat_2")})
+\item A tidyselect expression (e.g., \code{starts_with("treat_")})
+\item A character vector of column names (e.g., \code{c("treat_1", "treat_2")})
 \item Multiple sets can be provided as separate arguments
 }}
 
@@ -22,14 +20,11 @@ mask_variables_rowwise(data, ..., prefix = "masked_group_")
 Default is "masked_group_"}
 }
 \value{
-A data frame with labels masked rowwise within each selected
-column set.
+A data frame with labels masked rowwise within each selected column set.
 }
 \description{
-For each row, independently mask labels across each group of selected
-columns. The masked labels are drawn from all unique values across all
-specified columns and all rows, ensuring consistent masking within each
-column set.
+For each row, independently mask labels within each group of selected columns.
+This function uses mask_labels_rowwise() for each column set.
 }
 \examples{
 df <- data.frame(
