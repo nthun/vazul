@@ -126,6 +126,10 @@ Many Analysts Religion Project data: 10,535 participants across 24 countries stu
 ### Williams Dataset
 Experimental study data: 112 participants examining risk-taking behavior under different wealth conditions.
 
+## Explanation of the package name
+
+Vazul was a Hungarian prince in the 11. century. He was blinded by the king to become unfit for the throne. More info: https://en.wikipedia.org/wiki/Vazul
+
 ## Documentation
 
 - Function help: `?mask_labels`, `?scramble_values`, etc.
