@@ -1,11 +1,9 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+name: test-coverage
+
 on:
   push:
     branches: [main, master]
   pull_request:
-
-name: test-coverage
 
 permissions:
   id-token: write
@@ -30,18 +28,29 @@ jobs:
 
       - name: Test coverage
         run: |
-          # Generate coverage report
+          print("Getting package coverage...")
           cov <- covr::package_coverage(quiet = FALSE, clean = FALSE)
           print(cov)
-          # Write the cobertura file
+          if (is.null(cov) || length(cov) == 0) {
+            stop("Coverage object is NULL or empty.")
+          }
+          print("Writing cobertura.xml...")
           covr::to_cobertura(cov, "cobertura.xml")
+          print("Done.")
         shell: Rscript {0}
 
       - name: Check coverage file
         run: |
           ls -la
-          head -n 10 cobertura.xml
-          wc -l cobertura.xml
+          head -n 10 cobertura.xml || true
+          wc -l cobertura.xml || true
+
+      - name: Upload cobertura.xml artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-report
+          path: cobertura.xml
 
       - uses: codecov/codecov-action@v5
         with:
@@ -49,5 +58,5 @@ jobs:
           flags: unittests
           name: github-actions-ci
           fail_ci_if_error: ${{ !github.event.pull_request }}
-          token: ${{ secrets.CODECOV_TOKEN }}   # if using token
-          use_legacy_upload_endpoint: true   # try legacy if necessary
+          # token: ${{ secrets.CODECOV_TOKEN }}   # Enable only for private repos
+          use_legacy_upload_endpoint: true
