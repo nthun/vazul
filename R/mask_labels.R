@@ -78,17 +78,6 @@ mask_labels <- function(x, prefix = "masked_group_") {
   unique_values <- unique(x)
   n_unique <- length(unique_values)
 
-  # Handle the special case where there is only one unique value
-  if (n_unique == 1) {
-    # Use padded format: 01, 02, etc.
-    masked_label <- paste0(prefix, sprintf("%02d", 1))
-    if (is.factor(x)) {
-      return(factor(rep(masked_label, length(x)), levels = masked_label))
-    } else {
-      return(rep(masked_label, length(x)))
-    }
-  }
-
   # Create masked labels with numeric padding
   # Determine padding width based on number of unique values
   padding_width <- max(2, nchar(as.character(n_unique)))

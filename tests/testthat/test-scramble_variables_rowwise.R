@@ -285,10 +285,10 @@ test_that("scramble_variables_rowwise works with tidyselect expressions", {
 })
 
 test_that("scramble_variables_rowwise preserves input data frame type", {
-    skip_if_not_installed("tibble")
+    skip_if_not_installed("dplyr")
 
     df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
-    tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
+    tbl <- dplyr::tibble(x = 1:5, y = letters[1:5], z = 6:10)
 
     set.seed(123)
     result_df <- expect_warning(
