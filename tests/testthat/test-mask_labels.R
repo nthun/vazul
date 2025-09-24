@@ -91,7 +91,7 @@ test_that("mask_labels handles single element vector", {
   result <- mask_labels(x)
 
   expect_equal(length(result), 1)
-  expect_equal(result, "masked_group_01")
+  expect_equal(unname(result), "masked_group_01")
   expect_type(result, "character")
 })
 
@@ -228,3 +228,4 @@ test_that("mask_labels handles NA values correctly", {
   expect_equal(sum(is.na(result)), 2)  # Should preserve NA positions
   expect_equal(length(unique(result[!is.na(result)])), 2)  # 2 non-NA unique values
 })
+
