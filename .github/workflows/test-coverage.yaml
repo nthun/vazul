@@ -58,5 +58,4 @@ jobs:
           flags: unittests
           name: github-actions-ci
           fail_ci_if_error: ${{ !github.event.pull_request }}
-          # token: ${{ secrets.CODECOV_TOKEN }}   # Enable only for private repos
           use_legacy_upload_endpoint: true
