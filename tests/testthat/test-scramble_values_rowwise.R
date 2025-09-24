@@ -269,11 +269,11 @@ test_that("scramble_values_rowwise works with advanced tidyselect helpers", {
 })
 
 test_that("scramble_values_rowwise preserves input data frame type", {
-    skip_if_not_installed("tibble")
+    skip_if_not_installed("dplyr")
 
     # Test data
     df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
-    tbl <- tibble::tibble(x = 1:5, y = letters[1:5], z = 6:10)
+    tbl <- dplyr::tibble(x = 1:5, y = letters[1:5], z = 6:10)
 
     # Test with data.frame input
     set.seed(123)
