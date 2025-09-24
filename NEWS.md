@@ -1,8 +1,8 @@
 # vazul 0.3.0
 ## 2025-09-24
 
-* Add mask_labels() function to mask factor levels
-* Add tests for mask_labels()
+* Add mask_labels(), mask_variables(), mask_labels_rowwise(), mask_variables_rowwise() functions to mask factor levels
+* Add unit tests for all new functions
 
 # vazul 0.2.1
 ## 2025-09-19
