@@ -12,9 +12,11 @@
 #'   processed.
 #' @param shared_labels logical. If \code{TRUE}, all selected variables will use
 #'   the same set of masked labels. If \code{FALSE} (default), each variable
-#'   gets its own independent set of masked labels.
-#' @param prefix character string to use as prefix for masked labels.
-#'   Default is "masked_group_"
+#'   gets its own independent set of masked labels using the column name as
+#'   prefix.
+#' @param prefix character string to use as prefix for masked labels when
+#'   \code{shared_labels = TRUE}. Default is "masked_group_". For independent
+#'   masking, column names are used as prefixes.
 #'
 #' @return A data frame with the specified categorical columns masked.
 #'   Non-categorical columns in the selection are left unchanged with a
@@ -30,16 +32,16 @@
 #' )
 #'
 #' set.seed(123)
-#' # Independent masking for each variable (default)
+#' # Independent masking for each variable (default - uses column names as prefixes)
 #' mask_variables(df, c("treatment", "outcome"))
 #'
 #' set.seed(456)
-#' # Shared masking across variables
+#' # Shared masking across variables (uses provided prefix)
 #' mask_variables(df, c("treatment", "outcome"), shared_labels = TRUE)
 #'
 #' set.seed(789)
-#' # Custom prefix
-#' mask_variables(df, c("treatment", "outcome"), prefix = "group_")
+#' # Custom prefix for shared masking
+#' mask_variables(df, c("treatment", "outcome"), shared_labels = TRUE, prefix = "group_")
 #'
 #' # Using tidyselect helpers
 #' mask_variables(df, where(is.character))
@@ -183,20 +185,26 @@ mask_variables <- function(data, cols, shared_labels = FALSE,
     
   } else {
     # Independent masking for each column
-    data[categorical_cols] <- lapply(data[categorical_cols], function(x) {
+    # Use column name as part of prefix to avoid label collisions
+    data[categorical_cols] <- lapply(names(data[categorical_cols]), function(col_name) {
+      x <- data[[col_name]]
       if (all(is.na(x))) {
         return(x)  # Return unchanged if all NA
       }
       
-      # Apply mask_labels to each column independently
+      # Use column name as prefix for independent masking
+      col_prefix <- paste0(col_name, "_group_")
+      
+      # Apply mask_labels to each column independently with column-specific prefix
       tryCatch({
-        mask_labels(x, prefix = prefix)
+        mask_labels(x, prefix = col_prefix)
       }, error = function(e) {
         warning("Failed to mask column: ", conditionMessage(e),
                 call. = FALSE)
         return(x)  # Return original column if masking fails
       })
     })
+    names(data[categorical_cols]) <- categorical_cols
   }
   
   return(data)

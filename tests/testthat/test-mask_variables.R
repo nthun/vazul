@@ -28,9 +28,9 @@ test_that("mask_variables works with independent masking (default)", {
   set.seed(123)
   result <- mask_variables(df, c("treatment", "outcome"))
   
-  # Check that both columns are masked
-  expect_true(all(grepl("^masked_group_", result$treatment)))
-  expect_true(all(grepl("^masked_group_", result$outcome)))
+  # Check that both columns are masked with column-specific prefixes
+  expect_true(all(grepl("^treatment_group_", result$treatment)))
+  expect_true(all(grepl("^outcome_group_", result$outcome)))
   
   # Check that original structure is preserved
   expect_equal(length(result$treatment), 3)
@@ -78,11 +78,39 @@ test_that("mask_variables works with factor columns", {
   
   expect_s3_class(result$x, "factor")
   expect_type(result$y, "character")
-  expect_true(all(grepl("^masked_group_", as.character(result$x))))
-  expect_true(all(grepl("^masked_group_", result$y)))
+  expect_true(all(grepl("^x_group_", as.character(result$x))))
+  expect_true(all(grepl("^y_group_", result$y)))
 })
 
-test_that("mask_variables uses custom prefix correctly", {
+test_that("mask_variables independent masking works as requested in issue", {
+  # Test the specific example from the issue comment
+  df <- data.frame(
+    treatment = c("control", "intervention", "control"),
+    outcome = c("success", "failure", "success"),
+    score = c(1, 2, 3),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  result <- mask_variables(df, c("treatment", "outcome"))
+  
+  # Should have treatment_group_XX and outcome_group_XX format
+  expect_true(all(grepl("^treatment_group_", result$treatment)))
+  expect_true(all(grepl("^outcome_group_", result$outcome)))
+  
+  # Score should be unchanged
+  expect_equal(result$score, df$score)
+  
+  # Check that different original values get different labels within each column
+  expect_equal(length(unique(result$treatment)), 2)  # control, intervention
+  expect_equal(length(unique(result$outcome)), 2)    # success, failure
+  
+  # Check that same original values get same labels within each column
+  expect_equal(result$treatment[1], result$treatment[3])  # both "control"
+  expect_equal(result$outcome[1], result$outcome[3])      # both "success"
+})
+
+test_that("mask_variables uses custom prefix correctly with shared masking", {
   df <- data.frame(
     x = c("A", "B", "A"),
     y = c("X", "Y", "X"),
@@ -90,7 +118,7 @@ test_that("mask_variables uses custom prefix correctly", {
   )
   
   set.seed(123)
-  result <- mask_variables(df, c("x", "y"), prefix = "test_")
+  result <- mask_variables(df, c("x", "y"), shared_labels = TRUE, prefix = "test_")
   
   expect_true(all(grepl("^test_", result$x)))
   expect_true(all(grepl("^test_", result$y)))
@@ -109,8 +137,8 @@ test_that("mask_variables works with tidyselect helpers", {
   set.seed(123)
   result <- mask_variables(df, where(is.character))
   
-  expect_true(all(grepl("^masked_group_", result$char1)))
-  expect_true(all(grepl("^masked_group_", result$char2)))
+  expect_true(all(grepl("^char1_group_", result$char1)))
+  expect_true(all(grepl("^char2_group_", result$char2)))
   expect_equal(result$num1, df$num1)  # numeric unchanged
 })
 
@@ -127,7 +155,7 @@ test_that("mask_variables handles non-categorical columns correctly", {
     "The following selected columns are not character or factor and will be left unchanged: y, z"
   )
   
-  expect_true(all(grepl("^masked_group_", result$x)))
+  expect_true(all(grepl("^x_group_", result$x)))
   expect_equal(result$y, df$y)
   expect_equal(result$z, df$z)
 })
@@ -245,10 +273,10 @@ test_that("mask_variables handles NA values correctly", {
   expect_true(is.na(result$y[1]))
   expect_true(is.na(result$y[3]))
   
-  # Check that non-NA values are masked
-  expect_true(grepl("^masked_group_", result$x[1]))
-  expect_true(grepl("^masked_group_", result$x[3]))
-  expect_true(grepl("^masked_group_", result$y[2]))
+  # Check that non-NA values are masked with column-specific prefixes
+  expect_true(grepl("^x_group_", result$x[1]))
+  expect_true(grepl("^x_group_", result$x[3]))
+  expect_true(grepl("^y_group_", result$y[2]))
 })
 
 test_that("mask_variables handles all-NA columns", {
@@ -264,8 +292,8 @@ test_that("mask_variables handles all-NA columns", {
   # All-NA column should remain unchanged
   expect_true(all(is.na(result$x)))
   
-  # Non-NA column should be masked
-  expect_true(all(grepl("^masked_group_", result$y)))
+  # Non-NA column should be masked with column-specific prefix
+  expect_true(all(grepl("^y_group_", result$y)))
 })
 
 test_that("mask_variables handles single row data", {
@@ -275,8 +303,8 @@ test_that("mask_variables handles single row data", {
   result <- mask_variables(df, c("x", "y"))
   
   expect_equal(nrow(result), 1)
-  expect_true(grepl("^masked_group_", result$x))
-  expect_true(grepl("^masked_group_", result$y))
+  expect_true(grepl("^x_group_", result$x))
+  expect_true(grepl("^y_group_", result$y))
 })
 
 test_that("mask_variables produces consistent results with set.seed", {
