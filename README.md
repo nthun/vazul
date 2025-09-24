@@ -5,26 +5,51 @@
 [![Codecov test coverage](https://codecov.io/gh/nthun/vazul/graph/badge.svg)](https://app.codecov.io/gh/nthun/vazul)
 <!-- badges: end -->
 
-**vazul** is an R package that provides functions for data blinding, allowing researchers to scramble data while preserving its statistical properties. 
+**vazul** provides functions for data blinding in research contexts. Data blinding helps researchers analyze data without knowing the specific group assignments or values, reducing potential bias in analysis and interpretation.
+
+## Data Blinding: Masking vs Scrambling
+
+This package offers two main approaches to data blinding:
+
+- **Masking** replaces categorical labels with anonymous identifiers (e.g., "Control" → "Group_01")
+- **Scrambling** shuffles existing values within specified constraints while preserving the original data distribution 
 
 ## Installation
-
-You can install the development version of vazul from [GitHub](https://github.com/nthun/vazul) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("nthun/vazul")
 ```
 
-## Main Functions
+## Functions
 
-### `scramble_values()`
+### Masking Functions
 
-Scrambles the values within a vector without replacement, preserving the original values but changing their order.
+#### `mask_labels()` - Mask Categorical Labels
+
+Replaces categorical values with anonymous labels to blind group assignments:
 
 ``` r
 library(vazul)
 
+# Mask treatment conditions
+set.seed(123) 
+treatment <- c("control", "treatment", "control", "treatment")
+mask_labels(treatment)
+#> [1] "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"
+
+# Custom prefix
+mask_labels(c("High", "Medium", "Low"), prefix = "condition_")
+#> [1] "condition_02" "condition_01" "condition_03"
+```
+
+### Scrambling Functions
+
+#### `scramble_values()` - Scramble Vector Values
+
+Shuffles values within a vector:
+
+``` r
 # Scramble numeric values
 set.seed(123)
 scramble_values(1:10)
@@ -33,196 +58,81 @@ scramble_values(1:10)
 # Scramble character values  
 scramble_values(letters[1:5])
 #> [1] "b" "c" "a" "d" "e"
-
-# Scramble logical values
-scramble_values(c(TRUE, FALSE, TRUE, FALSE))
-#> [1] FALSE  TRUE FALSE  TRUE
 ```
 
-### `scramble_variables()`
+#### `scramble_variables()` - Scramble Column Values
 
-Scrambles the values of specified variables (columns) within a data frame, with optional grouping.
+Scrambles values within specified columns, optionally by groups:
 
 ``` r
-# Create example data
 df <- data.frame(
-  x = 1:6, 
-  y = letters[1:6], 
+  score = 1:6, 
   group = c("A", "A", "A", "B", "B", "B")
 )
 
-# Scramble variables across entire dataset
-scramble_variables(df, c("x", "y"))
+# Scramble across entire column
+scramble_variables(df, "score")
 
-# Scramble within groups using .groups parameter
-scramble_variables(df, "y", .groups = "group")
+# Scramble within groups
+scramble_variables(df, "score", .groups = "group")
 
-# Or using dplyr grouping
+# Using dplyr grouping
 library(dplyr)
-df |> 
-  group_by(group) |> 
-  scramble_variables("x") |>
-  ungroup()
-  
-# Can use multiple groups
-marp |> 
-    group_by(country, gender) |> 
-    scramble_variables(c("rel_1", "rel_2")) |> 
-    ungroup()
-    
-# Can use tidyselect helpers
-marp |> 
-    scramble_variables(starts_with("rel_")) |> 
-    ungroup()
-  
+df |> group_by(group) |> scramble_variables("score") |> ungroup()
 ```
 
-### `scramble_values_rowwise()`
+#### `scramble_values_rowwise()` - Scramble Values Within Rows
 
-Scrambles the values across selected columns within each row of a data frame. For each row, values are shuffled between the selected columns while preserving the values within that row.
+Shuffles values across columns within each row:
 
 ``` r
-# Create example data
 df <- data.frame(
-  day_1 = c(1, 4, 7),
-  day_2 = c(2, 5, 8), 
-  day_3 = c(3, 6, 9),
-  score_a = c(10, 40, 70),
-  score_b = c(20, 50, 80),
-  id = 1:3
+  day1 = c(1, 4, 7),
+  day2 = c(2, 5, 8), 
+  day3 = c(3, 6, 9)
 )
 
-# Scramble values across day columns within each row
 set.seed(123)
-df |> scramble_values_rowwise(c("day_1", "day_2", "day_3"))
-#>   day_1 day_2 day_3 score_a score_b id
-#> 1     3     1     2      10      20  1
-#> 2     5     4     6      40      50  2
-#> 3     8     9     7      70      80  3
-
-# Using tidyselect helpers
-df |> scramble_values_rowwise(starts_with("day_"))
-
-# Scramble score columns
-set.seed(100)
-df |> scramble_values_rowwise(c("score_a", "score_b"))
-#>   day_1 day_2 day_3 score_a score_b id
-#> 1     1     2     3      20      10  1
-#> 2     4     5     6      50      40  2
-#> 3     7     8     9      70      80  3
-
-# Example with the 'williams' dataset  
-data(williams)
-
-# Scramble sexual unrestrictedness items within each row
-williams |> scramble_values_rowwise(
-  c("SexUnres_1", "SexUnres_2", "SexUnres_3")
-)
+scramble_values_rowwise(df, c("day1", "day2", "day3"))
+#>   day1 day2 day3
+#> 1    3    1    2
+#> 2    5    4    6
+#> 3    8    9    7
 ```
 
-### `scramble_variables_rowwise()`
+#### `scramble_variables_rowwise()` - Scramble Variable Sets Within Rows
 
-Scrambles the values of defined variable sets rowwise in a data frame. For each row, values within each variable set are shuffled while keeping the values within the same row.
+Scrambles multiple sets of variables within each row:
 
 ``` r
-# Create example data with multiple variable sets
 df <- data.frame(
-  day_1 = c(1, 4, 7),
-  day_2 = c(2, 5, 8), 
-  day_3 = c(3, 6, 9),
-  score_a = c(10, 40, 70),
-  score_b = c(20, 50, 80),
-  id = 1:3
+  item1 = c(1, 4), item2 = c(2, 5), item3 = c(3, 6),
+  score_a = c(10, 40), score_b = c(20, 50)
 )
 
-# Scramble a single set of variables rowwise
-set.seed(123)
-df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
-#>   day_1 day_2 day_3 score_a score_b id
-#> 1     3     1     2      10      20  1
-#> 2     5     4     6      40      50  2
-#> 3     8     9     7      70      80  3
-
-# Scramble multiple sets of variables
-df |> scramble_variables_rowwise(list(
-  c("day_1", "day_2", "day_3"),
+# Scramble multiple variable sets
+scramble_variables_rowwise(df, list(
+  c("item1", "item2", "item3"),
   c("score_a", "score_b")
 ))
-
-# Using tidyselect helpers for single sets
-library(dplyr)
-df |> scramble_variables_rowwise(starts_with("day_"))
-
-# Example with the 'williams' dataset
-data(williams)
-
-# Scramble sexual unrestrictedness items within each row
-williams |> scramble_variables_rowwise(
-  c("SexUnres_1", "SexUnres_2", "SexUnres_3")
-)
-
-# Scramble multiple construct sets
-williams |> scramble_variables_rowwise(list(
-  c("SexUnres_1", "SexUnres_2", "SexUnres_3"),
-  c("Impuls_1", "Impuls_2_r", "Impul_3_r")
-))
 ```
 
-## Included Datasets
+## Datasets
 
-### MARP Dataset
+The package includes two research datasets for demonstration:
 
-The **Many Analysts Religion Project (MARP)** dataset contains data from 10,535 participants across 24 countries, exploring the relationship between religiosity and well-being.
+- **`marp`**: Many Analysts Religion Project data (10,535 participants, 24 countries) - religiosity and well-being measures
+- **`williams`**: Risk-taking study data (112 participants) - behavioral measures across ecological conditions
 
 ``` r
+# Load and explore datasets
 data(marp)
-dim(marp)
-#> [1] 10535    46
-
-# Explore countries in the dataset
-length(unique(marp$country))
-#> [1] 24
-
-# Example: scramble religiosity variables by country
-marp |>
-  group_by(country) |>
-  scramble_variables(c("rel_1", "rel_2", "rel_3")) |>
-  ungroup()
-```
-
-**Variables include:**
-- `rel_1` to `rel_9`: Religiosity measures
-- `wb_*`: Well-being indicators (general, physical, psychological, social)
-- `country`: Participant country
-- `age`, `gender`, `ses`, `education`: Demographics
-- `gdp`: Country-level GDP data
-
-### Williams Dataset  
-
-A study dataset with 112 participants examining the risk taking behavior behavior of high or low wealth individuals.
-
-``` r
 data(williams)
-dim(williams)
-#> [1] 112  25
 
-table(williams$ecology)
-#> Desperate   Hopeful 
-#>        56        56
-
-# Example: scramble perception measures within ecology conditions
-williams |>
-  group_by(ecology) |>
-  scramble_variables(c("SexUnres_1", "Impuls_1")) |>
-  ungroup()
+# Example: Blind treatment conditions
+williams$ecology_masked <- mask_labels(williams$ecology)
+head(williams[c("ecology", "ecology_masked")])
 ```
-
-**Key variables:**
-- `ecology`: Experimental condition ("Desperate" vs "Hopeful")
-- `SexUnres_*`: Sexual unresponsiveness measures  
-- `Impuls_*`: Impulsivity measures
-- `Opport_*`: Long-term planning opportunity measures
-- `age`, `gender`: Participant demographics
 
 ## Explanation of the package name
 
@@ -230,10 +140,9 @@ Vazul was a Hungarian price in the 11. century. He was blinded by the king to be
 
 ## Documentation
 
-- Package documentation: `help(package = "vazul")`
-- Function help: `?scramble_values`, `?scramble_variables`, `?scramble_values_rowwise`, `?scramble_variables_rowwise`  
-- Dataset documentation: `?marp`, `?williams`
 - Package website: https://nthun.github.io/vazul/
+- Function help: `?mask_labels`, `?scramble_values`, `?scramble_variables`
+- Dataset help: `?marp`, `?williams`
 
 ## Authors
 
