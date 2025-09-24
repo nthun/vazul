@@ -121,7 +121,7 @@ test_that("mask_labels_rowwise validates input correctly", {
   # No columns selected - this now throws an error from tidyselect
   expect_error(
     mask_labels_rowwise(df, "nonexistent"),
-    "Can't subset columns that don't exist"
+    class = "vctrs_error_subscript_oob"
   )
   
   # Mixed data types
