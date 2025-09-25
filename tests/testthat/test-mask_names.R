@@ -71,7 +71,7 @@ test_that("mask_names custom prefix works", {
   expect_true(all(grepl("^masked_var_A_", masked_names)))
 })
 
-test_that("mask_names custom suffix works", {
+test_that("mask_names custom set_id works", {
   df <- data.frame(
     var1 = c(1, 2, 3),
     var2 = c(4, 5, 6),
@@ -82,7 +82,7 @@ test_that("mask_names custom suffix works", {
   result <- mask_names(df, 
     c("var1", "var2"), 
     c("var3"), 
-    suffix = c("group1", "group2")
+    set_id = c("group1", "group2")
   )
   
   masked_names <- names(result)
@@ -153,10 +153,10 @@ test_that("mask_names validates parameters correctly", {
     "Parameter 'prefix' must be a single character string"
   )
   
-  # Test wrong length suffix
+  # Test wrong length set_id
   expect_error(
-    mask_names(df, c("var1"), c("var1"), suffix = c("A")),  # 2 sets, 1 suffix
-    "If 'suffix' is provided, it must have the same length as the number of variable sets"
+    mask_names(df, c("var1"), c("var1"), set_id = c("A")),  # 2 sets, 1 set_id
+    "If 'set_id' is provided, it must have the same length as the number of variable sets"
   )
 })
 
@@ -168,12 +168,12 @@ test_that("mask_names prevents duplicate masked names", {
     var2 = c(7, 8, 9)
   )
   
-  # This should work fine with different suffixes
+  # This should work fine with different set_ids
   set.seed(123)
   result <- mask_names(df, 
     c("common", "var1"), 
     c("var2"), 
-    suffix = c("set1", "set2")
+    set_id = c("set1", "set2")
   )
   
   expect_equal(ncol(result), ncol(df))

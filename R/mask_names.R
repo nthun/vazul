@@ -14,7 +14,7 @@
 #'   }
 #' @param prefix character string to use as base prefix for masked names.
 #'   Default is "variable_set_"
-#' @param suffix character string to append to prefix for each variable set.
+#' @param set_id character string to append to prefix for each variable set.
 #'   If NULL (default), uses letters A, B, C, etc. for each set.
 #'
 #' @return A data frame with the specified variables renamed to masked names.
@@ -40,14 +40,15 @@
 #'   c("outcome_a", "outcome_b")
 #' )
 #'
-#' # Custom prefix
+#' # Custom set_id
 #' mask_names(df,
 #'   starts_with("treat_"),
-#'   prefix = "masked_var_"
+#'   starts_with("outcome_"),
+#'   set_id = c("treatment", "outcome")
 #' )
 #'
 #' @export
-mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
+mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
   stopifnot(is.data.frame(data))
 
   # Capture all ... arguments as quosures
@@ -71,14 +72,14 @@ mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
          call. = FALSE)
   }
 
-  # Validate suffix parameter if provided
-  if (!is.null(suffix)) {
-    if (!is.character(suffix)) {
-      stop("Parameter 'suffix' must be a character vector or NULL.",
+  # Validate set_id parameter if provided
+  if (!is.null(set_id)) {
+    if (!is.character(set_id)) {
+      stop("Parameter 'set_id' must be a character vector or NULL.",
            call. = FALSE)
     }
-    if (length(suffix) != length(column_sets)) {
-      stop("If 'suffix' is provided, it must have the same length as ",
+    if (length(set_id) != length(column_sets)) {
+      stop("If 'set_id' is provided, it must have the same length as ",
            "the number of variable sets.", call. = FALSE)
     }
   }
@@ -139,20 +140,16 @@ mask_names <- function(data, ..., prefix = "variable_set_", suffix = NULL) {
       return(NULL)
     }
 
-    # Generate suffix for this set
-    if (is.null(suffix)) {
-      set_suffix <- LETTERS[set_index]
+    # Generate set identifier for this set
+    if (is.null(set_id)) {
+      set_identifier <- LETTERS[set_index]
     } else {
-      set_suffix <- suffix[set_index]
+      set_identifier <- set_id[set_index]
     }
 
-    # Create masked names for this set using numeric sequence
-    set_prefix <- paste0(prefix, set_suffix, "_")
-    n_cols <- length(selected_cols)
-    padding_width <- max(2, nchar(as.character(n_cols)))
-    masked_names <- paste0(set_prefix,
-                           sprintf(paste0("%0", padding_width, "d"),
-                                   seq_len(n_cols)))
+    # Create masked names using mask_labels() with set-specific prefix
+    set_prefix <- paste0(prefix, set_identifier, "_")
+    masked_names <- mask_labels(selected_cols, prefix = set_prefix)
 
     # Return mapping from original to masked names
     stats::setNames(masked_names, selected_cols)

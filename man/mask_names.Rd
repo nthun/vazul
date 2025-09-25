@@ -4,7 +4,7 @@
 \alias{mask_names}
 \title{Mask variable names with anonymous labels}
 \usage{
-mask_names(data, ..., prefix = "variable_set_", suffix = NULL)
+mask_names(data, ..., prefix = "variable_set_", set_id = NULL)
 }
 \arguments{
 \item{data}{a data frame}
@@ -19,7 +19,7 @@ mask_names(data, ..., prefix = "variable_set_", suffix = NULL)
 \item{prefix}{character string to use as base prefix for masked names.
 Default is "variable_set_"}
 
-\item{suffix}{character string to append to prefix for each variable set.
+\item{set_id}{character string to append to prefix for each variable set.
 If NULL (default), uses letters A, B, C, etc. for each set.}
 }
 \value{
@@ -41,21 +41,22 @@ df <- data.frame(
 )
 
 # Mask two variable sets with default prefixes
-mask_names(df, 
-  starts_with("treat_"), 
+mask_names(df,
+  starts_with("treat_"),
   starts_with("outcome_")
 )
 
 # Using character vectors
-mask_names(df, 
-  c("treat_1", "treat_2"), 
+mask_names(df,
+  c("treat_1", "treat_2"),
   c("outcome_a", "outcome_b")
 )
 
-# Custom prefix
-mask_names(df, 
-  starts_with("treat_"), 
-  prefix = "masked_var_"
+# Custom set_id
+mask_names(df,
+  starts_with("treat_"),
+  starts_with("outcome_"),
+  set_id = c("treatment", "outcome")
 )
 
 }
