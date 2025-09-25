@@ -47,6 +47,21 @@
 #'   set_id = c("treatment", "outcome")
 #' )
 #'
+#' # Example with the 'williams' dataset
+#' library(dplyr)
+#'
+#' set.seed(42)
+#'
+#' williams |>
+#' mask_names(starts_with("SexUnres"),
+#'            starts_with("Impul"),
+#'            starts_with("Opport"),
+#'            starts_with("InvEdu"),
+#'            starts_with("InvChild"),
+#'            ) |>
+#'  glimpse()
+#'
+#'
 #' @export
 mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
   stopifnot(is.data.frame(data))
