@@ -26,9 +26,10 @@ library(stats)
 In this example, we will use the `williams` dataset from the `{vazul}` package.
 
 ```{r}
-head(vazul::williams)
+data("williams", package = "vazul")
 
-glimpse(vazul::williams)
+head(williams)
+glimpse(williams)
 
 ```
 
