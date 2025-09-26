@@ -6,3 +6,7 @@
 *.tar.gz
 *.Rcheck/
 ..Rcheck/
+inst/doc
+**/.quarto/
+/doc/
+/Meta/

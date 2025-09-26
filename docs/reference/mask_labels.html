@@ -24,6 +24,10 @@ with the original order."></head><body>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/using_mask_names.html">Masking variable names</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -78,28 +82,38 @@ Default is "masked_group_"</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">treatment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span>, <span class="st">"treatment"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mask_labels</span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_labels(treatment):</span> could not find function "mask_labels"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           control         treatment           control         treatment </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02" </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with custom prefix</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mask_labels</span><span class="op">(</span><span class="va">condition</span>, prefix <span class="op">=</span> <span class="st">"group_"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_labels(condition, prefix = "group_"):</span> could not find function "mask_labels"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          A          B          C          A          B          C </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> "group_01" "group_03" "group_02" "group_01" "group_03" "group_02" </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with factor vector</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">789</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ecology</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Desperate"</span>, <span class="st">"Hopeful"</span>, <span class="st">"Desperate"</span>, <span class="st">"Hopeful"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mask_labels</span><span class="op">(</span><span class="va">ecology</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_labels(ecology):</span> could not find function "mask_labels"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Desperate         Hopeful       Desperate         Hopeful </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> masked_group_01 masked_group_02 masked_group_01 masked_group_02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Levels: masked_group_01 masked_group_02</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using with dataset column</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">williams</span><span class="op">$</span><span class="va">ecology_masked</span> <span class="op">&lt;-</span> <span class="fu">mask_labels</span><span class="op">(</span><span class="va">williams</span><span class="op">$</span><span class="va">ecology</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_labels(williams$ecology):</span> could not find function "mask_labels"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">williams</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ecology"</span>, <span class="st">"ecology_masked"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in williams[c("ecology", "ecology_masked")]:</span> Can't subset columns that don't exist.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Column `ecology_masked` doesn't exist.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecology   ecology_masked </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Hopeful   masked_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Desperate masked_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Desperate masked_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Hopeful   masked_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Desperate masked_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Desperate masked_group_02</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
