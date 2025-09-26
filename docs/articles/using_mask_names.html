@@ -71,16 +71,28 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nthun.github.io/vazul/">vazul</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>In this example, we will use the <code>williams</code> dataset from the <a href="https://nthun.github.io/vazul/">vazul</a> package.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="op">?</span><span class="va">williams</span></span>
-<span><span class="co">#&gt; starting httpd help server ... done</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">vazul</span><span class="fu">::</span><span class="va"><a href="../reference/williams.html">williams</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 25</span></span>
+<span><span class="co">#&gt;   subject    SexUnres_1 SexUnres_2 SexUnres_3 SexUnres_4_r SexUnres_5_r Impuls_1</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;           &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 A30MP4LXV…          5          3          2            3            2        3</span></span>
+<span><span class="co">#&gt; 2 A16X5FB3H…          7          7          7            4            2        6</span></span>
+<span><span class="co">#&gt; 3 A1E9D1OT9…          2          4          6            3            3        3</span></span>
+<span><span class="co">#&gt; 4 A16FPOYD7…          5          4          5            3            3        4</span></span>
+<span><span class="co">#&gt; 5 A11NOTVHW…          5          5          6            3            3        5</span></span>
+<span><span class="co">#&gt; 6 A3TDR6MXS…          5          6          6            3            2        5</span></span>
+<span><span class="co">#&gt; # ℹ 18 more variables: Impuls_2_r &lt;dbl&gt;, Impul_3_r &lt;dbl&gt;, Opport_1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   Opport_2 &lt;dbl&gt;, Opport_3 &lt;dbl&gt;, Opport_4 &lt;dbl&gt;, Opport_5 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   Opport_6_r &lt;dbl&gt;, InvEdu_1_r &lt;dbl&gt;, InvEdu_2_r &lt;dbl&gt;, InvChild_1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   InvChild_2_r &lt;dbl&gt;, age &lt;dbl&gt;, gender &lt;dbl&gt;, ecology &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   duration_in_seconds &lt;dbl&gt;, attention_1 &lt;dbl&gt;, attention_2 &lt;dbl&gt;</span></span>
 <span></span>
-<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="fu">vazul</span><span class="fu">::</span><span class="va"><a href="../reference/williams.html">williams</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 112</span></span>
 <span><span class="co">#&gt; Columns: 25</span></span>
 <span><span class="co">#&gt; $ subject             &lt;chr&gt; "A30MP4LXV4MIFD", "A16X5FB3HAFCKN", "A1E9D1OT9VJYD…</span></span>
@@ -115,8 +127,8 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">84</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">masked_williams</span> <span class="op">&lt;-</span></span>
-<span>    <span class="va">williams</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"SexUnres"</span><span class="op">)</span>,</span>
+<span>    <span class="fu">vazul</span><span class="fu">::</span><span class="va"><a href="../reference/williams.html">williams</a></span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu">vazul</span><span class="fu">::</span><span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"SexUnres"</span><span class="op">)</span>,</span>
 <span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Impuls"</span><span class="op">)</span>,</span>
 <span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Opport"</span><span class="op">)</span>,</span>
 <span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvEdu"</span><span class="op">)</span>,</span>
@@ -168,7 +180,7 @@
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">efa_orig</span> <span class="op">&lt;-</span></span>
-<span>    <span class="va">williams</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu">vazul</span><span class="fu">::</span><span class="va"><a href="../reference/williams.html">williams</a></span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">SexUnres_1</span><span class="op">:</span><span class="va">InvChild_2_r</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/factanal.html" class="external-link">factanal</a></span><span class="op">(</span>factors <span class="op">=</span> <span class="fl">5</span>, rotation <span class="op">=</span> <span class="st">"varimax"</span><span class="op">)</span></span>
 <span></span>
