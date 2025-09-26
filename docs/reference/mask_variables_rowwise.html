@@ -18,6 +18,10 @@ This function uses mask_labels_rowwise() for each column set."></head><body>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/using_mask_names.html">Masking variable names</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -82,14 +86,27 @@ Default is "masked_group_"</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">mask_variables_rowwise</span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"treat_"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables_rowwise(df, starts_with("treat_")):</span> could not find function "mask_variables_rowwise"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           treat_1         treat_2         treat_3 condition_a condition_b id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 masked_group_03 masked_group_01 masked_group_02           A           B  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 masked_group_01 masked_group_02 masked_group_03           B           A  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 masked_group_02 masked_group_03 masked_group_01           A           B  3</span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">mask_variables_rowwise</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treat_1"</span>, <span class="st">"treat_2"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables_rowwise(df, c("treat_1", "treat_2")):</span> could not find function "mask_variables_rowwise"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           treat_1         treat_2   treat_3 condition_a condition_b id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 masked_group_02 masked_group_01   placebo           A           B  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 masked_group_01 masked_group_03   control           B           A  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 masked_group_03 masked_group_02 treatment           A           B  3</span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">mask_variables_rowwise</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"treat_"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition_a"</span>, <span class="st">"condition_b"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables_rowwise(df, starts_with("treat_"), c("condition_a",     "condition_b")):</span> could not find function "mask_variables_rowwise"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           treat_1         treat_2         treat_3     condition_a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 masked_group_02 masked_group_03 masked_group_01 masked_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 masked_group_03 masked_group_01 masked_group_02 masked_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 masked_group_01 masked_group_02 masked_group_03 masked_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       condition_b id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 masked_group_02  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 masked_group_01  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 masked_group_02  3</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

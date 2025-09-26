@@ -22,6 +22,10 @@ across all selected variables."></head><body>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/using_mask_names.html">Masking variable names</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -91,16 +95,25 @@ Only character and factor columns can be processed.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Independent masking for each variable (default - uses column names as prefixes)</span></span></span>
 <span class="r-in"><span><span class="fu">mask_variables</span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment"</span>, <span class="st">"outcome"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables(df, c("treatment", "outcome")):</span> could not find function "mask_variables"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            treatment          outcome score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 treatment_group_01 outcome_group_01     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 treatment_group_02 outcome_group_02     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 treatment_group_01 outcome_group_01     3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Shared masking across variables</span></span></span>
 <span class="r-in"><span><span class="fu">mask_variables</span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment"</span>, <span class="st">"outcome"</span><span class="op">)</span>, across_variables <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables(df, c("treatment", "outcome"), across_variables = TRUE):</span> could not find function "mask_variables"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         treatment         outcome score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 masked_group_01 masked_group_03     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 masked_group_04 masked_group_02     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 masked_group_01 masked_group_03     3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using tidyselect helpers</span></span></span>
 <span class="r-in"><span><span class="fu">mask_variables</span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is.character</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables(df, where(is.character)):</span> could not find function "mask_variables"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            treatment          outcome score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 treatment_group_01 outcome_group_01     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 treatment_group_02 outcome_group_02     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 treatment_group_01 outcome_group_01     3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with multiple categorical columns</span></span></span>
 <span class="r-in"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -109,17 +122,27 @@ Only character and factor columns can be processed.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">mask_variables</span><span class="op">(</span><span class="va">df2</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"group"</span>, <span class="st">"condition"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables(df2, c("group", "condition")):</span> could not find function "mask_variables"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'result' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            group          condition</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 group_group_01 condition_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 group_group_02 condition_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 group_group_01 condition_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 group_group_02 condition_group_02</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with williams dataset (multiple categorical columns)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">williams_masked</span> <span class="op">&lt;-</span> <span class="fu">mask_variables</span><span class="op">(</span><span class="va">williams</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"ecology"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mask_variables(williams, c("subject", "ecology")):</span> could not find function "mask_variables"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">williams_masked</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"ecology"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'williams_masked' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   subject           ecology         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> subject_group_109 ecology_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> subject_group_101 ecology_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> subject_group_035 ecology_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> subject_group_038 ecology_group_02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> subject_group_085 ecology_group_01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> subject_group_027 ecology_group_01</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
