@@ -1,7 +1,7 @@
 ---
 title: "Masking variable names"
 vignette: >
-  %\VignetteIndexEntry{Maksing variable names}
+  %\VignetteIndexEntry{Masking variable names}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{quarto::html}
 knitr:
@@ -12,7 +12,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-In certain studies, variable names should be masked to prevent reearcher bias. Examples can include exploratory factor analysis, network analysis, etc. The `vazul` package provides means to mask variable names in a dataset, ensuring that analyses can be conducted without preconceived notions about the variables.
+In certain studies, variable names should be masked to prevent researcher bias. Examples can include exploratory factor analysis, network analysis, etc. The `vazul` package provides means to mask variable names in a dataset, ensuring that analyses can be conducted without preconceived notions about the variables.
 
 ```{r}
 #| label: setup
@@ -34,7 +34,7 @@ glimpse(williams)
 
 ```
 
-We will apply masking to the variables related to well-being, which are prefixed with `wb_gen`, `wb_phys`, `wb_psych`, and `wb_soc`. The `mask_names()` function will rename these variables to generic names like `variable_set_A_01`, `variable_set_A_02`, etc., where "A" indicates the first set of variables being masked. This way, we can specify variables that should load to the same component without knowing their actual names. Note that the order of new names is randomized, so we don't exactly know which original variable corresponds to which masked name.
+We will apply masking to the variables related to life history strategy, which are prefixed with `SexUnres`, `Impuls`, `Opport`, `InvEdu`, and `InvChild`. The `mask_names()` function will rename these variables to generic names like `variable_set_A_01`, `variable_set_A_02`, etc., where “A” indicates the first set of variables being masked. This way, we can specify variables that should load to the same component without knowing their actual names. Note that the order of new names is randomized, so we don’t exactly know which original variable corresponds to which masked name.. The `mask_names()` function will rename these variables to generic names like `variable_set_A_01`, `variable_set_A_02`, etc., where "A" indicates the first set of variables being masked. This way, we can specify variables that should load to the same component without knowing their actual names. Note that the order of new names is randomized, so we don't exactly know which original variable corresponds to which masked name.
 
 
 ```{r}
@@ -43,14 +43,14 @@ set.seed(84)
 masked_williams <-
     williams |> 
     mask_names(starts_with("SexUnres"),
-               starts_with("Impuls"),
+               starts_with("Impul"),
                starts_with("Opport"),
                starts_with("InvEdu"),
                starts_with("InvChild"))
 
 ```
 
-We can now perform a exploratory factor analyis (EFA on the masked variables. Since the variable names are masked, we won't know which original variables correspond to which factor, thus preventing bias in interpreting the results.
+We can now perform an exploratory factor analysis (EFA) on the masked variables. Since the variable names are masked, we won’t know which original variables correspond to which factor, thus preventing bias in interpreting the results.
 
 ```{r}
 
@@ -67,7 +67,7 @@ efa_blind |>
 
 ```
 
-The loading table shows that factors are not necessarily load to their original category. By using masking, researchers may be able to make decisions without being biased on the variable names.
+The loading table shows that factors are not necessarily loading to their original category. By using masking, researchers may be able to make decisions without being biased on the variable names.
 
 Applying the same analysis on the original dataset reveals the names of the variables. Please note that the loadings may differ slightly due to the randomness in the factor analysis process.
 

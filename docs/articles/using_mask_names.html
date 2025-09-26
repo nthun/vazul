@@ -67,7 +67,7 @@
 
 
 
-    <p>In certain studies, variable names should be masked to prevent reearcher bias. Examples can include exploratory factor analysis, network analysis, etc. The <code>vazul</code> package provides means to mask variable names in a dataset, ensuring that analyses can be conducted without preconceived notions about the variables.</p>
+    <p>In certain studies, variable names should be masked to prevent researcher bias. Examples can include exploratory factor analysis, network analysis, etc. The <code>vazul</code> package provides means to mask variable names in a dataset, ensuring that analyses can be conducted without preconceived notions about the variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nthun.github.io/vazul/">vazul</a></span><span class="op">)</span></span>
@@ -123,7 +123,7 @@
 <span><span class="co">#&gt; $ attention_1         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,…</span></span>
 <span><span class="co">#&gt; $ attention_2         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,…</span></span></code></pre></div>
 </div>
-<p>We will apply masking to the variables related to well-being, which are prefixed with <code>wb_gen</code>, <code>wb_phys</code>, <code>wb_psych</code>, and <code>wb_soc</code>. The <code><a href="../reference/mask_names.html">mask_names()</a></code> function will rename these variables to generic names like <code>variable_set_A_01</code>, <code>variable_set_A_02</code>, etc., where “A” indicates the first set of variables being masked. This way, we can specify variables that should load to the same component without knowing their actual names. Note that the order of new names is randomized, so we don’t exactly know which original variable corresponds to which masked name.</p>
+<p>We will apply masking to the variables related to life history strategy, which are prefixed with <code>SexUnres</code>, <code>Impuls</code>, <code>Opport</code>, <code>InvEdu</code>, and <code>InvChild</code>. The <code><a href="../reference/mask_names.html">mask_names()</a></code> function will rename these variables to generic names like <code>variable_set_A_01</code>, <code>variable_set_A_02</code>, etc., where “A” indicates the first set of variables being masked. This way, we can specify variables that should load to the same component without knowing their actual names. Note that the order of new names is randomized, so we don’t exactly know which original variable corresponds to which masked name.. The <code><a href="../reference/mask_names.html">mask_names()</a></code> function will rename these variables to generic names like <code>variable_set_A_01</code>, <code>variable_set_A_02</code>, etc., where “A” indicates the first set of variables being masked. This way, we can specify variables that should load to the same component without knowing their actual names. Note that the order of new names is randomized, so we don’t exactly know which original variable corresponds to which masked name.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">84</span><span class="op">)</span></span>
@@ -131,12 +131,12 @@
 <span><span class="va">masked_williams</span> <span class="op">&lt;-</span></span>
 <span>    <span class="va">williams</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"SexUnres"</span><span class="op">)</span>,</span>
-<span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Impuls"</span><span class="op">)</span>,</span>
+<span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Impul"</span><span class="op">)</span>,</span>
 <span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Opport"</span><span class="op">)</span>,</span>
 <span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvEdu"</span><span class="op">)</span>,</span>
 <span>               <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvChild"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>We can now perform a exploratory factor analyis (EFA on the masked variables. Since the variable names are masked, we won’t know which original variables correspond to which factor, thus preventing bias in interpreting the results.</p>
+<p>We can now perform an exploratory factor analysis (EFA) on the masked variables. Since the variable names are masked, we won’t know which original variables correspond to which factor, thus preventing bias in interpreting the results.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -153,30 +153,31 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Loadings:</span></span>
 <span><span class="co">#&gt;                   Factor1 Factor2 Factor3 Factor4 Factor5</span></span>
-<span><span class="co">#&gt; variable_set_A_03  0.606           0.516                 </span></span>
-<span><span class="co">#&gt; variable_set_A_04  0.686                                 </span></span>
-<span><span class="co">#&gt; variable_set_A_02  0.700           0.493                 </span></span>
-<span><span class="co">#&gt; variable_set_B_02  0.761                                 </span></span>
-<span><span class="co">#&gt; variable_set_C_05  0.900                                 </span></span>
-<span><span class="co">#&gt; variable_set_C_06  0.828                                 </span></span>
-<span><span class="co">#&gt; variable_set_C_01  0.842                                 </span></span>
-<span><span class="co">#&gt; variable_set_C_02  0.737                                 </span></span>
-<span><span class="co">#&gt; variable_set_C_04  0.871                                 </span></span>
-<span><span class="co">#&gt; variable_set_E_01  0.778                                 </span></span>
-<span><span class="co">#&gt; variable_set_A_01          0.739   0.303                 </span></span>
-<span><span class="co">#&gt; variable_set_A_05          0.569                   0.394 </span></span>
-<span><span class="co">#&gt; variable_set_B_01          0.864                         </span></span>
-<span><span class="co">#&gt; variable_set_C_03          0.687           0.591         </span></span>
-<span><span class="co">#&gt; variable_set_D_01          0.675                         </span></span>
-<span><span class="co">#&gt; variable_set_D_02          0.838                         </span></span>
-<span><span class="co">#&gt; variable_set_E_02          0.882                         </span></span>
+<span><span class="co">#&gt; variable_set_A_03  0.666           0.472                 </span></span>
+<span><span class="co">#&gt; variable_set_A_04  0.701                                 </span></span>
+<span><span class="co">#&gt; variable_set_A_02  0.749           0.331                 </span></span>
+<span><span class="co">#&gt; variable_set_B_02  0.762                                 </span></span>
+<span><span class="co">#&gt; variable_set_C_05  0.893                                 </span></span>
+<span><span class="co">#&gt; variable_set_C_06  0.834                                 </span></span>
+<span><span class="co">#&gt; variable_set_C_02  0.870                                 </span></span>
+<span><span class="co">#&gt; variable_set_C_01  0.758                                 </span></span>
+<span><span class="co">#&gt; variable_set_C_04  0.853                                 </span></span>
+<span><span class="co">#&gt; variable_set_E_01  0.766                                 </span></span>
+<span><span class="co">#&gt; variable_set_A_01          0.735   0.335                 </span></span>
+<span><span class="co">#&gt; variable_set_A_05          0.567           0.425         </span></span>
+<span><span class="co">#&gt; variable_set_B_03          0.867                         </span></span>
+<span><span class="co">#&gt; variable_set_B_01          0.746                         </span></span>
+<span><span class="co">#&gt; variable_set_C_03          0.715                         </span></span>
+<span><span class="co">#&gt; variable_set_D_01          0.699                         </span></span>
+<span><span class="co">#&gt; variable_set_D_02          0.839                         </span></span>
+<span><span class="co">#&gt; variable_set_E_02          0.852                         </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                Factor1 Factor2 Factor3 Factor4 Factor5</span></span>
-<span><span class="co">#&gt; SS loadings      6.166   4.248   0.813   0.489   0.334</span></span>
-<span><span class="co">#&gt; Proportion Var   0.363   0.250   0.048   0.029   0.020</span></span>
-<span><span class="co">#&gt; Cumulative Var   0.363   0.613   0.660   0.689   0.709</span></span></code></pre></div>
+<span><span class="co">#&gt; SS loadings      6.398   4.815   0.717   0.345   0.284</span></span>
+<span><span class="co">#&gt; Proportion Var   0.355   0.267   0.040   0.019   0.016</span></span>
+<span><span class="co">#&gt; Cumulative Var   0.355   0.623   0.663   0.682   0.698</span></span></code></pre></div>
 </div>
-<p>The loading table shows that factors are not necessarily load to their original category. By using masking, researchers may be able to make decisions without being biased on the variable names.</p>
+<p>The loading table shows that factors are not necessarily loading to their original category. By using masking, researchers may be able to make decisions without being biased on the variable names.</p>
 <p>Applying the same analysis on the original dataset reveals the names of the variables. Please note that the loadings may differ slightly due to the randomness in the factor analysis process.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
