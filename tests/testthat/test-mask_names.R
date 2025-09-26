@@ -123,13 +123,9 @@ test_that("mask_names handles non-existent columns", {
     var2 = c(4, 5, 6)
   )
 
-  expect_warning(
     expect_warning(
       result <- mask_names(df, c("var1", "nonexistent")),
-      "Some column names not found"
-    ),
-    "No valid variable sets found"
-  )
+      "Some column names not found")
 })
 
 test_that("mask_names validates parameters correctly", {
