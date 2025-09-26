@@ -111,9 +111,12 @@ mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
         if (is.character(set)) {
           missing <- setdiff(set, names(data))
           if (length(missing) > 0) {
-            warning("Some column names not found: ",
-                    paste(missing, collapse = ", "), call. = FALSE)
-            return(NULL)
+              warning("Some column names not found: ",
+                      paste(missing, collapse = ", "), call. = FALSE)
+              set <- intersect(set, names(data))
+              if (length(set) == 0) {
+                  return(NULL)
+              }
           }
           set  # Return the character vector
         } else {
@@ -157,9 +160,13 @@ mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
 
     # Generate set identifier for this set
     if (is.null(set_id)) {
-      set_identifier <- LETTERS[set_index]
+        if (set_index > 26) {
+            stop("Cannot generate more than 26 default set IDs. Please provide 'set_id'.",
+                 call. = FALSE)
+        }
+        set_identifier <- LETTERS[set_index]
     } else {
-      set_identifier <- set_id[set_index]
+        set_identifier <- set_id[set_index]
     }
 
     # Create masked names using mask_labels() with set-specific prefix
@@ -181,6 +188,15 @@ mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
     return(data)
   }
 
+  # Check for overlapping columns between sets
+  all_cols <- unlist(lapply(all_mappings, names), use.names = FALSE)
+  if (any(duplicated(all_cols))) {
+      duplicates <- unique(all_cols[duplicated(all_cols)])
+      stop("The following columns were found in multiple variable sets: ",
+           paste(duplicates, collapse = ", "),
+           ". Each column can only belong to one set.", call. = FALSE)
+  }
+
   # Combine all mappings into a single named vector
   final_mapping <- unlist(all_mappings, use.names = TRUE)
 
@@ -200,8 +216,8 @@ mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
     duplicates <- new_names[duplicated(new_names)]
     stop("Duplicate masked names generated: ",
          paste(unique(duplicates), collapse = ", "),
-         ". This may occur when different variable sets have the same ",
-         "column names. Please use different prefixes or suffixes.",
+         ". This can occur if 'set_id' contains duplicate values. ",
+         "Please provide unique set identifiers for each variable set.",
          call. = FALSE)
   }
 
