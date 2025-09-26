@@ -8,3 +8,5 @@
 ..Rcheck/
 inst/doc
 **/.quarto/
+/doc/
+/Meta/

@@ -19,7 +19,6 @@ In certain studies, variable names should be masked to prevent reearcher bias. E
 #| message: false
 
 library(dplyr)
-library(vazul)
 library(stats)
 
 ```
@@ -27,9 +26,9 @@ library(stats)
 In this example, we will use the `williams` dataset from the `{vazul}` package.
 
 ```{r}
-?williams
+?vazul::williams
 
-glimpse(williams)
+glimpse(vazul::williams)
 
 ```
 
@@ -40,8 +39,8 @@ We will apply masking to the variables related to well-being, which are prefixed
 set.seed(84)
 
 masked_williams <-
-    williams |> 
-    mask_names(starts_with("SexUnres"),
+    vazul::williams |> 
+    vazul::mask_names(starts_with("SexUnres"),
                starts_with("Impuls"),
                starts_with("Opport"),
                starts_with("InvEdu"),
@@ -73,7 +72,7 @@ Applying the same analysis on the original dataset reveals the names of the vari
 ```{r}
 set.seed(123)
 efa_orig <-
-    williams |> 
+    vazul::williams |> 
     select(SexUnres_1:InvChild_2_r) |>
     factanal(factors = 5, rotation = "varimax")
 
