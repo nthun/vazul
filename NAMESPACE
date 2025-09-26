@@ -2,6 +2,7 @@
 
 export(mask_labels)
 export(mask_labels_rowwise)
+export(mask_names)
 export(mask_variables)
 export(mask_variables_rowwise)
 export(scramble_values)

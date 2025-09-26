@@ -1,7 +1,7 @@
 # vazul 0.3.0
-## 2025-09-24
+## 2025-09-25
 
-* Add mask_labels(), mask_variables(), mask_labels_rowwise(), mask_variables_rowwise() functions to mask factor levels
+* Add `mask_labels()`, `mask_variables()`, `mask_labels_rowwise()`, `mask_variables_rowwise()`, `mask_names()` functions to mask factor levels and variable names.
 * Add unit tests for all new functions
 
 # vazul 0.2.1
@@ -12,15 +12,15 @@
 
 # vazul 0.1.0
 ## 2025-09-18
-* Scramble_values() can now use tidyselect helpers
+* `scramble_values()` can now use tidyselect helpers
 * Improved unit tests
-* Add imports: tidyselect, utils
+* Add imports: {tidyselect}, {utils}
 
 # vazul 0.0.1
 ## 2025-09-15
 * Unit tests added using `testthat`.
 * Add error handling to `scramble_variables()`
-* Add imports: dplyr, rlang
+* Add imports: {dplyr}, {rlang}
 ## 2025-09-09
 * Add `scramble_values()` and `scramble_variables()` functions.
 * Build package using `pkgdown::build_site()`.
