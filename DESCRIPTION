@@ -27,8 +27,7 @@ LazyData: true
 Suggests: 
     testthat,
     covr,
-    knitr,
-    quarto
+    knitr
 Config/testthat/edition: 3
 URL: https://nthun.github.io/vazul/
 Imports: 
@@ -36,4 +35,3 @@ Imports:
     rlang,
     tidyselect,
     utils
-VignetteBuilder: quarto
