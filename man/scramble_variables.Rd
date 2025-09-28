@@ -4,7 +4,7 @@
 \alias{scramble_variables}
 \title{Scrambling the content of several variables in a data frame}
 \usage{
-scramble_variables(data, cols, .groups = NULL)
+scramble_variables(data, cols, .groups = NULL, together = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
@@ -12,6 +12,10 @@ scramble_variables(data, cols, .groups = NULL)
 \item{cols}{\if{html}{\out{<tidy-select>}} Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.}
 
 \item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.}
+
+\item{together}{logical. If \code{TRUE}, each row of variables should be scrambled
+as a unit. The values across different variables are kept intact, but are
+assigned to a different row. Defaults to \code{FALSE}.}
 }
 \value{
 A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
@@ -29,6 +33,9 @@ df |> scramble_variables(c("x", "y"))
 
 # Example with grouping. Variable only scrambled within groups.
 df |> scramble_variables("y", .groups = "group")
+
+# Example with together = TRUE. Entire rows scrambled as units.
+df |> scramble_variables(c("x", "y"), together = TRUE)
 
 # Example with tidyselect helpers
 library(dplyr)

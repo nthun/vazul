@@ -301,3 +301,138 @@ test_that("scramble_variables preserves input data frame type", {
   result_tbl <- scramble_variables(tbl, c("x", "y"))
   expect_equal(class(result_tbl), class(tbl))
 })
+
+test_that("scramble_variables together parameter works correctly", {
+  df <- data.frame(
+    var1 = c("A", "B", "C", "D"),
+    var2 = c("X", "Y", "Z", "W"),  
+    var3 = c(1, 2, 3, 4),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  result <- scramble_variables(df, c("var1", "var2", "var3"), together = TRUE)
+  
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), nrow(df))
+  expect_equal(ncol(result), ncol(df))
+  expect_equal(names(result), names(df))
+  
+  # Check that values within each row stayed together
+  # Each row should have values that appeared together in some row of original data
+  for (i in seq_len(nrow(result))) {
+    result_row <- c(result$var1[i], result$var2[i], result$var3[i])
+    
+    # Find if this combination exists in original data
+    found_match <- FALSE
+    for (j in seq_len(nrow(df))) {
+      orig_row <- c(df$var1[j], df$var2[j], df$var3[j])
+      if (all(result_row == orig_row)) {
+        found_match <- TRUE
+        break
+      }
+    }
+    expect_true(found_match, info = paste("Row", i, "should match some original row"))
+  }
+  
+  # Check that all original values are preserved
+  expect_setequal(result$var1, df$var1)
+  expect_setequal(result$var2, df$var2)
+  expect_setequal(result$var3, df$var3)
+})
+
+test_that("scramble_variables together parameter with grouping", {
+  df <- data.frame(
+    value = c("A", "B", "C", "D", "E", "F"),
+    score = c(1, 2, 3, 4, 5, 6),
+    group = c("X", "X", "X", "Y", "Y", "Y")
+  )
+  
+  set.seed(123)
+  result <- scramble_variables(df, c("value", "score"), .groups = "group", together = TRUE)
+  
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), nrow(df))
+  expect_equal(result$group, df$group)  # Groups should be unchanged
+  
+  # Check that values within each group stayed together and were scrambled
+  group_x_orig <- df[df$group == "X", c("value", "score")]
+  group_x_result <- result[result$group == "X", c("value", "score")]
+  
+  # Each result row should match some original row within the same group
+  for (i in seq_len(nrow(group_x_result))) {
+    result_row <- c(group_x_result$value[i], group_x_result$score[i])
+    found_match <- FALSE
+    for (j in seq_len(nrow(group_x_orig))) {
+      orig_row <- c(group_x_orig$value[j], group_x_orig$score[j])
+      if (all(result_row == orig_row)) {
+        found_match <- TRUE
+        break
+      }
+    }
+    expect_true(found_match)
+  }
+})
+
+test_that("scramble_variables together parameter validates input", {
+  df <- data.frame(x = 1:5, y = letters[1:5])
+  
+  expect_error(
+    scramble_variables(df, "x", together = NULL),
+    "Parameter 'together' cannot be NULL. Please provide a logical value.",
+    fixed = TRUE
+  )
+
+  expect_error(
+    scramble_variables(df, "x", together = "TRUE"),
+    "Parameter 'together' must be a single logical value",
+    fixed = TRUE
+  )
+
+  expect_error(
+    scramble_variables(df, "x", together = c(TRUE, FALSE)),
+    "Parameter 'together' must be a single logical value",
+    fixed = TRUE
+  )
+})
+
+test_that("scramble_variables together parameter handles single row", {
+  df <- data.frame(x = 1, y = "a")
+  
+  result <- scramble_variables(df, c("x", "y"), together = TRUE)
+  
+  expect_equal(result, df)  # Single row should be unchanged
+})
+
+test_that("scramble_variables together parameter with special data types", {
+  df <- data.frame(
+    dates = as.Date(c("2023-01-01", "2023-01-02", "2023-01-03")),
+    factors = factor(c("low", "medium", "high")),
+    logicals = c(TRUE, FALSE, TRUE)
+  )
+  
+  set.seed(123)
+  result <- scramble_variables(df, c("dates", "factors", "logicals"), together = TRUE)
+  
+  expect_s3_class(result, "data.frame")
+  
+  # Check types are preserved
+  expect_s3_class(result$dates, "Date")
+  expect_s3_class(result$factors, "factor")
+  expect_type(result$logicals, "logical")
+  
+  # Check that row values stayed together
+  for (i in seq_len(nrow(result))) {
+    result_row <- list(result$dates[i], result$factors[i], result$logicals[i])
+    
+    found_match <- FALSE
+    for (j in seq_len(nrow(df))) {
+      orig_row <- list(df$dates[j], df$factors[j], df$logicals[j])
+      if (identical(result_row, orig_row)) {
+        found_match <- TRUE
+        break
+      }
+    }
+    expect_true(found_match)
+  }
+})

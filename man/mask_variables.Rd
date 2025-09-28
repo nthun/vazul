@@ -4,7 +4,7 @@
 \alias{mask_variables}
 \title{Mask categorical variables with random labels in a data frame}
 \usage{
-mask_variables(data, cols, across_variables = FALSE)
+mask_variables(data, cols, across_variables = FALSE, together = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
@@ -18,6 +18,10 @@ processed.}
 the same set of masked labels. If \code{FALSE} (default), each variable
 gets its own independent set of masked labels using the column name as
 prefix.}
+
+\item{together}{logical. If \code{TRUE}, each row of variables should be blinded
+as a unit. The values across different variables are kept intact, but are
+assigned to a different row. Defaults to \code{FALSE}.}
 }
 \value{
 A data frame with the specified categorical columns masked.
@@ -45,6 +49,10 @@ mask_variables(df, c("treatment", "outcome"))
 set.seed(456)
 # Shared masking across variables
 mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
+
+# Together masking - entire rows masked as units
+set.seed(789)
+mask_variables(df, c("treatment", "outcome"), together = TRUE)
 
 # Using tidyselect helpers
 mask_variables(df, where(is.character))

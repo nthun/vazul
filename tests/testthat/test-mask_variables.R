@@ -348,3 +348,84 @@ test_that("mask_variables shared labels work with complex scenario", {
   # "A" and "B" should have different masked labels
   expect_false(unique(a_masked) == unique(b_masked))
 })
+
+test_that("mask_variables together parameter works correctly", {
+  df <- data.frame(
+    var1 = c("A", "B", "C", "A"),
+    var2 = c("X", "Y", "Z", "X"),  
+    var3 = c("P", "Q", "R", "P"),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  result <- mask_variables(df, c("var1", "var2", "var3"), together = TRUE)
+  
+  # Check that rows with same pattern get same masked labels across all columns
+  # Rows 1 and 4 should have same values (both A,X,P)
+  expect_equal(result$var1[1], result$var1[4])
+  expect_equal(result$var2[1], result$var2[4])
+  expect_equal(result$var3[1], result$var3[4])
+  
+  # Within each row, all columns should have the same masked value
+  expect_equal(result$var1[1], result$var2[1])
+  expect_equal(result$var2[1], result$var3[1])
+  
+  expect_equal(result$var1[2], result$var2[2])
+  expect_equal(result$var2[2], result$var3[2])
+  
+  # Different row patterns should have different masked values
+  expect_false(result$var1[1] == result$var1[2])
+  expect_false(result$var1[1] == result$var1[3])
+  expect_false(result$var1[2] == result$var1[3])
+})
+
+test_that("mask_variables together parameter validates input", {
+  df <- data.frame(x = c("A", "B"), y = c("X", "Y"))
+  
+  expect_error(
+    mask_variables(df, "x", together = NULL),
+    "Parameter 'together' cannot be NULL. Please provide a logical value.",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mask_variables(df, "x", together = "TRUE"),
+    "Parameter 'together' must be a single logical value",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mask_variables(df, "x", together = c(TRUE, FALSE)),
+    "Parameter 'together' must be a single logical value",
+    fixed = TRUE
+  )
+})
+
+test_that("mask_variables together parameter handles single row", {
+  df <- data.frame(x = "A", y = "B", stringsAsFactors = FALSE)
+  
+  set.seed(123)
+  result <- mask_variables(df, c("x", "y"), together = TRUE)
+  
+  expect_equal(nrow(result), 1)
+  expect_equal(result$x, result$y)  # Should have same masked value
+  expect_true(grepl("^masked_group_", result$x))
+})
+
+test_that("mask_variables together parameter works with factors", {
+  df <- data.frame(
+    x = factor(c("A", "B", "A")),
+    y = factor(c("X", "Y", "X")),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  result <- mask_variables(df, c("x", "y"), together = TRUE)
+  
+  expect_s3_class(result$x, "factor")
+  expect_s3_class(result$y, "factor")
+  
+  # Rows 1 and 3 should have same values
+  expect_equal(as.character(result$x[1]), as.character(result$x[3]))
+  expect_equal(as.character(result$y[1]), as.character(result$y[3]))
+})

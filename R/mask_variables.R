@@ -14,6 +14,9 @@
 #'   the same set of masked labels. If \code{FALSE} (default), each variable
 #'   gets its own independent set of masked labels using the column name as
 #'   prefix.
+#' @param together logical. If \code{TRUE}, each row of variables should be blinded
+#'   as a unit. The values across different variables are kept intact, but are
+#'   assigned to a different row. Defaults to \code{FALSE}.
 #'
 #' @return A data frame with the specified categorical columns masked.
 #'   Only character and factor columns can be processed.
@@ -35,6 +38,10 @@
 #' # Shared masking across variables
 #' mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
 #'
+#' # Together masking - entire rows masked as units
+#' set.seed(789)
+#' mask_variables(df, c("treatment", "outcome"), together = TRUE)
+#'
 #' # Using tidyselect helpers
 #' mask_variables(df, where(is.character))
 #'
@@ -54,7 +61,7 @@
 #' head(williams_masked[c("subject", "ecology")])
 #'
 #' @export
-mask_variables <- function(data, cols, across_variables = FALSE) {
+mask_variables <- function(data, cols, across_variables = FALSE, together = FALSE) {
   # Input validation
   if (is.null(data)) {
     stop("Input 'data' cannot be NULL. Please provide a data frame.", call. = FALSE)
@@ -78,6 +85,17 @@ mask_variables <- function(data, cols, across_variables = FALSE) {
   
   if (!is.logical(across_variables) || length(across_variables) != 1) {
     stop("Parameter 'across_variables' must be a single logical value ",
+         "(TRUE or FALSE).", call. = FALSE)
+  }
+  
+  # Validate together parameter
+  if (is.null(together)) {
+    stop("Parameter 'together' cannot be NULL. ",
+         "Please provide a logical value.", call. = FALSE)
+  }
+  
+  if (!is.logical(together) || length(together) != 1) {
+    stop("Parameter 'together' must be a single logical value ",
          "(TRUE or FALSE).", call. = FALSE)
   }
   
@@ -113,7 +131,50 @@ mask_variables <- function(data, cols, across_variables = FALSE) {
   categorical_cols <- selected_cols
   
   # Apply masking
-  if (across_variables) {
+  if (together) {
+    # When together = TRUE, we mask rows as units
+    # Create a combined key for each row based on selected columns
+    row_patterns <- do.call(paste, c(data[categorical_cols], sep = "|"))
+    
+    # Get unique patterns
+    unique_patterns <- unique(row_patterns)
+    
+    # Remove NA patterns for mapping creation
+    unique_patterns_no_na <- unique_patterns[!is.na(unique_patterns)]
+    
+    if (length(unique_patterns_no_na) == 0) {
+      warning(
+        "All values in selected categorical columns are NA. ",
+        "Returning original data unchanged.", call. = FALSE
+      )
+      return(data)
+    }
+    
+    # Create masked labels for unique patterns
+    masked_patterns <- mask_labels(unique_patterns_no_na, prefix = "masked_group_")
+    pattern_mapping <- stats::setNames(masked_patterns, unique_patterns_no_na)
+    
+    # Apply mapping to each column based on row pattern
+    for (col_name in categorical_cols) {
+      original_col <- data[[col_name]]
+      
+      # For each row, determine the masked pattern and extract the corresponding
+      # original value for this column, then assign the masked pattern
+      masked_values <- ifelse(
+        is.na(row_patterns),
+        as.character(original_col), # Keep NA values unchanged
+        pattern_mapping[row_patterns]
+      )
+      
+      # Handle factor conversion - preserve factor structure
+      if (is.factor(original_col)) {
+        data[[col_name]] <- factor(masked_values, levels = unique(masked_patterns))
+      } else {
+        data[[col_name]] <- masked_values
+      }
+    }
+    
+  } else if (across_variables) {
     # For across_variables masking, create shared mapping using mask_labels
     # First, collect all unique values across all selected categorical columns
     all_values <- unique(unlist(lapply(data[categorical_cols], function(x) {
