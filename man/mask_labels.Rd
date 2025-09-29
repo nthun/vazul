@@ -46,3 +46,4 @@ williams$ecology_masked <- mask_labels(williams$ecology)
 head(williams[c("ecology", "ecology_masked")])
 
 }
+\keyword{functions}

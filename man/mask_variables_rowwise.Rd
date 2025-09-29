@@ -44,3 +44,4 @@ df |> mask_variables_rowwise(
   c("condition_a", "condition_b")
 )
 }
+\keyword{functions}

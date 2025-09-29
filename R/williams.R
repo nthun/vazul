@@ -4,6 +4,7 @@
 #' are perceived as having faster life history strategies (e.g., more impulsive, less invested)
 #' when associated with "desperate" ecological conditions compared to "hopeful" ones.
 #'
+#' @keywords datasets
 #'
 #' @format A data frame with 224 rows (one per participant) and 25 variables:
 #' \describe{

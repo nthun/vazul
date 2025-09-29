@@ -1,11 +1,11 @@
 #' Scrambling the content of several variables in a data frame
 #'
 #' Scramble the values of several variables in a data frame.
-#'
+#' @keywords functions
 #' @param data a data frame
 #' @param cols <tidy-select> Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
-#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.
 #' @param together logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.
+#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
@@ -41,7 +41,6 @@
 #'   williams |> scramble_variables(c("ecology", "age"), together = TRUE)
 #'   williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
 #' }
-#'
 #' @export
 #'
 scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
@@ -77,7 +76,7 @@ scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
                     .scrambled_rows = scramble_values(dplyr::row_number())
                 ) |>
                 dplyr::ungroup()
-            
+
             # Re-arrange the selected columns based on scrambled row numbers within groups
             data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
                 dplyr::mutate(

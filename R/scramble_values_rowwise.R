@@ -2,7 +2,7 @@
 #'
 #' For each row, shuffle the values across the selected columns.
 #' Columns can be mixed types, but note that R may coerce types during the process (function throws warning if mixed types detected).
-#'
+#' @keywords functions
 #' @param data a data frame
 #' @param cols <tidy-select> Columns to scramble rowwise. Supports helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
 #'

@@ -53,5 +53,5 @@ if (requireNamespace("dplyr", quietly = TRUE)) {
   williams |> scramble_variables(c("ecology", "age"), together = TRUE)
   williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
 }
-
 }
+\keyword{functions}

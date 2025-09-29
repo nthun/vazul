@@ -36,3 +36,4 @@ df |> mask_labels_rowwise(starts_with("treat_"))
 df |> mask_labels_rowwise(c("treat_1", "treat_2"))
 
 }
+\keyword{functions}

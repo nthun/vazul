@@ -5,7 +5,7 @@
 #' allocation or categorical outcomes. Each unique original value gets a random
 #' new label, and the assignment order is randomized to prevent correspondence
 #' with the original order.
-#'
+#' @keywords functions
 #' @param x a character or factor vector
 #' @param prefix character string to use as prefix for masked labels.
 #'   Default is "masked_group_"

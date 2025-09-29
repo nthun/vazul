@@ -31,3 +31,4 @@ df |> scramble_values_rowwise(starts_with("day_"))
 df |> scramble_values_rowwise(c("day_1", "day_2"))
 
 }
+\keyword{functions}

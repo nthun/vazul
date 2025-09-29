@@ -36,3 +36,4 @@ williams$ecology_scrambled <- scramble_values(williams$ecology)
 head(williams[c("ecology", "ecology_scrambled")])
 
 }
+\keyword{functions}

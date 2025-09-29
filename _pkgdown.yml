@@ -8,3 +8,12 @@ home:
     Tamás Nagy: https://github.com/nthun
     Alexandra Sarafoglou: https://github.com/ASarafoglou
     Márton Kovács: https://github.com/marton-balazs-kovacs
+reference:
+  - title: Functions
+    contents:
+      - has_keyword("functions")
+
+  - title: Datasets
+    desc: "Available datasets"
+    contents:
+      - has_keyword("datasets")
