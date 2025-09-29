@@ -71,29 +71,20 @@ scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
 
         if (together) {
             # Group by the specified columns and scramble row order within each group
-            data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
-                dplyr::mutate(
-                    .scrambled_rows = scramble_values(dplyr::row_number())
-                ) |>
-                dplyr::ungroup()
-
-            # Re-arrange the selected columns based on scrambled row numbers within groups
-            data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
-                dplyr::mutate(
-                    dplyr::across(
-                        .cols = tidyselect::all_of(col_indices),
-                        .fns = ~ .x[.scrambled_rows]
-                    )
-                ) |>
+            data <- data |>
+                dplyr::group_by(!!!rlang::syms(group_cols)) |>
+                dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>
+                dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(col_indices),
+                                            .fns = ~ .x[.scrambled_rows]
+                )) |>
                 dplyr::select(-.scrambled_rows) |>
                 dplyr::ungroup()
         } else {
             # Group by the specified columns and scramble selected columns within each group
             data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
                 dplyr::mutate(
-                    dplyr::across(
-                        .cols = tidyselect::all_of(col_indices),
-                        .fns = ~ scramble_values(.x)
+                    dplyr::across(.cols = tidyselect::all_of(col_indices),
+                                  .fns = ~ scramble_values(.x)
                     )
                 ) |>
                 dplyr::ungroup()
