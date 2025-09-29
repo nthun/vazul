@@ -36,4 +36,4 @@ Imports:
     rlang,
     tidyselect,
     utils
-# VignetteBuilder: quarto
+VignetteBuilder: quarto

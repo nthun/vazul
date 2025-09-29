@@ -5,6 +5,7 @@
 #' @param data a data frame
 #' @param cols <tidy-select> Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
 #' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.
+#' @param together logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
@@ -16,8 +17,14 @@
 #' # Example without grouping. Variables scrambled across the entire data frame.
 #' df |> scramble_variables(c("x", "y"))
 #'
+#' # Example with together = TRUE. Variables scrambled together as a unit per row.
+#' df |> scramble_variables(c("x", "y"), together = TRUE)
+#'
 #' # Example with grouping. Variable only scrambled within groups.
 #' df |> scramble_variables("y", .groups = "group")
+#'
+#' # Example combining grouping and together parameters
+#' df |> scramble_variables(c("x", "y"), .groups = "group", together = TRUE)
 #'
 #' # Example with tidyselect helpers
 #' library(dplyr)
@@ -26,16 +33,18 @@
 #'
 #' # Example with the 'williams' dataset
 #' if (requireNamespace("dplyr", quietly = TRUE)) {
-#'   data(williams, package = "dplyr")
+#'   data(williams, package = "vazul")
 #'   williams |> scramble_variables(c("ecology", "age"))
 #'   williams |> scramble_variables(1:5)
 #'   williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
 #'   williams |> scramble_variables(c(1, 2), .groups = c(3))
+#'   williams |> scramble_variables(c("ecology", "age"), together = TRUE)
+#'   williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
 #' }
 #'
 #' @export
 #'
-scramble_variables <- function(data, cols, .groups = NULL) {
+scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
 
     # Input validation
     stopifnot(is.data.frame(data))
@@ -61,28 +70,61 @@ scramble_variables <- function(data, cols, .groups = NULL) {
         # Add original row order as a column to restore later
         data <- dplyr::mutate(data, .row_id = dplyr::row_number())
 
-        # Group by the specified columns and scramble selected columns within each group
-        data <- dplyr::group_by(data, !!!rlang::syms(group_cols))  |>
-            dplyr::mutate(
-                dplyr::across(
-                    .cols = tidyselect::all_of(col_indices),
-                    .fns = ~ scramble_values(.x)
-                )
-            ) |>
-            dplyr::ungroup()
+        if (together) {
+            # Group by the specified columns and scramble row order within each group
+            data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
+                dplyr::mutate(
+                    .scrambled_rows = scramble_values(dplyr::row_number())
+                ) |>
+                dplyr::ungroup()
+            
+            # Re-arrange the selected columns based on scrambled row numbers within groups
+            data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
+                dplyr::mutate(
+                    dplyr::across(
+                        .cols = tidyselect::all_of(col_indices),
+                        .fns = ~ .x[.scrambled_rows]
+                    )
+                ) |>
+                dplyr::select(-.scrambled_rows) |>
+                dplyr::ungroup()
+        } else {
+            # Group by the specified columns and scramble selected columns within each group
+            data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
+                dplyr::mutate(
+                    dplyr::across(
+                        .cols = tidyselect::all_of(col_indices),
+                        .fns = ~ scramble_values(.x)
+                    )
+                ) |>
+                dplyr::ungroup()
+        }
 
         # Restore original row order using .row_id, then drop it
         data <- dplyr::arrange(data, .row_id) |>
             dplyr::select(-.row_id)
     } else {
-        # Non-grouped case: directly scramble selected columns
-        data <- dplyr::mutate(
-            data,
-            dplyr::across(
-                .cols = tidyselect::all_of(col_indices),
-                .fns = ~ scramble_values(.x)
+        if (together) {
+            # Non-grouped case with together: scramble row order
+            scrambled_indices <- scramble_values(seq_len(nrow(data)))
+            # Re-assign the selected columns based on scrambled row indices
+            data <- dplyr::mutate(
+                data,
+                dplyr::across(
+                    .cols = tidyselect::all_of(col_indices),
+                    .fns = ~ .x[scrambled_indices]
+                )
             )
-        )
+        } else {
+            # Non-grouped case: directly scramble selected columns
+            data <- dplyr::mutate(
+                data,
+                dplyr::across(
+                    .cols = tidyselect::all_of(col_indices),
+                    .fns = ~ scramble_values(.x)
+                )
+            )
+        }
     }
 
     # Return modified data
