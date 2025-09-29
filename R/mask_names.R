@@ -4,7 +4,7 @@
 #' Each group of variables gets its own prefix for the masked names,
 #' such as "variable_set_A_01", "variable_set_B_01", etc.
 #' The function ensures no name collisions occur with existing column names.
-#'
+#' @keywords functions
 #' @param data a data frame
 #' @param ... <tidy-select> One or more variable sets. Each can be:
 #'   \itemize{

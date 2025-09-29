@@ -3,6 +3,7 @@
 #' A cross-cultural dataset from the Many-Analysts Religion Project (MARP),
 #' which investigated the relationship between religiosity and well-being
 #' across 24 countries and diverse religious traditions.
+#' @keywords datasets
 #'
 #' @format A data frame with 10,535 rows (participants) and 48 variables:
 #' \describe{

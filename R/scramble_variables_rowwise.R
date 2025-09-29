@@ -1,7 +1,7 @@
 #' Scramble multiple column sets rowwise in a data frame
 #'
 #' For each row, independently shuffle values within each group of selected columns.
-#'
+#' @keywords functions
 #' @param data A data frame.
 #' @param ... <tidy-select> One or more column sets. Each can be:
 #'   \itemize{
@@ -98,7 +98,7 @@ scramble_variables_rowwise <- function(data, ...) {
 
     # Start with original data to preserve class
     result <- data
-    
+
     # Use functional approach to assign scrambled columns back
     # This preserves the original data frame type (tibble vs data.frame)
     result <- Reduce(
@@ -109,7 +109,7 @@ scramble_variables_rowwise <- function(data, ...) {
         x = scrambled_dfs,
         init = result
     )
-    
+
     # Restore original column order (same as original implementation)
     result[names(data)]
 }

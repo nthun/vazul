@@ -1,6 +1,6 @@
 Package: vazul
 Title: Package for data blinding
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: 
     c(
     person(given = "Tamás", 
@@ -33,6 +33,7 @@ Config/testthat/edition: 3
 URL: https://nthun.github.io/vazul/
 Imports: 
     dplyr,
+    lifecycle,
     rlang,
     tidyselect,
     utils

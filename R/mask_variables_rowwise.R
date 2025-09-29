@@ -2,7 +2,7 @@
 #'
 #' For each row, independently mask labels within each group of selected columns.
 #' This function uses mask_labels_rowwise() for each column set.
-#'
+#' @keywords functions
 #' @param data A data frame.
 #' @param ... <tidy-select> One or more column sets. Each can be:
 #'   \itemize{
@@ -34,17 +34,17 @@
 #' @export
 mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
   stopifnot(is.data.frame(data))
-  
+
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
-  
+
   # If no sets provided, return data unchanged
   if (length(column_sets) == 0) {
-    warning("No column sets provided. Returning data unchanged.", 
+    warning("No column sets provided. Returning data unchanged.",
             call. = FALSE)
     return(data)
   }
-  
+
   # Apply mask_labels_rowwise to each column set
   # This is much simpler - just map the function across all sets
   masked_dfs <- lapply(column_sets, function(set_quo) {
@@ -52,31 +52,31 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
     tryCatch({
       col_indices <- tidyselect::eval_select(set_quo, data)
       col_names <- names(data)[col_indices]
-      
+
       if (length(col_names) == 0) {
         return(NULL)
       }
-      
+
       # Apply mask_labels_rowwise to this set and return only the masked columns
       mask_labels_rowwise(data, dplyr::all_of(col_names), prefix = prefix)[col_names]
     }, error = function(e) {
-      warning("Failed to evaluate column set: ", conditionMessage(e), 
+      warning("Failed to evaluate column set: ", conditionMessage(e),
               call. = FALSE)
       return(NULL)
     })
   })
-  
+
   # Filter out NULL results
   masked_dfs <- Filter(Negate(is.null), masked_dfs)
-  
+
   # If nothing was masked, return original
   if (length(masked_dfs) == 0) {
     return(data)
   }
-  
+
   # Start with original data to preserve class
   result <- data
-  
+
   # Use functional approach to assign masked columns back
   result <- Reduce(
     f = function(acc, masked_df) {
@@ -86,7 +86,7 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
     x = masked_dfs,
     init = result
   )
-  
+
   # Restore original column order
   result[names(data)]
 }

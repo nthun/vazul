@@ -65,3 +65,4 @@ williams_masked <- mask_variables(williams, c("subject", "ecology"))
 head(williams_masked[c("subject", "ecology")])
 
 }
+\keyword{functions}

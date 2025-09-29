@@ -4,7 +4,7 @@
 \alias{scramble_variables}
 \title{Scrambling the content of several variables in a data frame}
 \usage{
-scramble_variables(data, cols, .groups = NULL)
+scramble_variables(data, cols, .groups = NULL, together = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
@@ -12,6 +12,8 @@ scramble_variables(data, cols, .groups = NULL)
 \item{cols}{\if{html}{\out{<tidy-select>}} Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.}
 
 \item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.}
+
+\item{together}{logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.}
 }
 \value{
 A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
@@ -27,8 +29,14 @@ set.seed(123)
 # Example without grouping. Variables scrambled across the entire data frame.
 df |> scramble_variables(c("x", "y"))
 
+# Example with together = TRUE. Variables scrambled together as a unit per row.
+df |> scramble_variables(c("x", "y"), together = TRUE)
+
 # Example with grouping. Variable only scrambled within groups.
 df |> scramble_variables("y", .groups = "group")
+
+# Example combining grouping and together parameters
+df |> scramble_variables(c("x", "y"), .groups = "group", together = TRUE)
 
 # Example with tidyselect helpers
 library(dplyr)
@@ -37,11 +45,13 @@ df |> scramble_variables(where(is.numeric), .groups = "group")
 
 # Example with the 'williams' dataset
 if (requireNamespace("dplyr", quietly = TRUE)) {
-  data(williams, package = "dplyr")
+  data(williams, package = "vazul")
   williams |> scramble_variables(c("ecology", "age"))
   williams |> scramble_variables(1:5)
   williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
   williams |> scramble_variables(c(1, 2), .groups = c(3))
+  williams |> scramble_variables(c("ecology", "age"), together = TRUE)
+  williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
 }
-
 }
+\keyword{functions}

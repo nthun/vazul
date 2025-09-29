@@ -1,5 +1,5 @@
 #' Scramble a vector of values
-#'
+#' @keywords functions
 #' @param x a vector `x`
 #' @return the scrambled vector
 #' @examples

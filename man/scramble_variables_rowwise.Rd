@@ -40,3 +40,4 @@ df |> scramble_variables_rowwise(
   c("score_a", "score_b")
 )
 }
+\keyword{functions}
