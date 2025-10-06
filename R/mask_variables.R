@@ -86,11 +86,9 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   if (length(cols_quo) == 0) {
     stop("No columns specified for masking.", call. = FALSE)
   }
-  if (length(cols_quo) > 1) {
-    stop("Please specify columns as a single selection (e.g., c('col1', 'col2') or where(is.character)).", call. = FALSE)
-  }
+  # Combine all arguments into a single selection
   col_indices <- tryCatch({
-    tidyselect::eval_select(cols_quo[[1]], data)
+    tidyselect::eval_select(rlang::expr(c(!!!cols_quo)), data)
   }, error = function(e) {
     stop("Error in column selection: ", conditionMessage(e), call. = FALSE)
   })

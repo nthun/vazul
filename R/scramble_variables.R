@@ -56,10 +56,8 @@ scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
     if (length(cols_quo) == 0) {
         stop("No columns specified for scrambling.", call. = FALSE)
     }
-    if (length(cols_quo) > 1) {
-        stop("Please specify columns as a single selection (e.g., c('col1', 'col2') or starts_with('prefix')).", call. = FALSE)
-    }
-    col_indices <- tidyselect::eval_select(cols_quo[[1]], data)
+    # Combine all arguments into a single selection
+    col_indices <- tidyselect::eval_select(rlang::expr(c(!!!cols_quo)), data)
 
     # Handle group selection similarly if provided
     if (!is.null(.groups)) {
