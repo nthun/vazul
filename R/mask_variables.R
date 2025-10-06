@@ -81,30 +81,62 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
          "(TRUE or FALSE).", call. = FALSE)
   }
 
-  # Handle column selection using tidyselect
-  cols_quo <- rlang::enquos(...)
-  if (length(cols_quo) == 0) {
+  # Capture all ... arguments as quosures (column sets)
+  column_sets <- rlang::enquos(...)
+
+  if (length(column_sets) == 0) {
     stop("No columns specified for masking.", call. = FALSE)
   }
-  # Combine all arguments into a single selection
-  col_indices <- tryCatch({
-    tidyselect::eval_select(rlang::expr(c(!!!cols_quo)), data)
-  }, error = function(e) {
-    stop("Error in column selection: ", conditionMessage(e), call. = FALSE)
-  })
 
-  if (length(col_indices) == 0) {
-    warning("No columns selected. Returning original data unchanged.", call. = FALSE)
-    return(data)
+  # Helper to resolve one column set to column names
+  resolve_column_set <- function(set_quo) {
+    # Try evaluating as character vector first
+    try_char <- tryCatch(
+      expr = {
+        set <- rlang::eval_tidy(set_quo, data = data)
+        if (is.character(set)) {
+          missing <- setdiff(set, names(data))
+          if (length(missing) > 0) {
+            stop("Some column names not found: ", paste(missing, collapse = ", "), call. = FALSE)
+          }
+          return(set)
+        } else {
+          NULL
+        }
+      },
+      error = function(e) {
+        NULL
+      }
+    )
+
+    if (!is.null(try_char)) {
+      return(try_char)
+    }
+
+    # If not character, treat as tidyselect expression
+    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
+      selected <- tidyselect::eval_select(set_quo, data)
+      if (length(selected) == 0) {
+        stop("No columns selected.", call. = FALSE)
+      }
+      return(names(data)[selected])
+    } else {
+      stop("Each column set must be a character vector or tidyselect expression.", call. = FALSE)
+    }
   }
 
+  # Resolve all column sets to column names
+  all_column_sets <- lapply(column_sets, resolve_column_set)
+
+  # Get all unique columns (for validation)
+  all_cols <- unique(unlist(all_column_sets))
+
   # Validate that all selected columns are categorical
-  selected_cols <- names(data)[col_indices]
-  is_categorical <- vapply(data[selected_cols], function(x) {
+  is_categorical <- vapply(data[all_cols], function(x) {
     is.character(x) || is.factor(x)
   }, logical(1))
 
-  non_categorical_cols <- selected_cols[!is_categorical]
+  non_categorical_cols <- all_cols[!is_categorical]
 
   # Error if non-categorical columns are selected
   if (length(non_categorical_cols) > 0) {
@@ -115,13 +147,11 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
     )
   }
 
-  categorical_cols <- selected_cols
-
   # Apply masking
   if (across_variables) {
-    # For across_variables masking, create shared mapping using mask_labels
+    # For across_variables masking, create shared mapping for all columns
     # First, collect all unique values across all selected categorical columns
-    all_values <- unique(unlist(lapply(data[categorical_cols], function(x) {
+    all_values <- unique(unlist(lapply(data[all_cols], function(x) {
       if (is.factor(x)) {
         as.character(x)
       } else {
@@ -145,7 +175,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
     shared_mapping <- stats::setNames(masked_values, all_values_no_na)
 
     # Apply shared mapping to each column
-    data[categorical_cols] <- lapply(data[categorical_cols], function(x) {
+    data[all_cols] <- lapply(data[all_cols], function(x) {
       if (all(is.na(x))) {
         return(x)  # Return unchanged if all NA
       }
@@ -166,7 +196,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   } else {
     # Independent masking for each column
     # Use column name as part of prefix to avoid label collisions
-    data[categorical_cols] <- lapply(names(data[categorical_cols]), function(col_name) {
+    data[all_cols] <- lapply(names(data[all_cols]), function(col_name) {
       x <- data[[col_name]]
       if (all(is.na(x))) {
         return(x)  # Return unchanged if all NA
@@ -184,7 +214,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
         return(x)  # Return original column if masking fails
       })
     })
-    names(data[categorical_cols]) <- categorical_cols
+    names(data[all_cols]) <- all_cols
   }
 
   return(data)

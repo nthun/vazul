@@ -48,47 +48,87 @@ scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
     # Input validation
     stopifnot(is.data.frame(data))
 
-    # Capture original column order
-    orig_order <- names(data)
+    # Capture all ... arguments as quosures (column sets)
+    column_sets <- rlang::enquos(...)
 
-    # Handle column selection using tidyselect — throws its own meaningful errors
-    cols_quo <- rlang::enquos(...)
-    if (length(cols_quo) == 0) {
+    # If no sets provided, error
+    if (length(column_sets) == 0) {
         stop("No columns specified for scrambling.", call. = FALSE)
     }
-    # Combine all arguments into a single selection
-    col_indices <- tidyselect::eval_select(rlang::expr(c(!!!cols_quo)), data)
 
-    # Handle group selection similarly if provided
+    # Helper to resolve one column set to column names
+    resolve_column_set <- function(set_quo) {
+        # Try evaluating as character vector first
+        try_char <- tryCatch(
+            expr = {
+                set <- rlang::eval_tidy(set_quo, data = data)
+                if (is.character(set)) {
+                    missing <- setdiff(set, names(data))
+                    if (length(missing) > 0) {
+                        stop("Some column names not found: ", paste(missing, collapse = ", "), call. = FALSE)
+                    }
+                    return(set)
+                } else {
+                    NULL
+                }
+            },
+            error = function(e) {
+                NULL
+            }
+        )
+
+        if (!is.null(try_char)) {
+            return(try_char)
+        }
+
+        # If not character, treat as tidyselect expression
+        if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
+            selected <- tidyselect::eval_select(set_quo, data)
+            if (length(selected) == 0) {
+                stop("No columns selected.", call. = FALSE)
+            }
+            return(names(data)[selected])
+        } else {
+            stop("Each column set must be a character vector or tidyselect expression.", call. = FALSE)
+        }
+    }
+
+    # Resolve all column sets to column names
+    all_column_sets <- lapply(column_sets, resolve_column_set)
+
+    # Get all unique columns (for validation and processing)
+    all_cols <- unique(unlist(all_column_sets))
+
+    # Handle group selection if provided
     if (!is.null(.groups)) {
         group_indices <- tidyselect::eval_select(rlang::enquo(.groups), data)
+        group_cols <- names(data)[group_indices]
     } else {
-        group_indices <- NULL
+        group_cols <- NULL
     }
 
     # Perform scrambling
-    if (!is.null(group_indices)) {
-        # Extract group column names
-        group_cols <- names(data)[group_indices]
-
+    if (!is.null(group_cols)) {
         # Add original row order as a column to restore later
         data <- dplyr::mutate(data, .row_id = dplyr::row_number())
 
         if (together) {
-            # Group by the specified columns and scramble row order within each group
-            data <- data |>
-                dplyr::group_by(!!!rlang::syms(group_cols)) |>
-                dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>
-                dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(col_indices),
-                                            .fns = ~ .x[.scrambled_rows]
-                )) |>
-                dplyr::select(-.scrambled_rows) |>
-                dplyr::ungroup()
+            # Scramble each column set together within groups
+            for (col_set in all_column_sets) {
+                data <- data |>
+                    dplyr::group_by(!!!rlang::syms(group_cols)) |>
+                    dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>
+                    dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(col_set),
+                                                .fns = ~ .x[.scrambled_rows]
+                    )) |>
+                    dplyr::select(-.scrambled_rows) |>
+                    dplyr::ungroup()
+            }
         } else {
-            # Group by the specified columns and scramble selected columns within each group
+            # Scramble all columns independently within groups
             data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
                 dplyr::mutate(
-                    dplyr::across(.cols = tidyselect::all_of(col_indices),
+                    dplyr::across(.cols = tidyselect::all_of(all_cols),
                                   .fns = ~ scramble_values(.x)
                     )
                 ) |>
@@ -100,22 +140,23 @@ scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
             dplyr::select(-.row_id)
     } else {
         if (together) {
-            # Non-grouped case with together: scramble row order
-            scrambled_indices <- scramble_values(seq_len(nrow(data)))
-            # Re-assign the selected columns based on scrambled row indices
-            data <- dplyr::mutate(
-                data,
-                dplyr::across(
-                    .cols = tidyselect::all_of(col_indices),
-                    .fns = ~ .x[scrambled_indices]
+            # Non-grouped case with together: scramble each set independently
+            for (col_set in all_column_sets) {
+                scrambled_indices <- scramble_values(seq_len(nrow(data)))
+                data <- dplyr::mutate(
+                    data,
+                    dplyr::across(
+                        .cols = tidyselect::all_of(col_set),
+                        .fns = ~ .x[scrambled_indices]
+                    )
                 )
-            )
+            }
         } else {
-            # Non-grouped case: directly scramble selected columns
+            # Non-grouped case: directly scramble all selected columns independently
             data <- dplyr::mutate(
                 data,
                 dplyr::across(
-                    .cols = tidyselect::all_of(col_indices),
+                    .cols = tidyselect::all_of(all_cols),
                     .fns = ~ scramble_values(.x)
                 )
             )
