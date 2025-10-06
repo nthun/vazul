@@ -6,7 +6,7 @@
 #' across all selected variables.
 #' @keywords functions
 #' @param data a data frame
-#' @param cols <tidy-select> Columns to mask. Accepts column names, positions,
+#' @param ... <tidy-select> Columns to mask. Accepts column names, positions,
 #'   or tidyselect helpers like \code{starts_with()}, \code{contains()},
 #'   \code{where()}, etc. Only character and factor columns will be
 #'   processed.
@@ -54,7 +54,7 @@
 #' head(williams_masked[c("subject", "ecology")])
 #'
 #' @export
-mask_variables <- function(data, cols, across_variables = FALSE) {
+mask_variables <- function(data, ..., across_variables = FALSE) {
   # Input validation
   if (is.null(data)) {
     stop("Input 'data' cannot be NULL. Please provide a data frame.", call. = FALSE)
@@ -82,8 +82,15 @@ mask_variables <- function(data, cols, across_variables = FALSE) {
   }
 
   # Handle column selection using tidyselect
+  cols_quo <- rlang::enquos(...)
+  if (length(cols_quo) == 0) {
+    stop("No columns specified for masking.", call. = FALSE)
+  }
+  if (length(cols_quo) > 1) {
+    stop("Please specify columns as a single selection (e.g., c('col1', 'col2') or where(is.character)).", call. = FALSE)
+  }
   col_indices <- tryCatch({
-    tidyselect::eval_select(rlang::enquo(cols), data)
+    tidyselect::eval_select(cols_quo[[1]], data)
   }, error = function(e) {
     stop("Error in column selection: ", conditionMessage(e), call. = FALSE)
   })

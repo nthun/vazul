@@ -4,12 +4,12 @@
 \alias{mask_variables}
 \title{Mask categorical variables with random labels in a data frame}
 \usage{
-mask_variables(data, cols, across_variables = FALSE)
+mask_variables(data, ..., across_variables = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
 
-\item{cols}{\if{html}{\out{<tidy-select>}} Columns to mask. Accepts column names, positions,
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. Accepts column names, positions,
 or tidyselect helpers like \code{starts_with()}, \code{contains()},
 \code{where()}, etc. Only character and factor columns will be
 processed.}

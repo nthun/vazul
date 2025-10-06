@@ -3,9 +3,9 @@
 #' Scramble the values of several variables in a data frame.
 #' @keywords functions
 #' @param data a data frame
-#' @param cols <tidy-select> Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
+#' @param ... <tidy-select> Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
 #' @param together logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.
-#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.
+#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as columns.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
@@ -43,7 +43,7 @@
 #' }
 #' @export
 #'
-scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
+scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
 
     # Input validation
     stopifnot(is.data.frame(data))
@@ -52,7 +52,14 @@ scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
     orig_order <- names(data)
 
     # Handle column selection using tidyselect — throws its own meaningful errors
-    col_indices <- tidyselect::eval_select(rlang::enquo(cols), data)
+    cols_quo <- rlang::enquos(...)
+    if (length(cols_quo) == 0) {
+        stop("No columns specified for scrambling.", call. = FALSE)
+    }
+    if (length(cols_quo) > 1) {
+        stop("Please specify columns as a single selection (e.g., c('col1', 'col2') or starts_with('prefix')).", call. = FALSE)
+    }
+    col_indices <- tidyselect::eval_select(cols_quo[[1]], data)
 
     # Handle group selection similarly if provided
     if (!is.null(.groups)) {

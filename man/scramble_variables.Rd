@@ -4,14 +4,14 @@
 \alias{scramble_variables}
 \title{Scrambling the content of several variables in a data frame}
 \usage{
-scramble_variables(data, cols, .groups = NULL, together = FALSE)
+scramble_variables(data, ..., .groups = NULL, together = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
 
-\item{cols}{\if{html}{\out{<tidy-select>}} Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.}
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.}
 
-\item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.}
+\item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as columns.}
 
 \item{together}{logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.}
 }
