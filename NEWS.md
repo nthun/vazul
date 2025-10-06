@@ -2,6 +2,7 @@
 ## 2025-09-29
 
 * Add `together` parameter to `scramble_variables()` function.
+* **BREAKING CHANGE**: `scramble_variables()` and `mask_variables()` now use `...` parameter instead of `cols` parameter for consistency with `_rowwise` functions.
 * Update documentation
 * Add new tests
 

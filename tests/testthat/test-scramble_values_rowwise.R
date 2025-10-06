@@ -88,7 +88,7 @@ test_that("scramble_values_rowwise validates input correctly", {
     # Test no columns selected (nonexistent column)
     expect_error(
         scramble_values_rowwise(df, "nonexistent_column"),
-        "Can't select columns that don't exist",
+        "Can't subset columns that don't exist",
         fixed = FALSE
     )
 
