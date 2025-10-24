@@ -32,84 +32,27 @@
 scramble_variables_rowwise <- function(data, ...) {
     stopifnot(is.data.frame(data))
 
-    # Capture all ... arguments as quosures
     column_sets <- rlang::enquos(...)
 
-    # If no sets provided, return data unchanged
     if (length(column_sets) == 0) {
         warning("No column sets provided. Returning data unchanged.", call. = FALSE)
         return(data)
     }
 
-    # Helper to handle one set
-    scramble_one_set <- function(set_quo) {
-        # Try evaluating as character vector first
-        try_char <- tryCatch(
-            expr = {
-                set <- rlang::eval_tidy(set_quo, data = data)
-                if (is.character(set)) {
-                    missing <- setdiff(set, names(data))
-                    if (length(missing) > 0) {
-                        warning("Some column names not found: ", paste(missing, collapse = ", "), call. = FALSE)
-                        return(NULL)
-                    }
-                    return(scramble_values_rowwise(data, dplyr::all_of(set))[set])
-                } else {
-                    # Not character — fall through to tidyselect
-                    NULL
-                }
-            },
-            error = function(e) {
-                # Not a character vector — fall through to tidyselect
-                NULL
-            }
-        )
-
-        if (!is.null(try_char)) {
-            return(try_char)
+    # Process one column set and return blinded columns or NULL
+    process_column_set <- function(set_quo) {
+        # Try to evaluate as character vector
+        char_result <- try_evaluate_as_character(set_quo, data, scramble_values_rowwise)
+        if (!is.null(char_result)) {
+            return(char_result)
         }
 
-        # If not character, treat as tidyselect expression
-        if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
-            selected <- tryCatch(
-                tidyselect::eval_select(set_quo, data),
-                error = function(e) {
-                    warning("Failed to evaluate column set: ", conditionMessage(e), call. = FALSE)
-                    return(NULL)
-                }
-            )
-            if (length(selected) == 0) return(NULL)
-            col_names <- names(data)[selected]
-            scramble_values_rowwise(data, dplyr::all_of(col_names))[col_names]
-        } else {
-            warning("Each column set must be a character vector or tidyselect expression.", call. = FALSE)
-            return(NULL)
-        }
+        # Otherwise, treat as tidyselect expression
+        evaluate_as_tidyselect(set_quo, data, scramble_values_rowwise)
     }
 
-    # Apply to each set
-    scrambled_dfs <- lapply(column_sets, scramble_one_set)
-    scrambled_dfs <- Filter(Negate(is.null), scrambled_dfs)
-
-    # If nothing was scrambled, return original
-    if (length(scrambled_dfs) == 0) {
-        return(data)
-    }
-
-    # Start with original data to preserve class
-    result <- data
-
-    # Use functional approach to assign scrambled columns back
-    # This preserves the original data frame type (tibble vs data.frame)
-    result <- Reduce(
-        f = function(acc, scrambled_df) {
-            acc[names(scrambled_df)] <- scrambled_df
-            acc
-        },
-        x = scrambled_dfs,
-        init = result
-    )
-
-    # Restore original column order (same as original implementation)
-    result[names(data)]
+    # Process all column sets and combine results
+    column_sets |>
+        resolve_and_blind_columns(data, scramble_values_rowwise) |>
+        merge_blinded_columns_into(data)
 }

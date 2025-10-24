@@ -4,14 +4,19 @@
 \alias{scramble_variables}
 \title{Scrambling the content of several variables in a data frame}
 \usage{
-scramble_variables(data, cols, .groups = NULL, together = FALSE)
+scramble_variables(data, ..., .groups = NULL, together = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
 
-\item{cols}{\if{html}{\out{<tidy-select>}} Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.}
+\item{...}{\if{html}{\out{<tidy-select>}} One or more column sets to scramble. Each can be:
+\itemize{
+\item A tidyselect expression (e.g., \code{starts_with("day_")})
+\item A character vector of column names (e.g., \code{c("x", "y")})
+\item Column positions (e.g., \code{1:3})
+}}
 
-\item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.}
+\item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{...}.}
 
 \item{together}{logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.}
 }
@@ -42,6 +47,9 @@ df |> scramble_variables(c("x", "y"), .groups = "group", together = TRUE)
 library(dplyr)
 df |> scramble_variables(starts_with("x"))
 df |> scramble_variables(where(is.numeric), .groups = "group")
+
+# Example with multiple column sets
+df |> scramble_variables(starts_with("x"), "y")
 
 # Example with the 'williams' dataset
 if (requireNamespace("dplyr", quietly = TRUE)) {
