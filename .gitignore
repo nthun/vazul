@@ -10,3 +10,5 @@ inst/doc
 **/.quarto/
 /doc/
 /Meta/
+.DS_Store
+vazul.Rproj
