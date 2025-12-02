@@ -35,6 +35,5 @@ Imports:
     dplyr,
     lifecycle,
     rlang,
-    tidyselect,
-    utils
+    tidyselect
 VignetteBuilder: quarto
