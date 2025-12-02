@@ -1,0 +1,492 @@
+\documentclass[
+]{jss}
+
+%% recommended packages
+\usepackage{orcidlink,thumbpdf,lmodern}
+
+\usepackage[utf8]{inputenc}
+
+\author{
+Tamás Nagy~\orcidlink{00000-0001-5244-0356}\\ELTE Eotvos Lorend
+University \And Alexandra
+Sarafoglou~\orcidlink{0000-0003-0031-685X}\\University of Amsterdam
+}
+\title{\pkg{Vazul}: An R Package for Analysis Blinding}
+
+\Plainauthor{Tamás Nagy, Alexandra Sarafoglou}
+\Plaintitle{An R Package for Analysis Blinding}
+\Shorttitle{\pkg{Vazul}: A Capitalized Title}
+
+
+\Abstract{
+The abstract of the article.
+}
+
+\Keywords{keywords, not capitalized, \proglang{Java}}
+\Plainkeywords{keywords, not capitalized, Java}
+
+%% publication information
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{}
+%% \Acceptdate{2012-06-04}
+
+\Address{
+    Tamás Nagy\\
+    ELTE Eotvos Lorend University\\
+    Institute of Psychology,\\
+ELTE Eotvos Lorend University,\\
+Budapest, Hungary\\
+  E-mail: \email{nagy.tamas@ppk.elte.hu}\\
+  
+      Alexandra Sarafoglou\\
+    University of Amsterdam\\
+    Department of Psychology,\\
+University of Amsterdam,\\
+Amsterdam, The Netherlands\\
+  E-mail: \email{a.s.g.sarafoglou@uva.nl}\\
+  
+  }
+
+
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% From pandoc table feature
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+
+
+
+\usepackage{amsmath}
+
+\begin{document}
+
+
+
+\section{Functionality of the vazul
+package}\label{functionality-of-the-vazul-package}
+
+The package provides functions for blinding data to facilitate unbiased
+analysis. The package covers two main approaches to data blinding:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Masking}: Replaces original values with anonymous labels,
+  hiding the original information.
+\item
+  \textbf{Scrambling}: Randomizes the order of existing values while
+  preserving all original data content.
+\end{enumerate}
+
+Each approach is available at three levels:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Vector level}: \texttt{mask\_labels()} and
+  \texttt{scramble\_values()} - operate on single vectors
+\item
+  \textbf{Data frame level}: \texttt{mask\_variables()} and
+  \texttt{scramble\_variables()} - operate on columns in a data frame
+\item
+  \textbf{Row-wise level}: \texttt{mask\_variables\_rowwise()} and
+  \texttt{scramble\_variables\_rowwise()} - operate within rows across
+  columns
+\end{itemize}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> library(vazul)
+R> library(dplyr)
+\end{CodeInput}
+\end{CodeChunk}
+
+\subsection{Masking Functions}\label{masking-functions}
+
+Masking functions replace categorical values with anonymous labels. This
+is useful when you want to completely hide the original information,
+such as treatment conditions or group assignments. Making is best suited
+for categorical variables with a limited number of unique values.
+Therefore, the function requires character or factor vectors as input.
+
+The \texttt{mask\_labels()} function takes a character or factor vector
+and replaces each unique value with a randomly assigned masked label.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # Create a simple treatment vector
+R> treatment <- c("control", "treatment", "control", "treatment", "control")
+R> 
+R> # Mask the labels
+R> set.seed(123)
+R> masked_treatment <- mask_labels(treatment)
+R> masked_treatment
+\end{CodeInput}
+\begin{CodeOutput}
+          control         treatment           control         treatment 
+"masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02" 
+          control 
+"masked_group_01" 
+\end{CodeOutput}
+\end{CodeChunk}
+
+Notice that each unique value receives a unique masked label, the same
+original value always maps to the same masked label, and assignment of
+masked labels to original values is randomized. The function preserves
+factor structure when the input is a factor.
+
+You can customize the prefix used for masked labels:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> set.seed(456)
+R> mask_labels(treatment, prefix = "group_")
+\end{CodeInput}
+\begin{CodeOutput}
+   control  treatment    control  treatment    control 
+"group_01" "group_02" "group_01" "group_02" "group_01" 
+\end{CodeOutput}
+\end{CodeChunk}
+
+The functionality of \texttt{mask\_labels()} is extended to data frames
+in the \texttt{mask\_variables()} function, which applies masking to
+multiple columns in a data frame simultaneously. By default, each column
+gets its own set of masked labels with the column name as prefix.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df <- data.frame(
++   treatment = c("control", "intervention", "control", "intervention"),
++   outcome = c("success", "failure", "success", "failure"),
++   score = c(85, 92, 78, 88)
++ )
+R> 
+R> set.seed(123)
+R> result <- mask_variables(df, c("treatment", "outcome"))
+R> result
+\end{CodeInput}
+\begin{CodeOutput}
+           treatment          outcome score
+1 treatment_group_01 outcome_group_01    85
+2 treatment_group_02 outcome_group_02    92
+3 treatment_group_01 outcome_group_01    78
+4 treatment_group_02 outcome_group_02    88
+\end{CodeOutput}
+\end{CodeChunk}
+
+When \texttt{across\_variables\ =\ TRUE}, all selected columns share the
+same mapping:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df2 <- data.frame(
++   pre_condition = c("A", "B", "C", "A"),
++   post_condition = c("B", "A", "A", "C"),
++   score = c(1, 2, 3, 4)
++ )
+R> 
+R> set.seed(456)
+R> result_shared <- mask_variables(df2, c("pre_condition", "post_condition"),
++                                 across_variables = TRUE)
+R> result_shared
+\end{CodeInput}
+\begin{CodeOutput}
+    pre_condition  post_condition score
+1 masked_group_01 masked_group_03     1
+2 masked_group_03 masked_group_01     2
+3 masked_group_02 masked_group_01     3
+4 masked_group_01 masked_group_02     4
+\end{CodeOutput}
+\end{CodeChunk}
+
+You can use tidyselect helpers, such as \texttt{starts\_with()},
+\texttt{any\_of()}, etc. to select columns.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> set.seed(789)
+R> mask_variables(df, where(is.character))
+\end{CodeInput}
+\begin{CodeOutput}
+           treatment          outcome score
+1 treatment_group_01 outcome_group_02    85
+2 treatment_group_02 outcome_group_01    92
+3 treatment_group_01 outcome_group_02    78
+4 treatment_group_02 outcome_group_01    88
+\end{CodeOutput}
+\end{CodeChunk}
+
+The \texttt{mask\_variables\_rowwise()} function applies consistent
+masking within each row across multiple columns. This is useful when you
+have multiple independent variables that require concealment.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df <- data.frame(
++   treat_1 = c("control", "treatment", "placebo"),
++   treat_2 = c("treatment", "placebo", "control"),
++   treat_3 = c("placebo", "control", "treatment"),
++   id = 1:3
++ )
+R> 
+R> set.seed(123)
+R> result <- mask_variables_rowwise(df, starts_with("treat_"))
+R> result
+\end{CodeInput}
+\begin{CodeOutput}
+          treat_1         treat_2         treat_3 id
+1 masked_group_03 masked_group_01 masked_group_02  1
+2 masked_group_01 masked_group_02 masked_group_03  2
+3 masked_group_02 masked_group_03 masked_group_01  3
+\end{CodeOutput}
+\end{CodeChunk}
+
+Within each row, the original values are consistently mapped to masked
+labels, but the mapping is independent across rows.
+
+\subsection{Scrambling Functions}\label{scrambling-functions}
+
+Scrambling functions randomize the order of values while preserving all
+original data content. This approach maintains the data distribution
+while breaking the connection between observations and their original
+values. The \texttt{scramble\_values()} function randomly reorders the
+elements of a vector. It can be used to any type of data, including
+numeric, character, and factor, with any number of unique values. The
+function preserves the data type.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # Numeric data
+R> set.seed(123)
+R> numbers <- 1:10
+R> scramble_values(numbers)
+\end{CodeInput}
+\begin{CodeOutput}
+ [1]  3 10  2  8  6  9  1  7  5  4
+\end{CodeOutput}
+\end{CodeChunk}
+
+Extending the scrambling functionality to data frames,
+\texttt{scramble\_variables()} scrambles the values of specified
+columns. By default, each column is scrambled independently. The
+function can also use tidyselect helpers to select columns.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df <- data.frame(
++   x = 1:6,
++   y = letters[1:6],
++   group = c("A", "A", "A", "B", "B", "B")
++ )
+R> 
+R> set.seed(123)
+R> scramble_variables(df, c("x", "y"))
+\end{CodeInput}
+\begin{CodeOutput}
+  x y group
+1 3 e     A
+2 6 d     A
+3 2 b     A
+4 4 f     B
+5 5 a     B
+6 1 c     B
+\end{CodeOutput}
+\end{CodeChunk}
+
+When \texttt{together\ =\ TRUE}, the selected columns are scrambled as a
+unit, preserving row-level relationships.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> set.seed(456)
+R> scramble_variables(df, c("x", "y"), together = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+  x y group
+1 5 e     A
+2 6 f     A
+3 3 c     A
+4 2 b     B
+5 1 a     B
+6 4 d     B
+\end{CodeOutput}
+\end{CodeChunk}
+
+Use the \texttt{.groups} parameter to scramble within groups:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data(williams)
+R> 
+R> # Scramble age and ecology within gender groups
+R> set.seed(42)
+R> williams_scrambled <- williams |>
++   scramble_variables(c("age", "ecology"), .groups = "gender")
+\end{CodeInput}
+\end{CodeChunk}
+
+The \texttt{scramble\_variables\_rowwise()} function scrambles values
+within each row across specified columns. This is useful for scrambling
+repeated measures or item responses. Within each row, the values are
+shuffled among the item columns.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df <- data.frame(
++   item1 = c(1, 4, 7),
++   item2 = c(2, 5, 8),
++   item3 = c(3, 6, 9),
++   id = 1:3
++ )
+R> 
+R> set.seed(123)
+R> result <- scramble_variables_rowwise(df, c("item1", "item2", "item3"))
+R> result
+\end{CodeInput}
+\begin{CodeOutput}
+  item1 item2 item3 id
+1     3     1     2  1
+2     5     4     6  2
+3     8     9     7  3
+\end{CodeOutput}
+\end{CodeChunk}
+
+You can scramble multiple sets of columns independently:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df2 <- data.frame(
++   day_1 = c(1, 4, 7),
++   day_2 = c(2, 5, 8),
++   day_3 = c(3, 6, 9),
++   score_a = c(10, 40, 70),
++   score_b = c(20, 50, 80),
++   id = 1:3
++ )
+R> 
+R> set.seed(456)
+R> result2 <- scramble_variables_rowwise(
++   df2,
++   starts_with("day_"),
++   c("score_a", "score_b")
++ )
+R> result2
+\end{CodeInput}
+\begin{CodeOutput}
+  day_1 day_2 day_3 score_a score_b id
+1     1     3     2      10      20  1
+2     5     4     6      40      50  2
+3     9     7     8      80      70  3
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsection{Choosing Between Masking and
+Scrambling}\label{choosing-between-masking-and-scrambling}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Aspect & Masking & Scrambling \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Original values} & Hidden (replaced) & Preserved (reordered) \\
+\textbf{Distribution} & Same proportions, but new labels & Unchanged \\
+\textbf{Best for} & Categorical variables & Numeric or categorical \\
+\textbf{Use case} & Hide treatment conditions & Break individual
+links \\
+\textbf{Reversibility} & Requires mapping key & Irreversible \\
+\end{longtable}
+
+\subsubsection{When to Use Masking}\label{when-to-use-masking}
+
+\begin{itemize}
+\tightlist
+\item
+  When you need to hide categorical labels (e.g., treatment conditions,
+  group names)
+\item
+  When analysts should not know the meaning of categories
+\item
+  When you want different prefixes for different variables
+\end{itemize}
+
+\subsubsection{When to Use Scrambling}\label{when-to-use-scrambling}
+
+\begin{itemize}
+\tightlist
+\item
+  When you want to preserve the original data distribution
+\item
+  When you need to break the link between observations and values
+\item
+  When working with numeric data or many unique categorical levels in a
+  variable
+\end{itemize}
+
+\subsection{Working with Included
+Datasets}\label{working-with-included-datasets}
+
+The \texttt{vazul} package includes two research datasets for
+demonstration and practice. The \texttt{marp} dataset comes from the
+Many Analysts Religion Project (MARP) dataset contains 10,535
+participants from 24 countries, and includes variables about religious
+beliefs, well-being, and demographics. The \texttt{williams} dataset
+comes from a stereotyping study with 112 participants, including
+measures of impulsivity, opportunity, and investment in education and
+children.
+
+\subsection{Functions}\label{functions}
+
+The \texttt{vazul} package provides a comprehensive toolkit for data
+blinding:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3846}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2692}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3462}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Function
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{mask\_labels()} & Vector & Replace categorical values with
+anonymous labels \\
+\texttt{mask\_variables()} & Data frame & Mask multiple columns \\
+\texttt{mask\_variables\_rowwise()} & Row-wise & Consistent masking
+within rows \\
+\texttt{scramble\_values()} & Vector & Randomize value order \\
+\texttt{scramble\_variables()} & Data frame & Scramble multiple
+columns \\
+\texttt{scramble\_variables\_rowwise()} & Row-wise & Scramble values
+within rows \\
+\texttt{marp} & Dataset & Many Analysts Religion Project data \\
+\texttt{williams} & Dataset & Williams stereotyping study data \\
+\end{longtable}
+
+\bibliography{../inst/bibliography.bib}
+
+
+
+\end{document}
