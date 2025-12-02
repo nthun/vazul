@@ -154,26 +154,18 @@ test_that("scramble_variables validates input correctly", {
     )
 
     # Test missing columns — now expect tidyselect's native error
-    w <- capture_warnings(
-            result <- scramble_variables(df, "nonexistent_column")
-        )
-
-        expect_length(w, 3)
-        expect_match(w[1], "Some column names not found: nonexistent_column")
-        expect_match(w[2], "Each column set must be a character vector, numeric positions, or tidyselect expression")
-        expect_match(w[3], "No valid columns found. Returning data unchanged.")
-
+    expect_error(
+        scramble_variables(df, "nonexistent_column"),
+        "Can't select columns that don't exist",
+        fixed = FALSE  # Allow partial match
+    )
 
     # Test invalid column indices — tidyselect handles this too
-        w <- capture_warnings(
-            result <- scramble_variables(df, 10)  # assuming df has < 10 columns
-        )
-
-        expect_length(w, 2)
-        expect_match(w[1], "No valid column positions found.")
-        expect_match(w[2], "No valid columns found. Returning data unchanged.")
-
-        expect_equal(result, df)
+    expect_error(
+        scramble_variables(df, 10),  # Column 10 doesn't exist
+        "Can't select columns past the end",
+        fixed = FALSE  # Allow partial match
+    )
 })
 
 test_that("scramble_variables handles edge cases", {
@@ -318,22 +310,22 @@ test_that("scramble_variables works with together = FALSE (default behavior)", {
     y = letters[1:4],
     z = c("keep1", "keep2", "keep3", "keep4")
   )
-
+  
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"), together = FALSE)
-
+  
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(ncol(result), ncol(df))
   expect_equal(names(result), names(df))
-
+  
   # Check that scrambled columns have same elements but potentially different order
   expect_setequal(result$x, df$x)
   expect_setequal(result$y, df$y)
-
+  
   # Check that non-scrambled column is unchanged
   expect_equal(result$z, df$z)
-
+  
   # Variables should be scrambled independently (not together)
   # This is a probabilistic test but with seed 123 they should be different
   original_pairs <- paste(df$x, df$y, sep = "-")
@@ -347,28 +339,28 @@ test_that("scramble_variables works with together = TRUE", {
     y = letters[1:4],
     z = c("keep1", "keep2", "keep3", "keep4")
   )
-
+  
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"), together = TRUE)
-
+  
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(ncol(result), ncol(df))
   expect_equal(names(result), names(df))
-
+  
   # Check that scrambled columns have same elements but potentially different order
   expect_setequal(result$x, df$x)
   expect_setequal(result$y, df$y)
-
+  
   # Check that non-scrambled column is unchanged
   expect_equal(result$z, df$z)
-
+  
   # Variables should be scrambled together (as pairs)
   # Each row should contain a pair that originally appeared together
   original_pairs <- paste(df$x, df$y, sep = "-")
   result_pairs <- paste(result$x, result$y, sep = "-")
   expect_setequal(result_pairs, original_pairs)
-
+  
   # But the pairs should be in a different order
   expect_false(identical(original_pairs, result_pairs))
 })
@@ -379,10 +371,10 @@ test_that("scramble_variables with together = TRUE preserves variable relationsh
     score = c(10, 20, 30, 40, 50, 60),
     category = c("A", "B", "A", "B", "A", "B")
   )
-
+  
   set.seed(456)
   result <- scramble_variables(df, c("id", "score"), together = TRUE)
-
+  
   # Check that each row maintains the original id-score relationship
   for (i in seq_len(nrow(result))) {
     id_val <- result$id[i]
@@ -398,34 +390,34 @@ test_that("scramble_variables with together = TRUE and grouping", {
     y = letters[1:6],
     group = c("A", "A", "A", "B", "B", "B")
   )
-
+  
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"), .groups = "group", together = TRUE)
-
+  
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(names(result), names(df))
-
+  
   # Check that grouping variable is unchanged
   expect_equal(result$group, df$group)
-
+  
   # Check that scrambling occurred within groups while preserving pairs
   # Group A pairs
   group_a_indices <- which(df$group == "A")
   group_a_orig_pairs <- paste(df$x[group_a_indices], df$y[group_a_indices], sep = "-")
-
+  
   result_a_indices <- which(result$group == "A")
   result_a_pairs <- paste(result$x[result_a_indices], result$y[result_a_indices], sep = "-")
-
+  
   expect_setequal(result_a_pairs, group_a_orig_pairs)
-
+  
   # Group B pairs
   group_b_indices <- which(df$group == "B")
   group_b_orig_pairs <- paste(df$x[group_b_indices], df$y[group_b_indices], sep = "-")
-
+  
   result_b_indices <- which(result$group == "B")
   result_b_pairs <- paste(result$x[result_b_indices], result$y[result_b_indices], sep = "-")
-
+  
   expect_setequal(result_b_pairs, group_b_orig_pairs)
 })
 
@@ -435,22 +427,22 @@ test_that("scramble_variables with together = FALSE and grouping", {
     y = letters[1:6],
     group = c("A", "A", "A", "B", "B", "B")
   )
-
+  
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"), .groups = "group", together = FALSE)
-
+  
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
   expect_equal(names(result), names(df))
-
+  
   # Check that grouping variable is unchanged
   expect_equal(result$group, df$group)
-
+  
   # Check that scrambling occurred within groups
   group_a_orig <- df$x[df$group == "A"]
   group_a_result <- result$x[result$group == "A"]
   expect_setequal(group_a_result, group_a_orig)
-
+  
   group_b_orig <- df$x[df$group == "B"]
   group_b_result <- result$x[result$group == "B"]
   expect_setequal(group_b_result, group_b_orig)
@@ -461,14 +453,14 @@ test_that("scramble_variables together parameter works with single column", {
     x = 1:5,
     y = letters[1:5]
   )
-
+  
   # With single column, together should behave like regular scrambling
   set.seed(123)
   result1 <- scramble_variables(df, "x", together = TRUE)
-
+  
   set.seed(123)
   result2 <- scramble_variables(df, "x", together = FALSE)
-
+  
   expect_equal(result1$x, result2$x)
   expect_equal(result1$y, result2$y) # unchanged
 })
@@ -478,12 +470,12 @@ test_that("scramble_variables together parameter with edge cases", {
   df_single <- data.frame(x = 1, y = "a", z = "keep")
   result_single <- scramble_variables(df_single, c("x", "y"), together = TRUE)
   expect_equal(result_single, df_single)
-
+  
   # Two rows
   df_two <- data.frame(x = 1:2, y = c("a", "b"))
   set.seed(123)
   result_two <- scramble_variables(df_two, c("x", "y"), together = TRUE)
-
+  
   # Should preserve pairs
   original_pairs <- paste(df_two$x, df_two$y, sep = "-")
   result_pairs <- paste(result_two$x, result_two$y, sep = "-")
@@ -496,15 +488,15 @@ test_that("scramble_variables together actually scrambles data (probabilistic)",
     x = 1:20,
     y = letters[rep(1:20, length.out = 20)]
   )
-
+  
   set.seed(123)
   result <- scramble_variables(df, c("x", "y"), together = TRUE)
-
+  
   # It's extremely unlikely that 20 pairs stay in order
   original_pairs <- paste(df$x, df$y, sep = "-")
   result_pairs <- paste(result$x, result$y, sep = "-")
   expect_false(identical(original_pairs, result_pairs))
-
+  
   # But pairs should be preserved
   expect_setequal(result_pairs, original_pairs)
 })

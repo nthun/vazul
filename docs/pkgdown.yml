@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   using_mask_names: using_mask_names.html
-last_built: 2025-10-24T13:37Z
+last_built: 2025-10-08T06:39Z
 urls:
   reference: https://nthun.github.io/vazul/reference
   article: https://nthun.github.io/vazul/articles

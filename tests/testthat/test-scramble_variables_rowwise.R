@@ -120,14 +120,11 @@ test_that("scramble_variables_rowwise validates input correctly", {
     )
     expect_equal(result, df)
 
-    # Capture all warnings and test them individually
-        w <- capture_warnings(
-            scramble_variables_rowwise(df, "nonexistent_column")
-        )
-
-        expect_length(w, 2)
-        expect_match(w[1], "Some column names not found: nonexistent_column")
-        expect_match(w[2], "Each column set must be a character vector, numeric positions, or tidyselect expression.")
+    expect_warning(
+        scramble_variables_rowwise(df, "nonexistent_column"),
+        "Some column names not found",
+        fixed = FALSE
+    )
 
     expect_warning(
         scramble_variables_rowwise(df, data.frame(a = 1)),
