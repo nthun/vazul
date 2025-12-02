@@ -197,7 +197,7 @@ test_that("mask_variables_rowwise handles mixed data types correctly", {
   )
 
   # Should throw error when trying to mask non-character/factor columns
-  # mask_labels_rowwise throws an error for non-categorical columns
+  # mask_variables_rowwise throws an error for non-categorical columns
   expect_error(
     mask_variables_rowwise(df, c("x", "y", "z")),
     "All selected columns must be character or factor"
