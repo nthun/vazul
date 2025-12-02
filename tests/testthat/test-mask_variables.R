@@ -146,7 +146,7 @@ test_that("mask_variables validates input correctly", {
   # Test NULL data
   expect_error(
     mask_variables(NULL, "x"),
-    "Input 'data' cannot be NULL. Please provide a data frame.",
+    "Input 'data' must be a data frame.",
     fixed = TRUE
   )
   

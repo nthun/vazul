@@ -6,6 +6,8 @@
 \alias{vazul-package}
 \title{vazul: Package for data blinding}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 The vazul package provides functions for data blinding.
 }
 \seealso{
