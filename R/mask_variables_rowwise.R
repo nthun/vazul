@@ -47,6 +47,61 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
     return(data)
   }
 
+  # Internal helper: mask labels rowwise for a single set of columns
+  mask_labels_rowwise_internal <- function(df, col_names, mask_prefix) {
+    # Validate at least one column selected
+    if (length(col_names) == 0) {
+      stop("No columns selected. Please provide valid column names or ",
+           "selection helpers.", call. = FALSE)
+    }
+
+    # Check that all selected columns are character or factor
+    col_types <- vapply(df[col_names], function(x) {
+      is.character(x) || is.factor(x)
+    }, logical(1))
+
+    if (!all(col_types)) {
+      invalid_cols <- col_names[!col_types]
+      stop("All selected columns must be character or factor vectors. ",
+           "Invalid columns: ", paste(invalid_cols, collapse = ", "),
+           call. = FALSE)
+    }
+
+    # Get all unique values across all selected columns to create consistent mapping
+    all_values <- unique(unlist(lapply(df[col_names], function(x) {
+      if (is.factor(x)) as.character(x) else x
+    }), use.names = FALSE))
+    all_values <- all_values[!is.na(all_values)]  # Remove NAs
+
+    if (length(all_values) == 0) {
+      warning("No non-NA values found in selected columns.", call. = FALSE)
+      return(df)
+    }
+
+    # Create the mapping using mask_labels on all unique values
+    mapped_labels <- mask_labels(all_values, prefix = mask_prefix)
+    mapping <- stats::setNames(mapped_labels, all_values)
+
+    # Copy data
+    result <- df
+
+    # Apply mapping to each selected column using base R
+    result[col_names] <- lapply(df[col_names], function(col) {
+      if (is.factor(col)) {
+        char_values <- as.character(col)
+        masked_values <- ifelse(is.na(char_values), NA_character_,
+                                mapping[char_values])
+        # Get all possible masked labels for factor levels
+        all_masked <- unique(mapping)
+        factor(masked_values, levels = all_masked)
+      } else {
+        ifelse(is.na(col), NA_character_, mapping[col])
+      }
+    })
+
+    result
+  }
+
   # Helper to handle one column set (same pattern as scramble_variables_rowwise)
   mask_one_set <- function(set_quo) {
     # Try evaluating as character vector first
@@ -60,8 +115,7 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
                     paste(missing, collapse = ", "), call. = FALSE)
             return(NULL)
           }
-          return(mask_labels_rowwise(data, dplyr::all_of(set),
-                                     prefix = prefix)[set])
+          return(mask_labels_rowwise_internal(data, set, prefix)[set])
         } else {
           NULL
         }
@@ -87,7 +141,7 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
       )
       if (is.null(selected) || length(selected) == 0) return(NULL)
       col_names <- names(data)[selected]
-      mask_labels_rowwise(data, dplyr::all_of(col_names), prefix = prefix)[col_names]
+      mask_labels_rowwise_internal(data, col_names, prefix)[col_names]
     } else {
       warning("Each column set must be a character vector or ",
               "tidyselect expression.", call. = FALSE)
