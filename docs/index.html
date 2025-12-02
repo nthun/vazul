@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>vazul • vazul</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="vazul">
 <meta name="description" content="The vazul package provides functions for data blinding.">
 <meta property="og:description" content="The vazul package provides functions for data blinding.">
+<meta property="og:image" content="https://nthun.github.io/vazul/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -52,8 +58,10 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="vazul">vazul<a class="anchor" aria-label="anchor" href="#vazul"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="vazul">vazul<a class="anchor" aria-label="anchor" href="#vazul"></a>
+</h1>
+</div>
 <!-- badges: start -->
 
 <p><strong>vazul</strong> is an R package for data blinding in research contexts. It offers two main approaches to anonymize data while preserving analytical validity: <strong>masking</strong> (replacing values with anonymous labels) and <strong>scrambling</strong> (randomizing the order of existing values).</p>
@@ -119,8 +127,8 @@
 <span><span class="fu"><a href="reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu">where</span><span class="op">(</span><span class="va">is.character</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="mask_variables_rowwise--mask_labels_rowwise---row-level-masking">
-<code>mask_variables_rowwise()</code> &amp; <code>mask_labels_rowwise()</code> - Row-level masking<a class="anchor" aria-label="anchor" href="#mask_variables_rowwise--mask_labels_rowwise---row-level-masking"></a>
+<h4 id="mask_variables_rowwise---row-level-masking">
+<code>mask_variables_rowwise()</code> - Row-level masking<a class="anchor" aria-label="anchor" href="#mask_variables_rowwise---row-level-masking"></a>
 </h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Consistent masking across rows for categorical data</span></span>
@@ -163,8 +171,8 @@
 <span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="scramble_values_rowwise--scramble_variables_rowwise---row-level-scrambling">
-<code>scramble_values_rowwise()</code> &amp; <code>scramble_variables_rowwise()</code> - Row-level scrambling<a class="anchor" aria-label="anchor" href="#scramble_values_rowwise--scramble_variables_rowwise---row-level-scrambling"></a>
+<h4 id="scramble_variables_rowwise---row-level-scrambling">
+<code>scramble_variables_rowwise()</code> - Row-level scrambling<a class="anchor" aria-label="anchor" href="#scramble_variables_rowwise---row-level-scrambling"></a>
 </h4>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Scramble values within each row</span></span>
@@ -174,7 +182,7 @@
 <span>  item3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_values_rowwise.html">scramble_values_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item1"</span>, <span class="st">"item2"</span>, <span class="st">"item3"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item1"</span>, <span class="st">"item2"</span>, <span class="st">"item3"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   item1 item2 item3</span></span>
 <span><span class="co">#&gt; 1     3     1     2</span></span>
 <span><span class="co">#&gt; 2     5     4     6  </span></span>
@@ -272,7 +280,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
