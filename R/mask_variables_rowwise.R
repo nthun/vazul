@@ -33,7 +33,10 @@
 #' )
 #' @export
 mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
-  stopifnot(is.data.frame(data))
+  if (!is.data.frame(data)) {
+    stop("Input 'data' must be a data frame. Received object of class: ",
+         paste(class(data), collapse = ", "), ".", call. = FALSE)
+  }
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)

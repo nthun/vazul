@@ -59,7 +59,10 @@
 #'
 #' @export
 mask_variables <- function(data, ..., across_variables = FALSE) {
-  stopifnot(is.data.frame(data))
+  if (!is.data.frame(data)) {
+    stop("Input 'data' must be a data frame. Received object of class: ",
+         paste(class(data), collapse = ", "), ".", call. = FALSE)
+  }
 
   if (nrow(data) == 0) {
     stop("Input 'data' cannot be an empty data frame.", call. = FALSE)
@@ -96,7 +99,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
           missing <- setdiff(set, names(data))
           if (length(missing) > 0) {
             stop("Error in column selection: Can't subset columns that ",
-                 "don't exist.\nx Column `",
+                 "don't exist. Column `",
                  paste(missing, collapse = "`, `"),
                  "` doesn't exist.", call. = FALSE)
           }

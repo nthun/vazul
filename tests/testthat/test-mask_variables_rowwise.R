@@ -165,7 +165,8 @@ test_that("mask_variables_rowwise validates input correctly", {
   # Non-data.frame input
   expect_error(
     mask_variables_rowwise(list(x = c("A", "B")), "x"),
-    class = "simpleError"
+    "Input 'data' must be a data frame.",
+    fixed = TRUE
   )
 
   # No column sets provided
