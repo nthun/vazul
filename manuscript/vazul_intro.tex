@@ -1,0 +1,204 @@
+\documentclass[
+]{jss}
+
+%% recommended packages
+\usepackage{orcidlink,thumbpdf,lmodern}
+
+\usepackage[utf8]{inputenc}
+
+\author{
+Tamás Nagy~\orcidlink{00000-0001-5244-0356}\\ELTE Eotvos Lorend
+University \And Alexandra
+Sarafoglou~\orcidlink{0000-0003-0031-685X}\\University of Amsterdam
+}
+\title{\pkg{Vazul}: An R Package for Analysis Blinding}
+
+\Plainauthor{Tamás Nagy, Alexandra Sarafoglou}
+\Plaintitle{An R Package for Analysis Blinding}
+\Shorttitle{\pkg{Vazul}: A Capitalized Title}
+
+
+\Abstract{
+The abstract of the article.
+}
+
+\Keywords{keywords, not capitalized, \proglang{Java}}
+\Plainkeywords{keywords, not capitalized, Java}
+
+%% publication information
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{}
+%% \Acceptdate{2012-06-04}
+
+\Address{
+    Tamás Nagy\\
+    ELTE Eotvos Lorend University\\
+    Institute of Psychology,\\
+ELTE Eotvos Lorend University,\\
+Budapest, Hungary\\
+  E-mail: \email{nagy.tamas@ppk.elte.hu}\\
+  
+      Alexandra Sarafoglou\\
+    University of Amsterdam\\
+    Department of Psychology,\\
+University of Amsterdam,\\
+Amsterdam, The Netherlands\\
+  E-mail: \email{a.s.g.sarafoglou@uva.nl}\\
+  
+  }
+
+
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+
+\usepackage{amsmath}
+
+\begin{document}
+
+
+
+\section{Introduction}\label{introduction}
+
+In data analysis, researchers face the challenge of maintaining
+objectivity and minimizing bias. A key issue in this context is the
+considerable analytic flexibility available at various stages of the
+process, including data preprocessing, variable selection, model
+specification, and statistical testing. This flexibility has been
+described as the ``garden of forking paths'\,' \citep{gelman2013garden},
+as a multitude of plausible analytic strategies can be applied to the
+same dataset. Depending on the complexity of the analysis, this can
+result in hundreds or thousands of plausible, non-redundant analytic
+pipelines \citep{steegen2016increasing, SimonsohnEtAl2020}. Importantly,
+different analytic paths can yield different results, and analysts may,
+intentionally or unintentionally, gravitate toward those that align with
+their expectations. Such flexibility can therefore lead to biased
+outcomes if researchers make analytic choices that are influenced by
+their hypotheses or prior beliefs about the data.
+
+To ensure the reliability of results and the validity of conclusions
+drawn from empirical data, it is crucial to prevent the idiosyncrasies
+of the data from feeding back into the formulation of the hypotheses
+being tested \citep[HARKing,][]{kerr1998harking} or from prompting
+researchers to exploit their analytic freedom to accentuate desired
+outcomes \citep{simmons2011false}.
+
+Analysis blinding \citep{maccoun2015hide} is a methodological approach
+designed to protect the confirmatory status of an analysis by concealing
+crucial test-relevant aspects of the data from the analysts---for
+example, by scrambling dependent variables or masking key labels. The
+procedure typically involves two independent parties: a data manager,
+who has full access to the raw data and is responsible for implementing
+the blinding steps, and an analyst, who is tasked with developing the
+analysis plan. After the data manager applies the blinding procedure,
+the analyst receives the resulting modified dataset: the blinded data.
+
+Working with the blinded data, the analyst can explore and preprocess
+the dataset and develop an analysis plan without being influenced by
+whether a particular analytic choice produces the desired result, as any
+patterns in the blinded data are, by design, only a product of chance.
+Importantly, although the test-relevant elements are concealed, other
+meaningful characteristics remain intact, including demographic
+information, secondary variables, and the distributional properties of
+both dependent and independent variables. As a result, the analyst
+retains all information necessary to tailor the analytic approach to the
+specific, and potentially unexpected, features of the data.
+
+Once the analysis plan has been finalized using the blinded data, the
+analyst is granted access to the raw, unblinded dataset, and the
+confirmatory analysis can then be carried out strictly according to the
+pre-established plan.
+
+Analysis blinding ties in with other methodologies to minimize bias in
+the research cycle, such as single-blind or double-blind experimental
+designs, where participants and/or experimenters are unaware of certain
+aspects of the study to prevent bias in data collection (REF). Here, the
+analysts is intentionally kept unaware of certain aspects of the data to
+prevent bias in data analysis, which is why the methodology is also
+referred to as triple-blind (REF).
+
+The \pkg{vazul} package in \proglang{R}
+\url{(https://CRAN.R-project.org/package=vazul} provides the tools
+needed for data managers to implement blinding procedures. The package
+includes functionality for data scrambling, data masking, and
+subset-based analyses. In the remainder of this article, we introduce
+the methodology in more detail, describe the functionalities of the
+\pkg{vazul} package, and illustrate its application through practical
+examples. We conclude with a brief discussion and outline future
+directions.
+
+\subsection{Analysis Blinding: Safeguarding Against Bias Without
+Preregistration}\label{analysis-blinding-safeguarding-against-bias-without-preregistration}
+
+Originally, analysis blinding gained traction in astrophysics in the
+early 2000s (REF) as a means of safeguarding analysts against bias.
+Since then, the methodology has also been advocated in the social and
+behavioral sciences
+\citep{dutilh2021blinding, nagy2025bestiary, maccoun2021removebiases, maccoun2015hide, maccoun2018psychological},
+where preregistration of analysis plans, that is, requiring researchers
+to specify their planned analyses before data collection begins or
+before they view the data, has been the predominant approach for
+limiting analytic flexibility (e.g., existing estimates of
+preregistration rates in empirical psychology published in prominent
+journals range from about 14\% \citet{hardwicke2024prevalence2024} to
+about 40\% \citet{pfadt2025practicesPreprint}). In the literature,
+analysis blinding has been proposed as an alternative or complementary
+method to preregistration \citep[e.g.,][]{dutilh2021blinding} as it
+addresses several of preregistration's major shortcomings. Specifically,
+preregistration can restrict analysts so rigidly that they are unable to
+adapt their analyses to unexpected peculiarities in the data. Although
+deviations from preregistered plans are both possible and accepted when
+transparently disclosed in the final manuscript, such deviations run
+counter to the spirit of preregistration, as they reintroduce
+data-dependent decisions that may bias the results. At the same time,
+text-based preregistrations, that is, the description of analysis plans
+in a preregistration template, often fail to be `specific, precise, and
+exhaustive' \citep[2]{wicherts2016degrees}, which leaves substantial
+degrees of freedom unaccounted for.
+
+In contrast to preregistration, analysis blinding allows researchers to
+maintain flexibility in their analysis plans, as they can explore the
+data without being constrained by a rigid preregistered protocol. This
+flexibility is especially important in analyses involving advanced
+statistical modeling or preprocessing, where not all decisions can be
+anticipated in advance and researchers must make data-dependent choices.
+For instance, in longitudinal network analysis, statistical models
+typically assume stationarity--an assumption which is frequently
+violated in psychological data and one that must be detected and
+addressed through detrending techniques
+\citep{epskamp2018gaussian, burger2022network, hoekstra2025safeguardingPreprint}.
+The flexibility gained by analysis blinding enables researchers to
+develop analysis strategies that are appropriately tailored to the
+specific characteristics of the dataset without the need to anticipate
+and specify all eventualities in advance. Consequently, researchers who
+analyze their data with analysis blinding are less likely to deviate
+from their developed analysis plan compared to researchers who
+preregister their analytic strategy in a text-based format
+\citep{sarafoglou2023comparing}.
+
+Moreover, similar in spirit to approaches proposed in code-based
+preregistration \citep{peikert2021reproducible, vanlissa2021worcs},
+analysis blinding naturally produces analysis plans that are specific,
+precise, and exhaustive, because they are written directly in code
+rather than described verbally in preregistration templates. As with
+preregistration, analysis scripts based on the blinded data can be
+uploaded or attached to preregistration platforms (e.g., the Open
+Science Framework) to provide a transparent record of the planned
+analysis before the data are unblinded. In short, analysis blinding can
+serve as a valuable alternative or additional safeguard to preregistered
+analysis plans: it effectively protects against bias while providing
+analysts with the flexibility needed to develop an analysis strategy
+that is optimally suited to their data.
+
+\renewcommand\refname{References}
+\bibliography{../inst/bibliography.bib}
+
+
+
+\end{document}
