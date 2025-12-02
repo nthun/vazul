@@ -22,6 +22,7 @@ Data blinding is an essential technique in research to prevent bias during analy
 
 library(vazul)
 library(dplyr)
+data(williams)
 
 ```
 
@@ -369,7 +370,6 @@ df |> mask_variables_rowwise(
 Let's walk through a complete example using the `williams` dataset included in the package.
 
 ```{r}
-data(williams)
 glimpse(williams)
 ```
 
