@@ -4,18 +4,21 @@
 \alias{mask_variables}
 \title{Mask categorical variables with random labels in a data frame}
 \usage{
-mask_variables(data, cols, across_variables = FALSE)
+mask_variables(data, ..., across_variables = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
 
-\item{cols}{\if{html}{\out{<tidy-select>}} Columns to mask. Accepts column names, positions,
-or tidyselect helpers like \code{starts_with()}, \code{contains()},
-\code{where()}, etc. Only character and factor columns will be
-processed.}
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. Each can be:
+\itemize{
+\item A tidyselect expression (e.g., \code{starts_with("treat_")})
+\item A character vector of column names (e.g., \code{c("var1", "var2")})
+\item Multiple sets can be provided as separate arguments
+}
+Only character and factor columns will be processed.}
 
-\item{across_variables}{logical. If \code{TRUE}, all selected variables will use
-the same set of masked labels. If \code{FALSE} (default), each variable
+\item{across_variables}{logical. If \code{TRUE}, all selected variables will
+use the same set of masked labels. If \code{FALSE} (default), each variable
 gets its own independent set of masked labels using the column name as
 prefix.}
 }
@@ -39,7 +42,8 @@ df <- data.frame(
 )
 
 set.seed(123)
-# Independent masking for each variable (default - uses column names as prefixes)
+# Independent masking for each variable (default - uses column names as
+# prefixes)
 mask_variables(df, c("treatment", "outcome"))
 
 set.seed(456)
