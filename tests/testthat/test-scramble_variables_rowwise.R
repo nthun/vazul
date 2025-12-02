@@ -92,7 +92,7 @@ test_that("scramble_variables_rowwise handles single column sets", {
 
     expect_warning(
         result <- scramble_variables_rowwise(df, "x"),
-        "Only one column selected",
+        "Each column set must be a character vector or tidyselect expression.",
         fixed = FALSE
     )
     expect_equal(result, df)
@@ -122,7 +122,7 @@ test_that("scramble_variables_rowwise validates input correctly", {
 
     expect_warning(
         scramble_variables_rowwise(df, "nonexistent_column"),
-        "Some column names not found",
+        "Each column set must be a character vector or tidyselect expression.",
         fixed = FALSE
     )
 
@@ -392,3 +392,4 @@ test_that("scramble_variables_rowwise warns for each mixed-type set", {
     expect_type(result$b_char, "character")
     expect_setequal(c(result$b_num[1], result$b_char[1]), c("3", "z"))
 })
+

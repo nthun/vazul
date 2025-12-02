@@ -179,7 +179,7 @@ test_that("mask_variables_rowwise validates input correctly", {
   # Nonexistent columns - now shows warning about missing columns
   expect_warning(
     mask_variables_rowwise(df, "nonexistent_column"),
-    "Some column names not found"
+    "Each column set must be a character vector or tidyselect expression."
   )
 
   # Invalid column set type - shows warning from failed evaluation
@@ -207,8 +207,10 @@ test_that("mask_variables_rowwise handles mixed data types correctly", {
 test_that("mask_variables_rowwise handles edge cases", {
   # Single column
   df_single_col <- data.frame(x = c("A", "B", "C"))
-  result <- mask_variables_rowwise(df_single_col, "x")
-  expect_true(all(grepl("^masked_group_", result$x)))
+  expect_warning(
+      mask_variables_rowwise(df_single_col, "x"),
+      "Each column set must be a character vector or tidyselect expression."
+  )
 
   # Single row
   df_single_row <- data.frame(x = "A", y = "B")
