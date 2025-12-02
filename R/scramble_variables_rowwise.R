@@ -30,7 +30,10 @@
 #' )
 #' @export
 scramble_variables_rowwise <- function(data, ...) {
-  stopifnot(is.data.frame(data))
+    if (!is.data.frame(data)) {
+        stop("Input 'data' must be a data frame. Received object of class: ",
+             paste(class(data), collapse = ", "), ".", call. = FALSE)
+    }
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -93,11 +96,12 @@ scramble_variables_rowwise <- function(data, ...) {
       expr = {
         set <- rlang::eval_tidy(set_quo, data = data)
         if (is.character(set)) {
-          missing <- setdiff(set, names(data))
-          if (length(missing) > 0) {
-            warning("Some column names not found: ", paste(missing, collapse = ", "), call. = FALSE)
-            return(NULL)
-          }
+            if (length(missing) > 0) {
+                stop("Error in column selection: Can't subset columns that ",
+                     "don't exist. Column `",
+                     paste(missing, collapse = "`, `"),
+                     "` doesn't exist.", call. = FALSE)
+            }
           return(scramble_rowwise_internal(data, set)[set])
         } else {
           # Not character — fall through to tidyselect

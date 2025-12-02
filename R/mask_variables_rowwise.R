@@ -109,12 +109,12 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
       expr = {
         set <- rlang::eval_tidy(set_quo, data = data)
         if (is.character(set)) {
-          missing <- setdiff(set, names(data))
-          if (length(missing) > 0) {
-            warning("Some column names not found: ",
-                    paste(missing, collapse = ", "), call. = FALSE)
-            return(NULL)
-          }
+            if (length(missing) > 0) {
+                stop("Error in column selection: Can't subset columns that ",
+                     "don't exist. Column `",
+                     paste(missing, collapse = "`, `"),
+                     "` doesn't exist.", call. = FALSE)
+            }
           return(mask_labels_rowwise_internal(data, set, prefix)[set])
         } else {
           NULL
