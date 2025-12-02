@@ -45,26 +45,56 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
     return(data)
   }
 
-  # Apply mask_labels_rowwise to each column set
-  # This is much simpler - just map the function across all sets
-  masked_dfs <- lapply(column_sets, function(set_quo) {
-    # Get column names for this set
-    tryCatch({
-      col_indices <- tidyselect::eval_select(set_quo, data)
-      col_names <- names(data)[col_indices]
-
-      if (length(col_names) == 0) {
-        return(NULL)
+  # Helper to handle one column set (same pattern as scramble_variables_rowwise)
+  mask_one_set <- function(set_quo) {
+    # Try evaluating as character vector first
+    try_char <- tryCatch(
+      expr = {
+        set <- rlang::eval_tidy(set_quo, data = data)
+        if (is.character(set)) {
+          missing <- setdiff(set, names(data))
+          if (length(missing) > 0) {
+            warning("Some column names not found: ",
+                    paste(missing, collapse = ", "), call. = FALSE)
+            return(NULL)
+          }
+          return(mask_labels_rowwise(data, dplyr::all_of(set),
+                                     prefix = prefix)[set])
+        } else {
+          NULL
+        }
+      },
+      error = function(e) {
+        NULL
       }
+    )
 
-      # Apply mask_labels_rowwise to this set and return only the masked columns
+    if (!is.null(try_char)) {
+      return(try_char)
+    }
+
+    # If not character, treat as tidyselect expression
+    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
+      selected <- tryCatch(
+        tidyselect::eval_select(set_quo, data),
+        error = function(e) {
+          warning("Failed to evaluate column set: ", conditionMessage(e),
+                  call. = FALSE)
+          return(NULL)
+        }
+      )
+      if (is.null(selected) || length(selected) == 0) return(NULL)
+      col_names <- names(data)[selected]
       mask_labels_rowwise(data, dplyr::all_of(col_names), prefix = prefix)[col_names]
-    }, error = function(e) {
-      warning("Failed to evaluate column set: ", conditionMessage(e),
-              call. = FALSE)
+    } else {
+      warning("Each column set must be a character vector or ",
+              "tidyselect expression.", call. = FALSE)
       return(NULL)
-    })
-  })
+    }
+  }
+
+  # Apply to each set
+  masked_dfs <- lapply(column_sets, mask_one_set)
 
   # Filter out NULL results
   masked_dfs <- Filter(Negate(is.null), masked_dfs)

@@ -143,18 +143,18 @@ test_that("mask_variables handles non-categorical columns correctly", {
 test_that("mask_variables validates input correctly", {
   df <- data.frame(x = c("A", "B"), y = c("X", "Y"))
   
-  # Test NULL data
+  # Test NULL data - now uses stopifnot pattern
   expect_error(
     mask_variables(NULL, "x"),
-    "Input 'data' cannot be NULL. Please provide a data frame.",
-    fixed = TRUE
+    "is.data.frame\\(data\\) is not TRUE",
+    fixed = FALSE
   )
   
-  # Test non-data.frame input
+  # Test non-data.frame input - now uses stopifnot pattern
   expect_error(
     mask_variables(list(x = c("A", "B")), "x"),
-    "Input 'data' must be a data frame.",
-    fixed = TRUE
+    "is.data.frame\\(data\\) is not TRUE",
+    fixed = FALSE
   )
   
   # Test empty data frame
