@@ -1,3 +1,12 @@
+# vazul 0.5.0
+## 2025-12-02
+
+* Now all main functions use the `...` for accepting tidyselect helpers (BREAKING CHANGE!)
+* Update documentation
+* Add vignette for main functions
+* Removed `mask_labels_rowwise()` and `scramble_values_rowwise()` functions as they were confusing and unnecessary.
+* Updated the README file to reflect the changes.
+
 # vazul 0.4.0
 ## 2025-09-29
 
