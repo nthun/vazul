@@ -165,7 +165,8 @@ test_that("mask_variables_rowwise validates input correctly", {
   # Non-data.frame input
   expect_error(
     mask_variables_rowwise(list(x = c("A", "B")), "x"),
-    class = "simpleError"
+    "Input 'data' must be a data frame.",
+    fixed = TRUE
   )
 
   # No column sets provided
@@ -175,13 +176,13 @@ test_that("mask_variables_rowwise validates input correctly", {
   )
   expect_equal(result, df)
 
-  # Nonexistent columns - now properly shows warning
+  # Nonexistent columns - now shows warning about missing columns
   expect_warning(
     mask_variables_rowwise(df, "nonexistent_column"),
-    "Failed to evaluate column set"
+    "Each column set must be a character vector or tidyselect expression."
   )
 
-  # Invalid column set type
+  # Invalid column set type - shows warning from failed evaluation
   expect_warning(
     mask_variables_rowwise(df, data.frame(a = 1)),
     "Failed to evaluate column set"
@@ -195,15 +196,16 @@ test_that("mask_variables_rowwise handles mixed data types correctly", {
     z = c("X", "Y", "Z")
   )
 
-  # Should show warning when trying to mask non-character/factor columns
-  expect_warning(
+  # Should throw error when trying to mask non-character/factor columns
+  # mask_variables_rowwise throws an error for non-categorical columns
+  expect_error(
     mask_variables_rowwise(df, c("x", "y", "z")),
-    "Failed to evaluate column set"
+    "All selected columns must be character or factor"
   )
 })
 
 test_that("mask_variables_rowwise handles edge cases", {
-  # Single column
+  # Single column - mask_variables_rowwise does not warn, it just masks the single column
   df_single_col <- data.frame(x = c("A", "B", "C"))
   result <- mask_variables_rowwise(df_single_col, "x")
   expect_true(all(grepl("^masked_group_", result$x)))

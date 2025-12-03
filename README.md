@@ -66,7 +66,7 @@ mask_variables(df, c("condition", "treatment"))
 mask_variables(df, where(is.character))
 ```
 
-#### `mask_variables_rowwise()` & `mask_labels_rowwise()` - Row-level masking
+#### `mask_variables_rowwise()` - Row-level masking
 ```r
 # Consistent masking across rows for categorical data
 df |> mask_variables_rowwise(c("condition", "treatment"))
@@ -103,7 +103,7 @@ library(dplyr)
 df |> group_by(group) |> scramble_variables("x")
 ```
 
-#### `scramble_values_rowwise()` & `scramble_variables_rowwise()` - Row-level scrambling
+#### `scramble_variables_rowwise()` - Row-level scrambling
 ```r
 # Scramble values within each row
 df <- data.frame(
@@ -112,7 +112,7 @@ df <- data.frame(
   item3 = c(3, 6, 9)
 )
 
-df |> scramble_values_rowwise(c("item1", "item2", "item3"))
+df |> scramble_variables_rowwise(c("item1", "item2", "item3"))
 #>   item1 item2 item3
 #> 1     3     1     2
 #> 2     5     4     6  

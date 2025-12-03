@@ -17,7 +17,7 @@
 # vazul 0.3.0
 ## 2025-09-25
 
-* Add `mask_labels()`, `mask_variables()`, `mask_labels_rowwise()`, `mask_variables_rowwise()`, `mask_names()` functions to mask factor levels and variable names.
+* Add `mask_labels()`, `mask_variables()`, `mask_variables_rowwise()`, `mask_names()` functions to mask factor levels and variable names.
 * Add unit tests for all new functions
 * Add lifcycle badge to README
 
