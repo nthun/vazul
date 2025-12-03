@@ -90,9 +90,10 @@ test_that("scramble_variables_rowwise handles single column sets", {
         z = 6:10
     )
 
+    # Single column as character string should work and warn about only one column
     expect_warning(
         result <- scramble_variables_rowwise(df, "x"),
-        "Each column set must be a character vector or tidyselect expression.",
+        "Only one column selected",
         fixed = FALSE
     )
     expect_equal(result, df)
@@ -110,7 +111,8 @@ test_that("scramble_variables_rowwise validates input correctly", {
 
     expect_error(
         scramble_variables_rowwise(list(x = 1:5), "x"),
-        class = "simpleError"
+        "Input 'data' must be a data frame.",
+        fixed = TRUE
     )
 
     expect_warning(

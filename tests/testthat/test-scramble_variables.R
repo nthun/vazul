@@ -150,20 +150,21 @@ test_that("scramble_variables validates input correctly", {
     # Test non-data.frame input
     expect_error(
         scramble_variables(list(x = 1:5), "x"),
-        class = "simpleError"
+        "Input 'data' must be a data frame.",
+        fixed = TRUE
     )
 
-    # Test missing columns — now expect tidyselect's native error
+    # Test missing columns — now expect custom error from helper
     expect_error(
         scramble_variables(df, "nonexistent_column"),
-        "Can't select columns that don't exist",
+        "Error in column selection:",
         fixed = FALSE  # Allow partial match
     )
 
     # Test invalid column indices — tidyselect handles this too
     expect_error(
         scramble_variables(df, 10),  # Column 10 doesn't exist
-        "Can't select columns past the end",
+        "Can't subset columns past the end",
         fixed = FALSE  # Allow partial match
     )
 })
@@ -499,4 +500,18 @@ test_that("scramble_variables together actually scrambles data (probabilistic)",
   
   # But pairs should be preserved
   expect_setequal(result_pairs, original_pairs)
+})
+
+# ─── TESTS FOR ... SYNTAX ─────────────────────────────────────────────────────
+
+test_that("scramble_variables warns when no columns are provided", {
+  df <- data.frame(x = 1:5, y = letters[1:5])
+  
+  expect_warning(
+    result <- scramble_variables(df),
+    "No columns selected. Returning original data unchanged.",
+    fixed = TRUE
+  )
+  
+  expect_equal(result, df)
 })

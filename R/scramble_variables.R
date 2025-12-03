@@ -3,9 +3,14 @@
 #' Scramble the values of several variables in a data frame.
 #' @keywords functions
 #' @param data a data frame
-#' @param cols <tidy-select> Columns to scramble. Accepts column names, positions, or tidyselect helpers like \code{starts_with()}, \code{contains()}, \code{where()}, etc.
+#' @param ... <tidy-select> Columns to scramble. Each can be:
+#'   \itemize{
+#'     \item A tidyselect expression (e.g., \code{starts_with("treat_")})
+#'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
+#'     \item Multiple sets can be provided as separate arguments
+#'   }
 #' @param together logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.
-#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as \code{cols}.
+#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as column selection.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
@@ -43,16 +48,35 @@
 #' }
 #' @export
 #'
-scramble_variables <- function(data, cols, .groups = NULL, together = FALSE) {
+scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
 
     # Input validation
-    stopifnot(is.data.frame(data))
+    validate_data_frame(data)
+
+    # Capture all ... arguments as quosures
+    column_sets <- rlang::enquos(...)
+
+    # If no sets provided, return data unchanged with warning
+    if (length(column_sets) == 0) {
+        warning("No columns selected. Returning original data unchanged.",
+                call. = FALSE)
+        return(data)
+    }
+
+    # Resolve column names from ... arguments
+    all_col_names <- resolve_all_column_sets(column_sets, data)
+
+    if (length(all_col_names) == 0) {
+        warning("No columns selected. Returning original data unchanged.",
+                call. = FALSE)
+        return(data)
+    }
+
+    # Get column indices from resolved names
+    col_indices <- match(all_col_names, names(data))
 
     # Capture original column order
     orig_order <- names(data)
-
-    # Handle column selection using tidyselect — throws its own meaningful errors
-    col_indices <- tidyselect::eval_select(rlang::enquo(cols), data)
 
     # Handle group selection similarly if provided
     if (!is.null(.groups)) {

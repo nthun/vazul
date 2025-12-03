@@ -205,12 +205,10 @@ test_that("mask_variables_rowwise handles mixed data types correctly", {
 })
 
 test_that("mask_variables_rowwise handles edge cases", {
-  # Single column
+  # Single column - mask_variables_rowwise does not warn, it just masks the single column
   df_single_col <- data.frame(x = c("A", "B", "C"))
-  expect_warning(
-      mask_variables_rowwise(df_single_col, "x"),
-      "Each column set must be a character vector or tidyselect expression."
-  )
+  result <- mask_variables_rowwise(df_single_col, "x")
+  expect_true(all(grepl("^masked_group_", result$x)))
 
   # Single row
   df_single_row <- data.frame(x = "A", y = "B")

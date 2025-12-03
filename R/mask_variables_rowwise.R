@@ -32,10 +32,7 @@
 #' )
 #' @export
 mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
-  if (!is.data.frame(data)) {
-    stop("Input 'data' must be a data frame. Received object of class: ",
-         paste(class(data), collapse = ", "), ".", call. = FALSE)
-  }
+  validate_data_frame(data)
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -102,19 +99,20 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
     result
   }
 
-  # Helper to handle one column set (same pattern as scramble_variables_rowwise)
+  # Helper to handle one column set
   mask_one_set <- function(set_quo) {
     # Try evaluating as character vector first
     try_char <- tryCatch(
       expr = {
         set <- rlang::eval_tidy(set_quo, data = data)
         if (is.character(set)) {
-            if (length(missing) > 0) {
-                stop("Error in column selection: Can't subset columns that ",
-                     "don't exist. Column `",
-                     paste(missing, collapse = "`, `"),
-                     "` doesn't exist.", call. = FALSE)
-            }
+          missing <- setdiff(set, names(data))
+          if (length(missing) > 0) {
+            stop("Error in column selection: Can't subset columns that ",
+                 "don't exist. Column `",
+                 paste(missing, collapse = "`, `"),
+                 "` doesn't exist.", call. = FALSE)
+          }
           return(mask_labels_rowwise_internal(data, set, prefix)[set])
         } else {
           NULL
