@@ -2,8 +2,9 @@ pandoc: 3.6.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
+  data_blinding_functions: data_blinding_functions.html
   using_mask_names: using_mask_names.html
-last_built: 2025-12-02T13:33Z
+last_built: 2025-12-03T13:34Z
 urls:
   reference: https://nthun.github.io/vazul/reference
   article: https://nthun.github.io/vazul/articles

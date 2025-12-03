@@ -453,7 +453,7 @@
 <p>Use the <code>.groups</code> parameter to scramble within groups:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">789</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"x"</span>, .groups <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
 <span><span class="co">#&gt;       x y     group</span></span>
@@ -461,9 +461,9 @@
 <span><span class="co">#&gt; 1     1 a     A    </span></span>
 <span><span class="co">#&gt; 2     2 b     A    </span></span>
 <span><span class="co">#&gt; 3     3 c     A    </span></span>
-<span><span class="co">#&gt; 4     5 d     B    </span></span>
-<span><span class="co">#&gt; 5     6 e     B    </span></span>
-<span><span class="co">#&gt; 6     4 f     B</span></span></code></pre></div>
+<span><span class="co">#&gt; 4     4 d     B    </span></span>
+<span><span class="co">#&gt; 5     5 e     B    </span></span>
+<span><span class="co">#&gt; 6     6 f     B</span></span></code></pre></div>
 </div>
 <p>Values of <code>x</code> are only swapped within their original group (A or B).</p>
 </section><section class="level4"><h4 id="combining-grouping-and-together">Combining Grouping and Together<a class="anchor" aria-label="anchor" href="#combining-grouping-and-together"></a>
@@ -558,7 +558,7 @@
 <span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span></span>
 <span>  <span class="va">df2</span>,</span>
 <span>  <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span>,</span>
@@ -566,9 +566,9 @@
 <span><span class="op">)</span></span>
 <span><span class="va">result2</span></span>
 <span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
-<span><span class="co">#&gt; 1     1     3     2      10      20  1</span></span>
-<span><span class="co">#&gt; 2     5     4     6      40      50  2</span></span>
-<span><span class="co">#&gt; 3     9     7     8      80      70  3</span></span></code></pre></div>
+<span><span class="co">#&gt; 1     1     2     3      20      10  1</span></span>
+<span><span class="co">#&gt; 2     4     5     6      40      50  2</span></span>
+<span><span class="co">#&gt; 3     9     7     8      70      80  3</span></span></code></pre></div>
 </div>
 </section></section></section><section class="level2"><h2 id="choosing-between-masking-and-scrambling">Choosing Between Masking and Scrambling<a class="anchor" aria-label="anchor" href="#choosing-between-masking-and-scrambling"></a>
 </h2>
@@ -645,7 +645,7 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>rel_1_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">rel_1</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">original_means</span><span class="op">$</span><span class="va">rel_1_mean</span>, <span class="va">scrambled_means</span><span class="op">$</span><span class="va">rel_1_mean</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Mean relative difference: 0.2219757"</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="williams-dataset">Williams Dataset<a class="anchor" aria-label="anchor" href="#williams-dataset"></a>
 </h3>
