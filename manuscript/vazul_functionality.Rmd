@@ -19,10 +19,10 @@ author:
     affiliation: |
       | University of Amsterdam'
 title:
-  formatted: "\\pkg{Vazul}: An R Package for Analysis Blinding"
   # If you use tex in the formatted title, also supply version without
-  plain:     "An R Package for Analysis Blinding"
   # For running headers, if needed
+  formatted: "\\pkg{Vazul}: An R Package for Analysis Blinding"
+  plain:     "An R Package for Analysis Blinding"
   short:     "\\pkg{Vazul}: A Capitalized Title"
 abstract: >
   The abstract of the article.
@@ -33,13 +33,13 @@ keywords:
 preamble: >
   \usepackage{amsmath}
 output: rticles::jss_article
+editor_options: 
+  chunk_output_type: console
 ---
 
-## Introduction
+## Overview of the main functions 
 
-The `vazul` package provides functions for data blinding in research contexts. Data blinding helps prevent researcher bias by anonymizing data while preserving analytical validity. This vignette introduces the main functions and demonstrates their usage with practical examples.
-
-There are two primary approaches to data blinding:
+The package provides functions for two main types of analysis blinding:
 
 1. **Masking**: Replaces original values with anonymous labels, completely hiding the original information.
 2. **Scrambling**: Randomizes the order of existing values while preserving all original data content.
@@ -53,327 +53,132 @@ Each approach is available at three levels:
 ```{r setup, message = FALSE}
 library(vazul)
 library(dplyr)
+
+set.seed(123)
 ```
 
-## Masking Functions
 
-Masking functions replace categorical values with anonymous labels. This is useful when you want to completely hide the original information, such as treatment conditions or group assignments.
+## Included datasets
 
-### `mask_labels()` - Mask Vector Values
+The `vazul` package includes two research datasets for demonstration and practice. The `marp ` dataset contains cross-national survey data on religiosity, while the `williams` dataset contains experimental data from a stereotyping study.
 
-The `mask_labels()` function takes a character or factor vector and replaces each unique value with a randomly assigned masked label.
+```{r}
+data(marp)
+data(williams)
 
-#### Parameters
+glimpse(marp)
+glimpse(williams)
 
-- `x`: A character or factor vector to mask
-- `prefix`: Character string to use as prefix for masked labels (default: `"masked_group_"`)
+```
 
-#### Basic Usage
+## Masking functions
+
+Masking functions replace categorical values with anonymous labels. This is useful when you want to hide the original information, such as treatment conditions or group assignments. Masking variables is useful when there are a limited number of unique values. The `mask_labels()` function takes a character or factor vector and replaces each unique value with a randomly assigned masked label. The function preserves factor structure when the input is a factor. After masking, each unique value receives a unique masked label, the same original value always maps to the same masked label, and the assignment of masked labels to original values is randomized.
 
 ```{r}
 # Create a simple treatment vector
 treatment <- c("control", "treatment", "control", "treatment", "control")
 
 # Mask the labels
-set.seed(123)
-masked_treatment <- mask_labels(treatment)
-masked_treatment
+mask_labels(treatment)
+
 ```
 
-Notice that:
-
-- Each unique value receives a unique masked label
-- The same original value always maps to the same masked label
-- The assignment of masked labels to original values is randomized
-
-#### Custom Prefix
-
-You can customize the prefix used for masked labels:
+It is possible to customize the prefix used for masked labels:
 
 ```{r}
-set.seed(456)
 mask_labels(treatment, prefix = "group_")
 ```
 
-```{r}
-set.seed(789)
-mask_labels(treatment, prefix = "condition_")
-```
-
-#### Working with Factors
-
-The function preserves factor structure when the input is a factor:
-  
-```{r}
-# Create a factor vector
-ecology <- factor(c("Desperate", "Hopeful", "Desperate", "Hopeful"))
-
-set.seed(123)
-masked_ecology <- mask_labels(ecology)
-masked_ecology
-class(masked_ecology)
-```
-
-#### Practical Example with Dataset
-
-Let's use the `williams` dataset to mask the ecology condition:
+The `mask_variables()` function extends the masking functionality to multiple columns in a data frame simultaneously. It is possible to use tidyelect helpers to select columns.
 
 ```{r}
-data(williams)
+marp |> 
+    select(rel_1:rel_9, country, denomination) |> 
+    mask_variables(c("country", "denomination")) |> 
+    head()
 
-set.seed(42)
-williams$ecology_masked <- mask_labels(williams$ecology)
+marp |> 
+    select(rel_1:rel_9, country, denomination) |> 
+    mask_variables(where(is.character)) |> 
+    head()
 
-# Compare original and masked values
-head(williams[c("subject", "ecology", "ecology_masked")], 10)
 ```
 
-Now researchers can analyze the data without knowing which condition is "Desperate" vs "Hopeful".
-
-### `mask_variables()` - Mask Data Frame Columns
-
-The `mask_variables()` function applies masking to multiple columns in a data frame simultaneously.
-
-#### Parameters
-
-- `data`: A data frame
-- `...`: Columns to mask (supports tidyselect helpers)
-- `across_variables`: If `TRUE`, all selected variables share the same masked labels; if `FALSE` (default), each variable gets independent masked labels
-
-#### Independent Masking (Default)
-
-By default, each column gets its own set of masked labels with the column name as prefix:
+By default, each column gets its own set of masked labels with the column name as prefix. When `across_variables = TRUE`, all selected columns share the same mapping. This can be useful when the same conditions appear in multiple columns.
 
 ```{r}
 df <- data.frame(
-  treatment = c("control", "intervention", "control", "intervention"),
-  outcome = c("success", "failure", "success", "failure"),
-  score = c(85, 92, 78, 88)
-)
-
-set.seed(123)
-result <- mask_variables(df, c("treatment", "outcome"))
-result
-```
-
-Notice that each column now has its own prefix (`treatment_group_`, `outcome_group_`).
-
-#### Shared Masking Across Variables
-
-When `across_variables = TRUE`, all selected columns share the same mapping:
-
-```{r}
-df2 <- data.frame(
   pre_condition = c("A", "B", "C", "A"),
   post_condition = c("B", "A", "A", "C"),
   score = c(1, 2, 3, 4)
 )
 
-set.seed(456)
-result_shared <- mask_variables(df2, c("pre_condition", "post_condition"),
+mask_variables(df, c("pre_condition", "post_condition"),
                                 across_variables = TRUE)
-result_shared
+
 ```
 
-With shared masking, value "A" maps to the same label in both columns.
-
-#### Using tidyselect Helpers
-
-You can use tidyselect helpers to select columns:
-
-```{r}
-set.seed(789)
-mask_variables(df, where(is.character))
-```
-
-### `mask_variables_rowwise()` - Row-Level Masking
-
-The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful when you have repeated measures or matched conditions.
-
-#### Parameters
-
-- `data`: A data frame
-- `...`: Column sets to mask (supports tidyselect helpers)
-- `prefix`: Character string to use as prefix for masked labels (default: `"masked_group_"`)
-
-#### Example: Masking Repeated Conditions
+The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful in case when of categrical data that is repeated across columns, such as treatment conditions or item responses. Each row gets its own independent mapping of original values to masked labels. 
 
 ```{r}
 df <- data.frame(
-  treat_1 = c("control", "treatment", "placebo"),
-  treat_2 = c("treatment", "placebo", "control"),
-  treat_3 = c("placebo", "control", "treatment"),
-  id = 1:3
+  treat_1 = c("control", "treatment_1", "treatment_2", "control"),
+  treat_2 = c("treatment_1", "treatment_2", "control", "control"),
+  treat_3 = c("treatment_2", "control", "treatment_1", "control"),
+  id = 1:4
 )
 
-set.seed(123)
-result <- mask_variables_rowwise(df, starts_with("treat_"))
-result
+mask_variables_rowwise(df, starts_with("treat_"))
+
 ```
 
-Within each row, the original values are consistently mapped to masked labels, but the mapping is independent across rows.
 
-## Scrambling Functions
+## Scrambling functions
 
-Scrambling functions randomize the order of values while preserving all original data content. This approach maintains the data distribution while breaking the connection between observations and their original values.
-
-### `scramble_values()` - Scramble Vector Order
-
-The `scramble_values()` function randomly reorders the elements of a vector.
-
-#### Parameters
-
-- `x`: A vector to scramble
-
-#### Basic Usage with Different Data Types
+Scrambling functions randomize the order of values while preserving all original data content. This approach maintains the data distribution while breaking the connection between observations and their original values. The `scramble_values()` function randomly reorders the elements of a vector. The vector can contain numeric, character, or factor data. Scrambling is useful when you want to preserve the original values but eliminate any correspondence between observations and their values.
 
 ```{r}
 # Numeric data
-set.seed(123)
 numbers <- 1:10
 scramble_values(numbers)
 ```
 
-```{r}
-# Character data
-set.seed(456)
-letters_vec <- letters[1:5]
-scramble_values(letters_vec)
-```
+The `scramble_variables()` function extends the scrambling functionality to data frames. It allows scrambling multiple columns simultaneously, with options for independent scrambling, joint scrambling, and within-group scrambling. Columns can be selected using tidyselect helpers.
 
 ```{r}
-# Factor data
-set.seed(789)
-conditions <- factor(c("A", "B", "C", "A", "B"))
-scramble_values(conditions)
+
+df <-
+    williams |>
+    select(subject, age, ecology) |> 
+    head()
+
+scramble_variables(df, c("age", "ecology"))
+
 ```
 
-#### Key Properties
-
-Scrambling preserves:
-
-- All original values (nothing is lost or changed)
-- The data type
-- The distribution of values
+By default, columns are scrambled independently of each other. When `together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
 
 ```{r}
-set.seed(100)
-original <- c(1, 2, 2, 3, 3, 3, 4, 4, 4, 4)
-scrambled <- scramble_values(original)
+df  <-
+    marp |> 
+    select(subject, country, rel_1:rel_3)
 
-# Same values, different order
-sort(original) == sort(scrambled)
-
-# Same frequency distribution
-table(original)
-table(scrambled)
+tail(df)
+    
+scramble_variables(df, starts_with("rel_"), together = TRUE) |> 
+    tail()
 ```
 
-#### Practical Example with Dataset
+Scrambling can be done in groups using the `.groups` parameter. This ensures that values are only scrambled within their original groups.
 
 ```{r}
-data(williams)
+df |> 
+    scramble_variables(starts_with("rel_"), .groups = "country")
 
-set.seed(42)
-williams$age_scrambled <- scramble_values(williams$age)
-
-# The values are the same, just reordered
-summary(williams$age)
-summary(williams$age_scrambled)
-
-# But individual correspondences are broken
-head(williams[c("subject", "age", "age_scrambled")], 10)
 ```
-
-### `scramble_variables()` - Scramble Data Frame Columns
-
-The `scramble_variables()` function scrambles the values of specified columns in a data frame.
-
-#### Parameters
-
-- `data`: A data frame
-- `cols`: Columns to scramble (supports tidyselect helpers)
-- `together`: If `TRUE`, variables are scrambled together as a unit per row; if `FALSE` (default), each variable is scrambled independently
-- `.groups`: Optional grouping columns for within-group scrambling
-
-#### Independent Scrambling (Default)
-
-Each column is scrambled independently:
-
-```{r}
-df <- data.frame(
-  x = 1:6,
-  y = letters[1:6],
-  group = c("A", "A", "A", "B", "B", "B")
-)
-
-set.seed(123)
-scramble_variables(df, c("x", "y"))
-```
-
-Notice that `x` and `y` are scrambled independently of each other.
-
-#### Scrambling Together
-
-When `together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
-
-```{r}
-set.seed(456)
-scramble_variables(df, c("x", "y"), together = TRUE)
-```
-
-Notice that the pairs (1, "a"), (2, "b"), etc., remain intact but are assigned to different rows.
-
-#### Within-Group Scrambling
-
-Use the `.groups` parameter to scramble within groups:
-
-```{r}
-set.seed(789)
-scramble_variables(df, "x", .groups = "group")
-```
-
-Values of `x` are only swapped within their original group (A or B).
-
-#### Combining Grouping and Together
-
-You can combine both parameters:
-
-```{r}
-set.seed(100)
-scramble_variables(df, c("x", "y"), .groups = "group", together = TRUE)
-```
-
-#### Practical Example with Dataset
-
-```{r}
-data(williams)
-
-# Scramble age and ecology within gender groups
-set.seed(42)
-williams_scrambled <- williams |>
-  scramble_variables(c("age", "ecology"), .groups = "gender")
-
-# Check that values are preserved within groups
-williams |>
-  group_by(gender) |>
-  summarise(mean_age = mean(age, na.rm = TRUE))
-
-williams_scrambled |>
-  group_by(gender) |>
-  summarise(mean_age = mean(age, na.rm = TRUE))
-```
-
-### `scramble_variables_rowwise()` - Row-Level Scrambling
 
 The `scramble_variables_rowwise()` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.
-
-#### Parameters
-
-- `data`: A data frame
-- `...`: Column sets to scramble (supports tidyselect helpers)
-
-#### Example: Scrambling Item Responses
 
 ```{r}
 df <- data.frame(
@@ -383,16 +188,11 @@ df <- data.frame(
   id = 1:3
 )
 
-set.seed(123)
-result <- scramble_variables_rowwise(df, c("item1", "item2", "item3"))
-result
+scramble_variables_rowwise(df, c("item1", "item2", "item3"))
+
 ```
 
-Within each row, the values are shuffled among the item columns.
-
-#### Multiple Column Sets
-
-You can scramble multiple sets of columns independently:
+Within each row, the values are shuffled among the item columns. You can scramble multiple sets of columns independently. The function can use tidyselect helpers. 
 
 ```{r}
 df2 <- data.frame(
@@ -404,90 +204,31 @@ df2 <- data.frame(
   id = 1:3
 )
 
-set.seed(456)
-result2 <- scramble_variables_rowwise(
-  df2,
-  starts_with("day_"),
-  c("score_a", "score_b")
-)
-result2
+scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
 ```
 
-## Choosing Between Masking and Scrambling
+## Choosing between masking and scrambling
 
 | Aspect | Masking | Scrambling |
 |--------|---------|------------|
 | **Original values** | Hidden (replaced) | Preserved (reordered) |
-| **Distribution** | Changed (new labels) | Unchanged |
+| **Distribution** | Same proportion, new labels | Unchanged |
 | **Best for** | Categorical variables | Numeric or categorical |
-| **Use case** | Hide treatment conditions | Break individual links |
-| **Reversibility** | Requires mapping key | Irreversible |
+| **Use case** | Hide treatment conditions | Break correlations |
 
-### When to Use Masking
+Use Masking:
 
 - When you need to hide categorical labels (e.g., treatment conditions, group names)
 - When analysts should not know the meaning of categories
 - When you want different prefixes for different variables
 
-### When to Use Scrambling
+Use Scrambling:
 
 - When you want to preserve the original data distribution
-- When you need to break the link between observations and values
+- When you need to break the association between variables of interest (e.g., treatment and outcome)
 - When working with numeric data that shouldn't be categorically relabeled
 
-## Working with Included Datasets
-
-The `vazul` package includes two research datasets for demonstration and practice.
-
-### MARP Dataset
-
-The Many Analysts Religion Project (MARP) dataset contains 10,535 participants from 24 countries:
-
-```{r}
-data(marp)
-dim(marp)
-
-# Example: Scramble religiosity scores within countries
-set.seed(42)
-marp_blinded <- marp |>
-  scramble_variables(starts_with("rel_"), .groups = "country")
-
-# Original and scrambled have same country-level means
-original_means <- marp |>
-  group_by(country) |>
-  summarise(rel_1_mean = mean(rel_1, na.rm = TRUE), .groups = "drop")
-
-scrambled_means <- marp_blinded |>
-  group_by(country) |>
-  summarise(rel_1_mean = mean(rel_1, na.rm = TRUE), .groups = "drop")
-
-all.equal(original_means$rel_1_mean, scrambled_means$rel_1_mean)
-```
-
-### Williams Dataset
-
-The Williams study dataset contains 112 participants from a stereotyping study:
-
-```{r}
-data(williams)
-dim(williams)
-
-# Example: Mask the ecology condition for blind analysis
-set.seed(42)
-williams_blinded <- williams |>
-  mask_variables("ecology")
-
-# Analysts can work with masked conditions
-williams_blinded |>
-  group_by(ecology) |>
-  summarise(
-    n = n(),
-    mean_impulsivity = mean(Impuls_1, na.rm = TRUE),
-    .groups = "drop"
-  )
-```
-
-## Summary
+## Functions
 
 The `vazul` package provides a comprehensive toolkit for data blinding:
 
@@ -499,5 +240,3 @@ The `vazul` package provides a comprehensive toolkit for data blinding:
 | `scramble_values()` | Vector | Randomize value order |
 | `scramble_variables()` | Data frame | Scramble multiple columns |
 | `scramble_variables_rowwise()` | Row-wise | Scramble values within rows |
-
-These functions help researchers conduct unbiased analyses by separating the analyst from knowledge about treatment conditions, group assignments, or individual data points.

@@ -75,15 +75,10 @@ Amsterdam, The Netherlands'\\
 
 
 
-\subsection{Introduction}\label{introduction}
+\subsection{Overview of the main
+functions}\label{overview-of-the-main-functions}
 
-The \texttt{vazul} package provides functions for data blinding in
-research contexts. Data blinding helps prevent researcher bias by
-anonymizing data while preserving analytical validity. This vignette
-introduces the main functions and demonstrates their usage with
-practical examples.
-
-There are two primary approaches to data blinding:
+The package provides functions for two main types of analysis blinding:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -116,33 +111,121 @@ Each approach is available at three levels:
 \begin{CodeInput}
 R> library(vazul)
 R> library(dplyr)
+R> 
+R> set.seed(123)
 \end{CodeInput}
 \end{CodeChunk}
 
-\subsection{Masking Functions}\label{masking-functions}
+\subsection{Included datasets}\label{included-datasets}
+
+The \texttt{vazul} package includes two research datasets for
+demonstration and practice. The \texttt{marp} dataset contains
+cross-national survey data on religiosity, while the \texttt{williams}
+dataset contains experimental data from a stereotyping study.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data(marp)
+R> data(williams)
+R> 
+R> glimpse(marp)
+\end{CodeInput}
+\begin{CodeOutput}
+Rows: 10,535
+Columns: 46
+$ subject         <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,~
+$ country         <chr> "Australia", "Australia", "Australia", "Australia", "A~
+$ rel_1           <dbl> 0.0000000, 0.8333333, 0.0000000, 0.0000000, 0.0000000,~
+$ rel_2           <dbl> 0.0000000, 0.7142857, 0.0000000, 0.0000000, 0.0000000,~
+$ rel_3           <dbl> 0.5, 1.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5,~
+$ rel_4           <int> 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, ~
+$ rel_5           <dbl> 0.1666667, 0.5000000, 0.1666667, 0.5000000, 0.1666667,~
+$ rel_6           <dbl> 0.5000000, 0.5000000, 0.0000000, 0.6666667, 0.0000000,~
+$ rel_7           <dbl> 0.5000000, 0.3333333, 0.1666667, 0.3333333, 0.3333333,~
+$ rel_8           <dbl> 0.00, 0.50, 0.00, 0.25, 0.00, 0.25, 0.00, 0.00, 0.00, ~
+$ rel_9           <dbl> 0.50, 0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, ~
+$ cnorm_1         <dbl> 0.50, 0.25, 0.25, 0.25, 0.50, 0.50, 0.25, 0.50, 0.00, ~
+$ cnorm_2         <dbl> 0.50, 0.25, 0.25, 0.75, 0.50, 0.50, 0.25, 0.25, 0.00, ~
+$ wb_gen_1        <int> 4, 4, 3, 4, 3, 4, 4, 3, 4, 4, 3, 5, 4, 4, 1, 4, 4, 3, ~
+$ wb_gen_2        <int> 2, 3, 4, 3, 4, 4, 4, 2, 4, 4, 3, 5, 4, 4, 5, 4, 4, 2, ~
+$ wb_phys_1       <int> 3, 3, 4, 4, 5, 5, 4, 3, 4, 4, 3, 4, 5, 4, 3, 4, 4, 4, ~
+$ wb_phys_2       <int> 3, 3, 5, 3, 5, 5, 5, 4, 3, 4, 3, 1, 5, 5, 4, 3, 5, 4, ~
+$ wb_phys_3       <int> 3, 4, 2, 2, 3, 4, 2, 1, 4, 2, 3, 5, 4, 5, 4, 4, 4, 1, ~
+$ wb_phys_4       <int> 4, 5, 5, 3, 4, 4, 4, 3, 4, 3, 3, 4, 4, 5, 5, 3, 4, 4, ~
+$ wb_phys_5       <int> 2, 2, 4, 2, 4, 4, 2, 2, 3, 3, 3, 4, 4, 3, 4, 4, 4, 1, ~
+$ wb_phys_6       <int> 3, 4, 3, 3, 5, 4, 3, 3, 4, 2, 3, 5, 4, 4, 5, 4, 5, 3, ~
+$ wb_phys_7       <int> 2, 4, 4, 3, 4, 4, 3, 2, 4, 2, 3, 5, 4, 5, 4, 3, 5, 3, ~
+$ wb_psych_1      <int> 1, 2, 3, 3, 3, 3, 3, 1, 3, 3, 3, 5, 4, 4, 4, 4, 3, 3, ~
+$ wb_psych_2      <int> 1, 4, 2, 2, 2, 3, 2, 1, 2, 2, 3, 4, 4, 1, 4, 4, 5, 3, ~
+$ wb_psych_3      <int> 3, 3, 3, 4, 4, 4, 3, 2, 3, 3, 3, 4, 4, 3, 4, 4, 4, 2, ~
+$ wb_psych_4      <int> 3, 3, 1, 3, 4, 4, 4, 1, 1, 4, 3, 5, 4, 5, 4, 3, 4, 2, ~
+$ wb_psych_5      <int> 2, 3, 2, 2, 2, 4, 3, 1, 4, 3, 3, 5, 4, 5, 5, 4, 5, 2, ~
+$ wb_psych_6      <int> 3, 3, 2, 4, 3, 4, 3, 1, 2, 3, 4, 4, 4, 4, 4, 4, 5, 3, ~
+$ wb_soc_1        <int> 3, 3, 3, 4, 2, 4, 4, 1, 2, 4, 3, 4, 4, 4, 5, 5, 4, 4, ~
+$ wb_soc_2        <int> 1, 3, 1, 3, 3, 3, 4, 2, 2, 4, 3, 3, 4, 3, 4, 4, 3, 3, ~
+$ wb_soc_3        <int> 3, 4, 3, 4, 1, 4, 1, 3, 2, 1, 4, 5, 3, 2, 5, 5, NA, 4,~
+$ wb_overall_mean <dbl> 2.555556, 3.333333, 3.000000, 3.111111, 3.388889, 3.94~
+$ wb_phys_mean    <dbl> 2.857143, 3.571429, 3.857143, 2.857143, 4.285714, 4.28~
+$ wb_psych_mean   <dbl> 2.166667, 3.000000, 2.166667, 3.000000, 3.000000, 3.66~
+$ wb_soc_mean     <dbl> 2.333333, 3.333333, 2.333333, 3.666667, 2.000000, 3.66~
+$ age             <int> 41, 31, 26, 51, 21, 28, 49, 23, 23, 18, 22, 20, 42, 18~
+$ gender          <chr> "man", "man", "woman", "man", "man", "woman", "man", "~
+$ ses             <int> 4, 6, 5, 7, 5, 4, 5, 5, 4, 7, 5, 7, 6, 7, 5, 8, 6, 5, ~
+$ education       <int> 4, 5, 5, 2, 5, 5, 3, 3, 2, 4, 5, 4, 3, 5, 5, 3, 5, 4, ~
+$ ethnicity       <chr> "East Asian", "East Asian", "Caucasian/European", "Cau~
+$ denomination    <chr> NA, "Christian (Roman Catholic)", NA, NA, NA, "Buddhis~
+$ gdp             <dbl> 57305.3, 57305.3, 57305.3, 57305.3, 57305.3, 57305.3, ~
+$ gdp_scaled      <dbl> 1.001802, 1.001802, 1.001802, 1.001802, 1.001802, 1.00~
+$ sample_type     <chr> "online panel", "online panel", "online panel", "onlin~
+$ compensation    <chr> "monetary reward", "monetary reward", "monetary reward~
+$ attention_check <int> 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~
+\end{CodeOutput}
+\begin{CodeInput}
+R> glimpse(williams)
+\end{CodeInput}
+\begin{CodeOutput}
+Rows: 112
+Columns: 25
+$ subject             <chr> "A30MP4LXV4MIFD", "A16X5FB3HAFCKN", "A1E9D1OT9VJYD~
+$ SexUnres_1          <dbl> 5, 7, 2, 5, 5, 5, 5, 4, 6, 4, 5, 3, 5, 6, 3, 6, 2,~
+$ SexUnres_2          <dbl> 3, 7, 4, 4, 5, 6, 6, 6, 5, 4, 5, 2, 5, 3, 2, 3, 1,~
+$ SexUnres_3          <dbl> 2, 7, 6, 5, 6, 6, 5, 5, 6, 4, 7, 3, 5, 3, 3, 6, 3,~
+$ SexUnres_4_r        <dbl> 3, 4, 3, 3, 3, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 3, 4,~
+$ SexUnres_5_r        <dbl> 2, 2, 3, 3, 3, 2, 4, 3, 2, 1, 2, 2, 4, 6, 3, 1, 3,~
+$ Impuls_1            <dbl> 3, 6, 3, 4, 5, 5, 5, 6, 6, 1, 6, 2, 4, 7, 5, 4, 5,~
+$ Impuls_2_r          <dbl> 3, 2, 3, 4, 2, 3, 3, 2, 3, 1, 3, 2, 3, 6, 3, 3, 7,~
+$ Impul_3_r           <dbl> 2, 1, 3, 4, 4, 3, 2, 3, 2, 1, 4, 1, 4, 5, 3, 3, 5,~
+$ Opport_1            <dbl> 1, 5, 3, 4, 4, 4, 5, 5, 5, 1, 7, 3, 5, 7, 5, 2, 6,~
+$ Opport_2            <dbl> 2, 7, 5, 4, 6, 3, 5, 4, 4, 4, 6, 4, 6, 5, 2, 3, 4,~
+$ Opport_3            <dbl> 2, 7, 5, 4, 4, 4, 6, 5, 5, 1, 7, 3, 5, 5, 5, 3, 1,~
+$ Opport_4            <dbl> 3, 6, 3, 5, 4, 6, 5, 5, 4, 4, 6, 3, 6, 4, 4, 3, 3,~
+$ Opport_5            <dbl> 1, 6, 3, 4, 5, 4, 6, 6, 4, 1, 6, 3, 6, 5, 5, 4, 6,~
+$ Opport_6_r          <dbl> 3, 2, 3, 4, 3, 3, 2, 2, 3, 2, 1, 3, 1, 6, 4, 3, 4,~
+$ InvEdu_1_r          <dbl> 2, 3, 2, 3, 4, 3, 3, 3, 3, 2, 3, 4, 4, 4, 3, 1, 6,~
+$ InvEdu_2_r          <dbl> 3, 2, 3, 4, 3, 4, 2, 3, 4, 1, 2, 2, 3, 7, 4, 1, 3,~
+$ InvChild_1          <dbl> 2, 5, 6, 5, 5, 5, 6, 5, 6, 1, 5, 2, 4, 4, 5, 2, 6,~
+$ InvChild_2_r        <dbl> 3, 2, 3, 4, 3, 4, 2, 4, 3, 2, 4, 2, 3, 7, 3, 2, 6,~
+$ age                 <dbl> 34, 30, 40, 35, 26, 33, 33, 30, 48, 33, 40, 39, 25~
+$ gender              <dbl> 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1,~
+$ ecology             <chr> "Hopeful", "Desperate", "Desperate", "Hopeful", "D~
+$ duration_in_seconds <dbl> 164, 100, 47, 31, 40, 32, 98, 34, 32, 87, 71, 103,~
+$ attention_1         <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,~
+$ attention_2         <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,~
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsection{Masking functions}\label{masking-functions}
 
 Masking functions replace categorical values with anonymous labels. This
-is useful when you want to completely hide the original information,
-such as treatment conditions or group assignments.
-
-\subsubsection{\texorpdfstring{\texttt{mask\_labels()} - Mask Vector
-Values}{mask\_labels() - Mask Vector Values}}\label{mask_labels---mask-vector-values}
-
-The \texttt{mask\_labels()} function takes a character or factor vector
-and replaces each unique value with a randomly assigned masked label.
-
-\paragraph{Parameters}\label{parameters}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{x}: A character or factor vector to mask
-\item
-  \texttt{prefix}: Character string to use as prefix for masked labels
-  (default: \texttt{"masked\_group\_"})
-\end{itemize}
-
-\paragraph{Basic Usage}\label{basic-usage}
+is useful when you want to hide the original information, such as
+treatment conditions or group assignments. Masking variables is useful
+when there are a limited number of unique values. The
+\texttt{mask\_labels()} function takes a character or factor vector and
+replaces each unique value with a randomly assigned masked label. The
+function preserves factor structure when the input is a factor. After
+masking, each unique value receives a unique masked label, the same
+original value always maps to the same masked label, and the assignment
+of masked labels to original values is randomized.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -150,9 +233,7 @@ R> # Create a simple treatment vector
 R> treatment <- c("control", "treatment", "control", "treatment", "control")
 R> 
 R> # Mask the labels
-R> set.seed(123)
-R> masked_treatment <- mask_labels(treatment)
-R> masked_treatment
+R> mask_labels(treatment)
 \end{CodeInput}
 \begin{CodeOutput}
           control         treatment           control         treatment 
@@ -162,25 +243,10 @@ R> masked_treatment
 \end{CodeOutput}
 \end{CodeChunk}
 
-Notice that:
-
-\begin{itemize}
-\tightlist
-\item
-  Each unique value receives a unique masked label
-\item
-  The same original value always maps to the same masked label
-\item
-  The assignment of masked labels to original values is randomized
-\end{itemize}
-
-\paragraph{Custom Prefix}\label{custom-prefix}
-
-You can customize the prefix used for masked labels:
+It is possible to customize the prefix used for masked labels:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> set.seed(456)
 R> mask_labels(treatment, prefix = "group_")
 \end{CodeInput}
 \begin{CodeOutput}
@@ -189,561 +255,224 @@ R> mask_labels(treatment, prefix = "group_")
 \end{CodeOutput}
 \end{CodeChunk}
 
-\begin{CodeChunk}
-\begin{CodeInput}
-R> set.seed(789)
-R> mask_labels(treatment, prefix = "condition_")
-\end{CodeInput}
-\begin{CodeOutput}
-       control      treatment        control      treatment        control 
-"condition_01" "condition_02" "condition_01" "condition_02" "condition_01" 
-\end{CodeOutput}
-\end{CodeChunk}
-
-\paragraph{Working with Factors}\label{working-with-factors}
-
-The function preserves factor structure when the input is a factor:
+The \texttt{mask\_variables()} function extends the masking
+functionality to multiple columns in a data frame simultaneously. It is
+possible to use tidyelect helpers to select columns.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> # Create a factor vector
-R> ecology <- factor(c("Desperate", "Hopeful", "Desperate", "Hopeful"))
-R> 
-R> set.seed(123)
-R> masked_ecology <- mask_labels(ecology)
-R> masked_ecology
+R> marp |> 
++     select(rel_1:rel_9, country, denomination) |> 
++     mask_variables(c("country", "denomination")) |> 
++     head()
 \end{CodeInput}
 \begin{CodeOutput}
-      Desperate         Hopeful       Desperate         Hopeful 
-masked_group_01 masked_group_02 masked_group_01 masked_group_02 
-Levels: masked_group_01 masked_group_02
+      rel_1     rel_2 rel_3 rel_4     rel_5     rel_6     rel_7 rel_8 rel_9
+1 0.0000000 0.0000000   0.5     0 0.1666667 0.5000000 0.5000000  0.00  0.50
+2 0.8333333 0.7142857   1.0     1 0.5000000 0.5000000 0.3333333  0.50  0.25
+3 0.0000000 0.0000000   0.5     0 0.1666667 0.0000000 0.1666667  0.00  0.00
+4 0.0000000 0.0000000   0.0     0 0.5000000 0.6666667 0.3333333  0.25  0.00
+5 0.0000000 0.0000000   0.0     0 0.1666667 0.0000000 0.3333333  0.00  0.00
+6 0.5000000 0.0000000   0.5     1 0.6666667 0.0000000 1.0000000  0.25  0.00
+           country          denomination
+1 country_group_03                  <NA>
+2 country_group_03 denomination_group_13
+3 country_group_03                  <NA>
+4 country_group_03                  <NA>
+5 country_group_03                  <NA>
+6 country_group_03 denomination_group_07
 \end{CodeOutput}
 \begin{CodeInput}
-R> class(masked_ecology)
+R> marp |> 
++     select(rel_1:rel_9, country, denomination) |> 
++     mask_variables(where(is.character)) |> 
++     head()
 \end{CodeInput}
 \begin{CodeOutput}
-[1] "factor"
+      rel_1     rel_2 rel_3 rel_4     rel_5     rel_6     rel_7 rel_8 rel_9
+1 0.0000000 0.0000000   0.5     0 0.1666667 0.5000000 0.5000000  0.00  0.50
+2 0.8333333 0.7142857   1.0     1 0.5000000 0.5000000 0.3333333  0.50  0.25
+3 0.0000000 0.0000000   0.5     0 0.1666667 0.0000000 0.1666667  0.00  0.00
+4 0.0000000 0.0000000   0.0     0 0.5000000 0.6666667 0.3333333  0.25  0.00
+5 0.0000000 0.0000000   0.0     0 0.1666667 0.0000000 0.3333333  0.00  0.00
+6 0.5000000 0.0000000   0.5     1 0.6666667 0.0000000 1.0000000  0.25  0.00
+           country          denomination
+1 country_group_01                  <NA>
+2 country_group_01 denomination_group_14
+3 country_group_01                  <NA>
+4 country_group_01                  <NA>
+5 country_group_01                  <NA>
+6 country_group_01 denomination_group_03
 \end{CodeOutput}
 \end{CodeChunk}
-
-\paragraph{Practical Example with
-Dataset}\label{practical-example-with-dataset}
-
-Let's use the \texttt{williams} dataset to mask the ecology condition:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> data(williams)
-R> 
-R> set.seed(42)
-R> williams$ecology_masked <- mask_labels(williams$ecology)
-R> 
-R> # Compare original and masked values
-R> head(williams[c("subject", "ecology", "ecology_masked")], 10)
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 10 x 3
-   subject        ecology   ecology_masked 
-   <chr>          <chr>     <chr>          
- 1 A30MP4LXV4MIFD Hopeful   masked_group_01
- 2 A16X5FB3HAFCKN Desperate masked_group_02
- 3 A1E9D1OT9VJYDZ Desperate masked_group_02
- 4 A16FPOYD7566WI Hopeful   masked_group_01
- 5 A11NOTVHWST7Y3 Desperate masked_group_02
- 6 A3TDR6MXS6UO5Z Desperate masked_group_02
- 7 A3OD4F0SA7EBCL Desperate masked_group_02
- 8 A123PBQDU71I5O Hopeful   masked_group_01
- 9 A25NGIY591U3DK Hopeful   masked_group_01
-10 A11WCFPJSR5VZP Desperate masked_group_02
-\end{CodeOutput}
-\end{CodeChunk}
-
-Now researchers can analyze the data without knowing which condition is
-``Desperate'' vs ``Hopeful''.
-
-\subsubsection{\texorpdfstring{\texttt{mask\_variables()} - Mask Data
-Frame
-Columns}{mask\_variables() - Mask Data Frame Columns}}\label{mask_variables---mask-data-frame-columns}
-
-The \texttt{mask\_variables()} function applies masking to multiple
-columns in a data frame simultaneously.
-
-\paragraph{Parameters}\label{parameters-1}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{data}: A data frame
-\item
-  \texttt{...}: Columns to mask (supports tidyselect helpers)
-\item
-  \texttt{across\_variables}: If \texttt{TRUE}, all selected variables
-  share the same masked labels; if \texttt{FALSE} (default), each
-  variable gets independent masked labels
-\end{itemize}
-
-\paragraph{Independent Masking
-(Default)}\label{independent-masking-default}
 
 By default, each column gets its own set of masked labels with the
-column name as prefix:
+column name as prefix. When \texttt{across\_variables\ =\ TRUE}, all
+selected columns share the same mapping. This can be useful when the
+same conditions appear in multiple columns.
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> df <- data.frame(
-+   treatment = c("control", "intervention", "control", "intervention"),
-+   outcome = c("success", "failure", "success", "failure"),
-+   score = c(85, 92, 78, 88)
-+ )
-R> 
-R> set.seed(123)
-R> result <- mask_variables(df, c("treatment", "outcome"))
-R> result
-\end{CodeInput}
-\begin{CodeOutput}
-           treatment          outcome score
-1 treatment_group_01 outcome_group_01    85
-2 treatment_group_02 outcome_group_02    92
-3 treatment_group_01 outcome_group_01    78
-4 treatment_group_02 outcome_group_02    88
-\end{CodeOutput}
-\end{CodeChunk}
-
-Notice that each column now has its own prefix
-(\texttt{treatment\_group\_}, \texttt{outcome\_group\_}).
-
-\paragraph{Shared Masking Across
-Variables}\label{shared-masking-across-variables}
-
-When \texttt{across\_variables\ =\ TRUE}, all selected columns share the
-same mapping:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> df2 <- data.frame(
 +   pre_condition = c("A", "B", "C", "A"),
 +   post_condition = c("B", "A", "A", "C"),
 +   score = c(1, 2, 3, 4)
 + )
 R> 
-R> set.seed(456)
-R> result_shared <- mask_variables(df2, c("pre_condition", "post_condition"),
+R> mask_variables(df, c("pre_condition", "post_condition"),
 +                                 across_variables = TRUE)
-R> result_shared
 \end{CodeInput}
 \begin{CodeOutput}
     pre_condition  post_condition score
-1 masked_group_01 masked_group_03     1
-2 masked_group_03 masked_group_01     2
-3 masked_group_02 masked_group_01     3
-4 masked_group_01 masked_group_02     4
+1 masked_group_02 masked_group_03     1
+2 masked_group_03 masked_group_02     2
+3 masked_group_01 masked_group_02     3
+4 masked_group_02 masked_group_01     4
 \end{CodeOutput}
 \end{CodeChunk}
-
-With shared masking, value ``A'' maps to the same label in both columns.
-
-\paragraph{Using tidyselect Helpers}\label{using-tidyselect-helpers}
-
-You can use tidyselect helpers to select columns:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> set.seed(789)
-R> mask_variables(df, where(is.character))
-\end{CodeInput}
-\begin{CodeOutput}
-           treatment          outcome score
-1 treatment_group_01 outcome_group_02    85
-2 treatment_group_02 outcome_group_01    92
-3 treatment_group_01 outcome_group_02    78
-4 treatment_group_02 outcome_group_01    88
-\end{CodeOutput}
-\end{CodeChunk}
-
-\subsubsection{\texorpdfstring{\texttt{mask\_variables\_rowwise()} -
-Row-Level
-Masking}{mask\_variables\_rowwise() - Row-Level Masking}}\label{mask_variables_rowwise---row-level-masking}
 
 The \texttt{mask\_variables\_rowwise()} function applies consistent
-masking within each row across multiple columns. This is useful when you
-have repeated measures or matched conditions.
-
-\paragraph{Parameters}\label{parameters-2}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{data}: A data frame
-\item
-  \texttt{...}: Column sets to mask (supports tidyselect helpers)
-\item
-  \texttt{prefix}: Character string to use as prefix for masked labels
-  (default: \texttt{"masked\_group\_"})
-\end{itemize}
-
-\paragraph{Example: Masking Repeated
-Conditions}\label{example-masking-repeated-conditions}
+masking within each row across multiple columns. This is useful in case
+when of categrical data that is repeated across columns, such as
+treatment conditions or item responses. Each row gets its own
+independent mapping of original values to masked labels.
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> df <- data.frame(
-+   treat_1 = c("control", "treatment", "placebo"),
-+   treat_2 = c("treatment", "placebo", "control"),
-+   treat_3 = c("placebo", "control", "treatment"),
-+   id = 1:3
++   treat_1 = c("control", "treatment_1", "treatment_2", "control"),
++   treat_2 = c("treatment_1", "treatment_2", "control", "control"),
++   treat_3 = c("treatment_2", "control", "treatment_1", "control"),
++   id = 1:4
 + )
 R> 
-R> set.seed(123)
-R> result <- mask_variables_rowwise(df, starts_with("treat_"))
-R> result
+R> mask_variables_rowwise(df, starts_with("treat_"))
 \end{CodeInput}
 \begin{CodeOutput}
           treat_1         treat_2         treat_3 id
-1 masked_group_03 masked_group_01 masked_group_02  1
-2 masked_group_01 masked_group_02 masked_group_03  2
-3 masked_group_02 masked_group_03 masked_group_01  3
+1 masked_group_02 masked_group_03 masked_group_01  1
+2 masked_group_03 masked_group_01 masked_group_02  2
+3 masked_group_01 masked_group_02 masked_group_03  3
+4 masked_group_02 masked_group_02 masked_group_02  4
 \end{CodeOutput}
 \end{CodeChunk}
 
-Within each row, the original values are consistently mapped to masked
-labels, but the mapping is independent across rows.
-
-\subsection{Scrambling Functions}\label{scrambling-functions}
+\subsection{Scrambling functions}\label{scrambling-functions}
 
 Scrambling functions randomize the order of values while preserving all
 original data content. This approach maintains the data distribution
 while breaking the connection between observations and their original
+values. The \texttt{scramble\_values()} function randomly reorders the
+elements of a vector. The vector can contain numeric, character, or
+factor data. Scrambling is useful when you want to preserve the original
+values but eliminate any correspondence between observations and their
 values.
-
-\subsubsection{\texorpdfstring{\texttt{scramble\_values()} - Scramble
-Vector
-Order}{scramble\_values() - Scramble Vector Order}}\label{scramble_values---scramble-vector-order}
-
-The \texttt{scramble\_values()} function randomly reorders the elements
-of a vector.
-
-\paragraph{Parameters}\label{parameters-3}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{x}: A vector to scramble
-\end{itemize}
-
-\paragraph{Basic Usage with Different Data
-Types}\label{basic-usage-with-different-data-types}
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # Numeric data
-R> set.seed(123)
 R> numbers <- 1:10
 R> scramble_values(numbers)
 \end{CodeInput}
 \begin{CodeOutput}
- [1]  3 10  2  8  6  9  1  7  5  4
+ [1]  4  1  6  8  7  3 10  2  9  5
 \end{CodeOutput}
 \end{CodeChunk}
 
-\begin{CodeChunk}
-\begin{CodeInput}
-R> # Character data
-R> set.seed(456)
-R> letters_vec <- letters[1:5]
-R> scramble_values(letters_vec)
-\end{CodeInput}
-\begin{CodeOutput}
-[1] "e" "a" "c" "b" "d"
-\end{CodeOutput}
-\end{CodeChunk}
+The \texttt{scramble\_variables()} function extends the scrambling
+functionality to data frames. It allows scrambling multiple columns
+simultaneously, with options for independent scrambling, joint
+scrambling, and within-group scrambling. Columns can be selected using
+tidyselect helpers.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> # Factor data
-R> set.seed(789)
-R> conditions <- factor(c("A", "B", "C", "A", "B"))
-R> scramble_values(conditions)
-\end{CodeInput}
-\begin{CodeOutput}
-[1] B A B C A
-Levels: A B C
-\end{CodeOutput}
-\end{CodeChunk}
-
-\paragraph{Key Properties}\label{key-properties}
-
-Scrambling preserves:
-
-\begin{itemize}
-\tightlist
-\item
-  All original values (nothing is lost or changed)
-\item
-  The data type
-\item
-  The distribution of values
-\end{itemize}
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> set.seed(100)
-R> original <- c(1, 2, 2, 3, 3, 3, 4, 4, 4, 4)
-R> scrambled <- scramble_values(original)
+R> df <-
++     williams |>
++     select(subject, age, ecology) |> 
++     head()
 R> 
-R> # Same values, different order
-R> sort(original) == sort(scrambled)
+R> scramble_variables(df, c("age", "ecology"))
 \end{CodeInput}
 \begin{CodeOutput}
- [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-\end{CodeOutput}
-\begin{CodeInput}
-R> # Same frequency distribution
-R> table(original)
-\end{CodeInput}
-\begin{CodeOutput}
-original
-1 2 3 4 
-1 2 3 4 
-\end{CodeOutput}
-\begin{CodeInput}
-R> table(scrambled)
-\end{CodeInput}
-\begin{CodeOutput}
-scrambled
-1 2 3 4 
-1 2 3 4 
+# A tibble: 6 x 3
+  subject          age ecology  
+  <chr>          <dbl> <chr>    
+1 A30MP4LXV4MIFD    34 Desperate
+2 A16X5FB3HAFCKN    40 Desperate
+3 A1E9D1OT9VJYDZ    26 Desperate
+4 A16FPOYD7566WI    33 Hopeful  
+5 A11NOTVHWST7Y3    35 Hopeful  
+6 A3TDR6MXS6UO5Z    30 Desperate
 \end{CodeOutput}
 \end{CodeChunk}
 
-\paragraph{Practical Example with
-Dataset}\label{practical-example-with-dataset-1}
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> data(williams)
-R> 
-R> set.seed(42)
-R> williams$age_scrambled <- scramble_values(williams$age)
-R> 
-R> # The values are the same, just reordered
-R> summary(williams$age)
-\end{CodeInput}
-\begin{CodeOutput}
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  21.00   26.00   32.00   34.04   38.00   71.00 
-\end{CodeOutput}
-\begin{CodeInput}
-R> summary(williams$age_scrambled)
-\end{CodeInput}
-\begin{CodeOutput}
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  21.00   26.00   32.00   34.04   38.00   71.00 
-\end{CodeOutput}
-\begin{CodeInput}
-R> # But individual correspondences are broken
-R> head(williams[c("subject", "age", "age_scrambled")], 10)
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 10 x 3
-   subject          age age_scrambled
-   <chr>          <dbl>         <dbl>
- 1 A30MP4LXV4MIFD    34            25
- 2 A16X5FB3HAFCKN    30            26
- 3 A1E9D1OT9VJYDZ    40            25
- 4 A16FPOYD7566WI    35            38
- 5 A11NOTVHWST7Y3    26            25
- 6 A3TDR6MXS6UO5Z    33            28
- 7 A3OD4F0SA7EBCL    33            57
- 8 A123PBQDU71I5O    30            32
- 9 A25NGIY591U3DK    48            25
-10 A11WCFPJSR5VZP    33            43
-\end{CodeOutput}
-\end{CodeChunk}
-
-\subsubsection{\texorpdfstring{\texttt{scramble\_variables()} - Scramble
-Data Frame
-Columns}{scramble\_variables() - Scramble Data Frame Columns}}\label{scramble_variables---scramble-data-frame-columns}
-
-The \texttt{scramble\_variables()} function scrambles the values of
-specified columns in a data frame.
-
-\paragraph{Parameters}\label{parameters-4}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{data}: A data frame
-\item
-  \texttt{cols}: Columns to scramble (supports tidyselect helpers)
-\item
-  \texttt{together}: If \texttt{TRUE}, variables are scrambled together
-  as a unit per row; if \texttt{FALSE} (default), each variable is
-  scrambled independently
-\item
-  \texttt{.groups}: Optional grouping columns for within-group
-  scrambling
-\end{itemize}
-
-\paragraph{Independent Scrambling
-(Default)}\label{independent-scrambling-default}
-
-Each column is scrambled independently:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> df <- data.frame(
-+   x = 1:6,
-+   y = letters[1:6],
-+   group = c("A", "A", "A", "B", "B", "B")
-+ )
-R> 
-R> set.seed(123)
-R> scramble_variables(df, c("x", "y"))
-\end{CodeInput}
-\begin{CodeOutput}
-  x y group
-1 3 e     A
-2 6 d     A
-3 2 b     A
-4 4 f     B
-5 5 a     B
-6 1 c     B
-\end{CodeOutput}
-\end{CodeChunk}
-
-Notice that \texttt{x} and \texttt{y} are scrambled independently of
-each other.
-
-\paragraph{Scrambling Together}\label{scrambling-together}
-
-When \texttt{together\ =\ TRUE}, the selected columns are scrambled as a
+By default, columns are scrambled independently of each other. When
+\texttt{together\ =\ TRUE}, the selected columns are scrambled as a
 unit, preserving row-level relationships:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> set.seed(456)
-R> scramble_variables(df, c("x", "y"), together = TRUE)
-\end{CodeInput}
-\begin{CodeOutput}
-  x y group
-1 5 e     A
-2 6 f     A
-3 3 c     A
-4 2 b     B
-5 1 a     B
-6 4 d     B
-\end{CodeOutput}
-\end{CodeChunk}
-
-Notice that the pairs (1, ``a''), (2, ``b''), etc., remain intact but
-are assigned to different rows.
-
-\paragraph{Within-Group Scrambling}\label{within-group-scrambling}
-
-Use the \texttt{.groups} parameter to scramble within groups:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> set.seed(789)
-R> scramble_variables(df, "x", .groups = "group")
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 6 x 3
-      x y     group
-  <int> <chr> <chr>
-1     1 a     A    
-2     2 b     A    
-3     3 c     A    
-4     5 d     B    
-5     6 e     B    
-6     4 f     B    
-\end{CodeOutput}
-\end{CodeChunk}
-
-Values of \texttt{x} are only swapped within their original group (A or
-B).
-
-\paragraph{Combining Grouping and
-Together}\label{combining-grouping-and-together}
-
-You can combine both parameters:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> set.seed(100)
-R> scramble_variables(df, c("x", "y"), .groups = "group", together = TRUE)
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 6 x 3
-      x y     group
-  <int> <chr> <chr>
-1     2 b     A    
-2     1 a     A    
-3     3 c     A    
-4     6 f     B    
-5     4 d     B    
-6     5 e     B    
-\end{CodeOutput}
-\end{CodeChunk}
-
-\paragraph{Practical Example with
-Dataset}\label{practical-example-with-dataset-2}
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> data(williams)
+R> df  <-
++     marp |> 
++     select(subject, country, rel_1:rel_3)
 R> 
-R> # Scramble age and ecology within gender groups
-R> set.seed(42)
-R> williams_scrambled <- williams |>
-+   scramble_variables(c("age", "ecology"), .groups = "gender")
-R> 
-R> # Check that values are preserved within groups
-R> williams |>
-+   group_by(gender) |>
-+   summarise(mean_age = mean(age, na.rm = TRUE))
+R> tail(df)
 \end{CodeInput}
 \begin{CodeOutput}
-# A tibble: 2 x 2
-  gender mean_age
-   <dbl>    <dbl>
-1      1     33.8
-2      2     34.6
+      subject country     rel_1     rel_2 rel_3
+10530   10530      US 0.8333333 0.7142857   1.0
+10531   10531      US 0.0000000 0.0000000   0.5
+10532   10532      US 0.0000000 0.0000000   0.0
+10533   10533      US 0.1666667 1.0000000   1.0
+10534   10534      US 0.0000000 0.0000000   0.0
+10535   10535      US 0.8333333 0.7142857   1.0
 \end{CodeOutput}
 \begin{CodeInput}
-R> williams_scrambled |>
-+   group_by(gender) |>
-+   summarise(mean_age = mean(age, na.rm = TRUE))
+R> scramble_variables(df, starts_with("rel_"), together = TRUE) |> 
++     tail()
 \end{CodeInput}
 \begin{CodeOutput}
-# A tibble: 2 x 2
-  gender mean_age
-   <dbl>    <dbl>
-1      1     33.8
-2      2     34.6
+      subject country     rel_1     rel_2 rel_3
+10530   10530      US 0.0000000 0.0000000   0.5
+10531   10531      US 0.3333333 0.0000000   0.5
+10532   10532      US 0.0000000 0.0000000   0.0
+10533   10533      US 0.0000000 0.0000000   0.5
+10534   10534      US 0.0000000 0.8571429   1.0
+10535   10535      US 0.0000000 0.0000000   0.5
 \end{CodeOutput}
 \end{CodeChunk}
 
-\subsubsection{\texorpdfstring{\texttt{scramble\_variables\_rowwise()} -
-Row-Level
-Scrambling}{scramble\_variables\_rowwise() - Row-Level Scrambling}}\label{scramble_variables_rowwise---row-level-scrambling}
+Scrambling can be done in groups using the \texttt{.groups} parameter.
+This ensures that values are only scrambled within their original
+groups.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df |> 
++     scramble_variables(starts_with("rel_"), .groups = "country")
+\end{CodeInput}
+\begin{CodeOutput}
+# A tibble: 10,535 x 5
+   subject country   rel_1 rel_2 rel_3
+     <int> <chr>     <dbl> <dbl> <dbl>
+ 1      85 Australia 0.667 0       0  
+ 2     300 Australia 0     1       0  
+ 3     218 Australia 0     0       1  
+ 4     168 Australia 0     0.571   1  
+ 5     178 Australia 0     1       1  
+ 6     102 Australia 0.833 1       1  
+ 7     465 Australia 0     0.857   1  
+ 8     240 Australia 0     0.429   0.5
+ 9     120 Australia 0.833 1       0.5
+10     221 Australia 0.167 0.714   0.5
+# i 10,525 more rows
+\end{CodeOutput}
+\end{CodeChunk}
 
 The \texttt{scramble\_variables\_rowwise()} function scrambles values
 within each row across specified columns. This is useful for scrambling
 repeated measures or item responses.
-
-\paragraph{Parameters}\label{parameters-5}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{data}: A data frame
-\item
-  \texttt{...}: Column sets to scramble (supports tidyselect helpers)
-\end{itemize}
-
-\paragraph{Example: Scrambling Item
-Responses}\label{example-scrambling-item-responses}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -754,23 +483,19 @@ R> df <- data.frame(
 +   id = 1:3
 + )
 R> 
-R> set.seed(123)
-R> result <- scramble_variables_rowwise(df, c("item1", "item2", "item3"))
-R> result
+R> scramble_variables_rowwise(df, c("item1", "item2", "item3"))
 \end{CodeInput}
 \begin{CodeOutput}
   item1 item2 item3 id
 1     3     1     2  1
-2     5     4     6  2
-3     8     9     7  3
+2     6     4     5  2
+3     8     7     9  3
 \end{CodeOutput}
 \end{CodeChunk}
 
-Within each row, the values are shuffled among the item columns.
-
-\paragraph{Multiple Column Sets}\label{multiple-column-sets}
-
-You can scramble multiple sets of columns independently:
+Within each row, the values are shuffled among the item columns. You can
+scramble multiple sets of columns independently. The function can use
+tidyselect helpers.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -783,24 +508,18 @@ R> df2 <- data.frame(
 +   id = 1:3
 + )
 R> 
-R> set.seed(456)
-R> result2 <- scramble_variables_rowwise(
-+   df2,
-+   starts_with("day_"),
-+   c("score_a", "score_b")
-+ )
-R> result2
+R> scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
 \end{CodeInput}
 \begin{CodeOutput}
   day_1 day_2 day_3 score_a score_b id
-1     1     3     2      10      20  1
-2     5     4     6      40      50  2
-3     9     7     8      80      70  3
+1     3     1     2      20      10  1
+2     5     4     6      50      40  2
+3     7     8     9      70      80  3
 \end{CodeOutput}
 \end{CodeChunk}
 
-\subsection{Choosing Between Masking and
-Scrambling}\label{choosing-between-masking-and-scrambling}
+\subsection{Choosing between masking and
+scrambling}\label{choosing-between-masking-and-scrambling}
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
@@ -810,14 +529,12 @@ Aspect & Masking & Scrambling \\
 \bottomrule\noalign{}
 \endlastfoot
 \textbf{Original values} & Hidden (replaced) & Preserved (reordered) \\
-\textbf{Distribution} & Changed (new labels) & Unchanged \\
+\textbf{Distribution} & Same proportion, new labels & Unchanged \\
 \textbf{Best for} & Categorical variables & Numeric or categorical \\
-\textbf{Use case} & Hide treatment conditions & Break individual
-links \\
-\textbf{Reversibility} & Requires mapping key & Irreversible \\
+\textbf{Use case} & Hide treatment conditions & Break correlations \\
 \end{longtable}
 
-\subsubsection{When to Use Masking}\label{when-to-use-masking}
+Use Masking:
 
 \begin{itemize}
 \tightlist
@@ -830,98 +547,21 @@ links \\
   When you want different prefixes for different variables
 \end{itemize}
 
-\subsubsection{When to Use Scrambling}\label{when-to-use-scrambling}
+Use Scrambling:
 
 \begin{itemize}
 \tightlist
 \item
   When you want to preserve the original data distribution
 \item
-  When you need to break the link between observations and values
+  When you need to break the association between variables of interest
+  (e.g., treatment and outcome)
 \item
   When working with numeric data that shouldn't be categorically
   relabeled
 \end{itemize}
 
-\subsection{Working with Included
-Datasets}\label{working-with-included-datasets}
-
-The \texttt{vazul} package includes two research datasets for
-demonstration and practice.
-
-\subsubsection{MARP Dataset}\label{marp-dataset}
-
-The Many Analysts Religion Project (MARP) dataset contains 10,535
-participants from 24 countries:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> data(marp)
-R> dim(marp)
-\end{CodeInput}
-\begin{CodeOutput}
-[1] 10535    46
-\end{CodeOutput}
-\begin{CodeInput}
-R> # Example: Scramble religiosity scores within countries
-R> set.seed(42)
-R> marp_blinded <- marp |>
-+   scramble_variables(starts_with("rel_"), .groups = "country")
-R> 
-R> # Original and scrambled have same country-level means
-R> original_means <- marp |>
-+   group_by(country) |>
-+   summarise(rel_1_mean = mean(rel_1, na.rm = TRUE), .groups = "drop")
-R> 
-R> scrambled_means <- marp_blinded |>
-+   group_by(country) |>
-+   summarise(rel_1_mean = mean(rel_1, na.rm = TRUE), .groups = "drop")
-R> 
-R> all.equal(original_means$rel_1_mean, scrambled_means$rel_1_mean)
-\end{CodeInput}
-\begin{CodeOutput}
-[1] TRUE
-\end{CodeOutput}
-\end{CodeChunk}
-
-\subsubsection{Williams Dataset}\label{williams-dataset}
-
-The Williams study dataset contains 112 participants from a stereotyping
-study:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> data(williams)
-R> dim(williams)
-\end{CodeInput}
-\begin{CodeOutput}
-[1] 112  25
-\end{CodeOutput}
-\begin{CodeInput}
-R> # Example: Mask the ecology condition for blind analysis
-R> set.seed(42)
-R> williams_blinded <- williams |>
-+   mask_variables("ecology")
-R> 
-R> # Analysts can work with masked conditions
-R> williams_blinded |>
-+   group_by(ecology) |>
-+   summarise(
-+     n = n(),
-+     mean_impulsivity = mean(Impuls_1, na.rm = TRUE),
-+     .groups = "drop"
-+   )
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 2 x 3
-  ecology              n mean_impulsivity
-  <chr>            <int>            <dbl>
-1 ecology_group_01    56             4.32
-2 ecology_group_02    56             4.61
-\end{CodeOutput}
-\end{CodeChunk}
-
-\subsection{Summary}\label{summary}
+\subsection{Functions}\label{functions}
 
 The \texttt{vazul} package provides a comprehensive toolkit for data
 blinding:
@@ -953,10 +593,6 @@ columns \\
 \texttt{scramble\_variables\_rowwise()} & Row-wise & Scramble values
 within rows \\
 \end{longtable}
-
-These functions help researchers conduct unbiased analyses by separating
-the analyst from knowledge about treatment conditions, group
-assignments, or individual data points.
 
 
 
