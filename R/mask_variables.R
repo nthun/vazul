@@ -59,14 +59,8 @@
 #'
 #' @export
 mask_variables <- function(data, ..., across_variables = FALSE) {
-  if (!is.data.frame(data)) {
-    stop("Input 'data' must be a data frame. Received object of class: ",
-         paste(class(data), collapse = ", "), ".", call. = FALSE)
-  }
-
-  if (nrow(data) == 0) {
-    stop("Input 'data' cannot be an empty data frame.", call. = FALSE)
-  }
+  validate_data_frame(data)
+  validate_data_frame_not_empty(data)
 
   # Validate across_variables parameter
   if (is.null(across_variables)) {
@@ -89,61 +83,8 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
     return(data)
   }
 
-  # Helper to resolve column names from one column set
-  resolve_column_set <- function(set_quo) {
-    # Try evaluating as character vector first
-    try_char <- tryCatch(
-      expr = {
-        set <- rlang::eval_tidy(set_quo, data = data)
-        if (is.character(set)) {
-          missing <- setdiff(set, names(data))
-          if (length(missing) > 0) {
-            stop("Error in column selection: Can't subset columns that ",
-                 "don't exist. Column `",
-                 paste(missing, collapse = "`, `"),
-                 "` doesn't exist.", call. = FALSE)
-          }
-          return(set)
-        } else {
-          NULL
-        }
-      },
-      error = function(e) {
-        if (grepl("Error in column selection", conditionMessage(e))) {
-          stop(conditionMessage(e), call. = FALSE)
-        }
-        NULL
-      }
-    )
-
-    if (!is.null(try_char)) {
-      return(try_char)
-    }
-
-    # If not character, treat as tidyselect expression
-    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
-      selected <- tryCatch(
-        tidyselect::eval_select(set_quo, data),
-        error = function(e) {
-          stop("Error in column selection: ", conditionMessage(e),
-               call. = FALSE)
-        }
-      )
-      if (length(selected) == 0) {
-        return(character(0))
-      }
-      return(names(data)[selected])
-    } else {
-      warning("Each column set must be a character vector or ",
-              "tidyselect expression.", call. = FALSE)
-      return(character(0))
-    }
-  }
-
   # Resolve all column sets to column names
-  all_col_names <- unlist(lapply(column_sets, resolve_column_set),
-                          use.names = FALSE)
-  all_col_names <- unique(all_col_names)
+  all_col_names <- resolve_all_column_sets(column_sets, data)
 
   if (length(all_col_names) == 0) {
     warning("No columns selected. Returning original data unchanged.",
