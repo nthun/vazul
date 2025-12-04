@@ -164,7 +164,7 @@ test_that("scramble_variables validates input correctly", {
     # Test invalid column indices — tidyselect handles this too
     expect_error(
         scramble_variables(df, 10),  # Column 10 doesn't exist
-        "Can't select columns past the end.",
+        "Can't subset columns past the end.",
         fixed = FALSE  # Allow partial match
     )
 })
