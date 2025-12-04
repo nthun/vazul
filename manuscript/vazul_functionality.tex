@@ -340,20 +340,20 @@ independent mapping of original values to masked labels.
 \begin{CodeChunk}
 \begin{CodeInput}
 R> df <- data.frame(
-+   treat_1 = c("control", "treatment_1", "treatment_2", "control"),
-+   treat_2 = c("treatment_1", "treatment_2", "control", "control"),
-+   treat_3 = c("treatment_2", "control", "treatment_1", "control"),
-+   id = 1:4
++   treat_1 = c("control", "treatment_1", "treatment_2"),
++   treat_2 = c("treatment_1", "treatment_2", "control"),
++   treat_3 = c("treatment_2", "control", "treatment_1"),
++   treat_4 = c("treatment_2", "control", "treatment_1"),
++   id = 1:3
 + )
 R> 
 R> mask_variables_rowwise(df, starts_with("treat_"))
 \end{CodeInput}
 \begin{CodeOutput}
-          treat_1         treat_2         treat_3 id
-1 masked_group_02 masked_group_03 masked_group_01  1
-2 masked_group_03 masked_group_01 masked_group_02  2
-3 masked_group_01 masked_group_02 masked_group_03  3
-4 masked_group_02 masked_group_02 masked_group_02  4
+          treat_1         treat_2         treat_3         treat_4 id
+1 masked_group_02 masked_group_03 masked_group_01 masked_group_01  1
+2 masked_group_03 masked_group_01 masked_group_02 masked_group_02  2
+3 masked_group_01 masked_group_02 masked_group_03 masked_group_03  3
 \end{CodeOutput}
 \end{CodeChunk}
 
