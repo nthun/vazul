@@ -221,3 +221,77 @@ test_that("mask_variables_rowwise handles edge cases", {
   expect_warning({result <- mask_variables_rowwise(df_empty)})
   expect_equal(result, df_empty)
 })
+
+# ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
+
+test_that("mask_variables_rowwise works with character vector column set", {
+  df <- data.frame(
+    a = c("X", "Y", "Z"),
+    b = c("Y", "X", "W"),
+    c = c("Z", "W", "X"),
+    other = c("keep", "keep", "keep"),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  # Use character vector to specify columns as a single set
+  result <- df |> mask_variables_rowwise(c("a", "b", "c"))
+
+  expect_s3_class(result, "data.frame")
+
+  # All three columns should be masked
+  expect_true(all(grepl("^masked_group_", result$a)))
+  expect_true(all(grepl("^masked_group_", result$b)))
+  expect_true(all(grepl("^masked_group_", result$c)))
+
+  # Unselected column should remain unchanged
+  expect_equal(result$other, df$other)
+})
+
+test_that("mask_variables_rowwise works with multiple column sets", {
+  df <- data.frame(
+    a = c("X", "Y"),
+    b = c("Y", "X"),
+    c = c("P", "Q"),
+    d = c("Q", "P"),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables_rowwise(c("a", "b"), c("c", "d"))
+
+  # All four columns should be masked
+  expect_true(all(grepl("^masked_group_", result$a)))
+  expect_true(all(grepl("^masked_group_", result$b)))
+  expect_true(all(grepl("^masked_group_", result$c)))
+  expect_true(all(grepl("^masked_group_", result$d)))
+})
+
+test_that("mask_variables_rowwise works with multiple tidyselect helpers", {
+  skip_if_not_installed("dplyr")
+
+  df <- data.frame(
+    treat_1 = c("A", "B", "C"),
+    treat_2 = c("B", "C", "A"),
+    cond_a = c("X", "Y", "Z"),
+    cond_b = c("Y", "Z", "X"),
+    id = 1:3,
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables_rowwise(
+    starts_with("treat_"),
+    starts_with("cond_")
+  )
+
+  # All matching columns should be masked
+  expect_true(all(grepl("^masked_group_", result$treat_1)))
+  expect_true(all(grepl("^masked_group_", result$treat_2)))
+  expect_true(all(grepl("^masked_group_", result$cond_a)))
+  expect_true(all(grepl("^masked_group_", result$cond_b)))
+
+  # Unselected column should remain unchanged (converted to character due to mask)
+  # Actually id is numeric so it won't be affected
+  expect_equal(result$id, df$id)
+})

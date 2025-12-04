@@ -515,3 +515,137 @@ test_that("scramble_variables warns when no columns are provided", {
 
   expect_equal(result, df)
 })
+
+# ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
+
+test_that("scramble_variables works with bare variable names", {
+  # Issue case 1: mtcars |> scramble_variables(mpg, cyl)
+  set.seed(123)
+  result <- mtcars |> scramble_variables(mpg, cyl)
+
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), nrow(mtcars))
+  expect_equal(names(result), names(mtcars))
+
+  # mpg and cyl should be scrambled (different order)
+  expect_setequal(result$mpg, mtcars$mpg)
+  expect_setequal(result$cyl, mtcars$cyl)
+
+  # Other columns should remain unchanged
+  expect_equal(result$disp, mtcars$disp)
+  expect_equal(result$hp, mtcars$hp)
+})
+
+test_that("scramble_variables works with multiple bare variable names", {
+  df <- data.frame(a = 1:10, b = 11:20, c = 21:30, d = 31:40)
+
+  set.seed(123)
+  result <- df |> scramble_variables(a, b, c)
+
+  # Three columns should be scrambled
+  expect_setequal(result$a, df$a)
+  expect_setequal(result$b, df$b)
+  expect_setequal(result$c, df$c)
+
+  # Fourth column should be unchanged
+  expect_equal(result$d, df$d)
+})
+
+test_that("scramble_variables works with multiple tidyselect helpers", {
+  skip_if_not_installed("dplyr")
+
+  # Issue case 2: starts_with() helpers
+  data(williams, package = "vazul")
+
+  set.seed(123)
+  result <- williams |> scramble_variables(
+    starts_with("SexUnres_"),
+    starts_with("Opport_")
+  )
+
+  expect_s3_class(result, "tbl_df")
+  expect_equal(nrow(result), nrow(williams))
+
+  # SexUnres_ columns should be scrambled
+  sexunres_cols <- grep("^SexUnres_", names(williams), value = TRUE)
+  for (col in sexunres_cols) {
+    expect_setequal(result[[col]], williams[[col]])
+  }
+
+  # Opport_ columns should be scrambled
+  opport_cols <- grep("^Opport_", names(williams), value = TRUE)
+  for (col in opport_cols) {
+    expect_setequal(result[[col]], williams[[col]])
+  }
+
+  # Other columns should be unchanged
+  expect_equal(result$subject, williams$subject)
+  expect_equal(result$ecology, williams$ecology)
+})
+
+test_that("scramble_variables works with multiple column sets", {
+  # Issue case 3: c("a", "b"), c("c", "d") should scramble all four columns
+  df <- data.frame(
+    a = 1:10,
+    b = 11:20,
+    c = letters[1:10],
+    d = letters[11:20],
+    e = 21:30,  # This should remain unchanged
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> scramble_variables(c("a", "b"), c("c", "d"))
+
+  # All four selected columns should be scrambled
+  expect_setequal(result$a, df$a)
+  expect_setequal(result$b, df$b)
+  expect_setequal(result$c, df$c)
+  expect_setequal(result$d, df$d)
+
+  # With 10 elements, scrambling should change the order (probabilistic)
+  expect_true(
+    !identical(result$a, df$a) || !identical(result$b, df$b) ||
+    !identical(result$c, df$c) || !identical(result$d, df$d)
+  )
+
+  # Unselected column should remain unchanged
+  expect_equal(result$e, df$e)
+})
+
+test_that("scramble_variables combines bare names with tidyselect", {
+  skip_if_not_installed("dplyr")
+
+  df <- data.frame(
+    single_var = 1:5,
+    prefix_a = 6:10,
+    prefix_b = 11:15,
+    other = 16:20
+  )
+
+  set.seed(123)
+  result <- df |> scramble_variables(single_var, starts_with("prefix_"))
+
+  # All three columns should be scrambled
+  expect_setequal(result$single_var, df$single_var)
+  expect_setequal(result$prefix_a, df$prefix_a)
+  expect_setequal(result$prefix_b, df$prefix_b)
+
+  # Unselected column should remain unchanged
+  expect_equal(result$other, df$other)
+})
+
+test_that("scramble_variables with numeric range works", {
+  df <- data.frame(a = 1:5, b = 6:10, c = 11:15, d = 16:20)
+
+  set.seed(123)
+  result <- df |> scramble_variables(1:3)
+
+  # First three columns should be scrambled
+  expect_setequal(result$a, df$a)
+  expect_setequal(result$b, df$b)
+  expect_setequal(result$c, df$c)
+
+  # Fourth column should remain unchanged
+  expect_equal(result$d, df$d)
+})
