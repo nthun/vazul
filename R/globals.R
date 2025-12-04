@@ -81,7 +81,14 @@ resolve_column_set <- function(set_quo, data) {
     names(data)[selected]
   }
 
-  # Try evaluating as character or numeric vector first
+  # If quosure is a bare symbol (column name), use tidyselect directly
+  # This prevents evaluating the symbol to its column values
+  if (rlang::quo_is_symbol(set_quo)) {
+    return(select_with_tidyselect(set_quo))
+  }
+
+  # If it's a call (like starts_with() or c()), try evaluating first
+  # to handle character vectors and numeric indices
   result <- tryCatch(
     expr = {
       set <- rlang::eval_tidy(set_quo, data = data)
@@ -103,8 +110,8 @@ resolve_column_set <- function(set_quo, data) {
 
   if (!is.null(result)) return(result)
 
-  # If not character or numeric, treat as tidyselect expression
-  if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
+  # If evaluation failed, treat as tidyselect expression
+  if (rlang::quo_is_call(set_quo)) {
     return(select_with_tidyselect(set_quo))
   }
 

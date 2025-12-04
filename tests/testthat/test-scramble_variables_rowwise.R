@@ -395,3 +395,94 @@ test_that("scramble_variables_rowwise warns for each mixed-type set", {
     expect_setequal(c(result$b_num[1], result$b_char[1]), c("3", "z"))
 })
 
+
+# ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
+
+test_that("scramble_variables_rowwise works with tidyselect all_of for column set", {
+  df <- data.frame(
+    a = c(1, 4, 7),
+    b = c(2, 5, 8),
+    c = c(3, 6, 9),
+    other = c("x", "y", "z")
+  )
+
+  set.seed(123)
+  # Use all_of() or c() to specify columns as a single set
+  result <- df |> scramble_variables_rowwise(c("a", "b", "c"))
+
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), nrow(df))
+
+  # Values should be scrambled rowwise - each row should have same elements
+  for (i in seq_len(nrow(df))) {
+    orig_vals <- as.numeric(df[i, c("a", "b", "c")])
+    result_vals <- as.numeric(result[i, c("a", "b", "c")])
+    expect_setequal(result_vals, orig_vals)
+  }
+
+  # Unselected column should remain unchanged
+  expect_equal(result$other, df$other)
+})
+
+test_that("scramble_variables_rowwise works with multiple column sets", {
+  df <- data.frame(
+    a = c(1, 2, 3),
+    b = c(10, 20, 30),
+    c = c(100, 200, 300),
+    d = c(1000, 2000, 3000)
+  )
+
+  set.seed(42)  # Use seed where scrambling is visible
+  result <- df |> scramble_variables_rowwise(c("a", "b"), c("c", "d"))
+
+  expect_s3_class(result, "data.frame")
+
+  # Values should be scrambled rowwise within each set
+  for (i in seq_len(nrow(df))) {
+    # First set
+    orig_set1 <- as.numeric(df[i, c("a", "b")])
+    result_set1 <- as.numeric(result[i, c("a", "b")])
+    expect_setequal(result_set1, orig_set1)
+
+    # Second set
+    orig_set2 <- as.numeric(df[i, c("c", "d")])
+    result_set2 <- as.numeric(result[i, c("c", "d")])
+    expect_setequal(result_set2, orig_set2)
+  }
+})
+
+test_that("scramble_variables_rowwise works with multiple tidyselect helpers", {
+  skip_if_not_installed("dplyr")
+
+  df <- data.frame(
+    day_1 = c(1, 4, 7),
+    day_2 = c(2, 5, 8),
+    day_3 = c(3, 6, 9),
+    score_a = c(10, 40, 70),
+    score_b = c(20, 50, 80),
+    id = 1:3
+  )
+
+  set.seed(123)
+  result <- df |> scramble_variables_rowwise(
+    starts_with("day_"),
+    starts_with("score_")
+  )
+
+  # Check day columns are scrambled within rows
+  for (i in seq_len(nrow(df))) {
+    orig_days <- as.numeric(df[i, c("day_1", "day_2", "day_3")])
+    result_days <- as.numeric(result[i, c("day_1", "day_2", "day_3")])
+    expect_setequal(result_days, orig_days)
+  }
+
+  # Check score columns are scrambled within rows
+  for (i in seq_len(nrow(df))) {
+    orig_scores <- as.numeric(df[i, c("score_a", "score_b")])
+    result_scores <- as.numeric(result[i, c("score_a", "score_b")])
+    expect_setequal(result_scores, orig_scores)
+  }
+
+  # id column should remain unchanged
+  expect_equal(result$id, df$id)
+})

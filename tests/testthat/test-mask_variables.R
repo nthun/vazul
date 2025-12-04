@@ -348,3 +348,74 @@ test_that("mask_variables shared labels work with complex scenario", {
   # "A" and "B" should have different masked labels
   expect_false(unique(a_masked) == unique(b_masked))
 })
+# ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
+
+test_that("mask_variables works with bare variable names", {
+  df <- data.frame(
+    treatment = c("control", "intervention", "control"),
+    outcome = c("success", "failure", "success"),
+    score = c(1, 2, 3),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables(treatment, outcome)
+
+  # Both columns should be masked
+  expect_true(all(grepl("^treatment_group_", result$treatment)))
+  expect_true(all(grepl("^outcome_group_", result$outcome)))
+
+  # Numeric column should remain unchanged
+  expect_equal(result$score, df$score)
+})
+
+test_that("mask_variables works with multiple column sets", {
+  df <- data.frame(
+    a = c("X", "Y", "Z"),
+    b = c("X", "Y", "Z"),
+    c = c("P", "Q", "R"),
+    d = c("P", "Q", "R"),
+    e = c("keep", "keep", "keep"),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables(c("a", "b"), c("c", "d"))
+
+  # All four selected columns should be masked
+  expect_true(all(grepl("^a_group_", result$a)))
+  expect_true(all(grepl("^b_group_", result$b)))
+  expect_true(all(grepl("^c_group_", result$c)))
+  expect_true(all(grepl("^d_group_", result$d)))
+
+  # Unselected column should remain unchanged
+  expect_equal(result$e, df$e)
+})
+
+test_that("mask_variables works with multiple tidyselect helpers", {
+  skip_if_not_installed("dplyr")
+
+  df <- data.frame(
+    treat_a = c("X", "Y"),
+    treat_b = c("A", "B"),
+    cond_1 = c("P", "Q"),
+    cond_2 = c("R", "S"),
+    other = c("keep", "keep"),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables(
+    starts_with("treat_"),
+    starts_with("cond_")
+  )
+
+  # All matching columns should be masked
+  expect_true(all(grepl("^treat_a_group_", result$treat_a)))
+  expect_true(all(grepl("^treat_b_group_", result$treat_b)))
+  expect_true(all(grepl("^cond_1_group_", result$cond_1)))
+  expect_true(all(grepl("^cond_2_group_", result$cond_2)))
+
+  # Unselected column should remain unchanged
+  expect_equal(result$other, df$other)
+})
