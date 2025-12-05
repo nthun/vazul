@@ -1,0 +1,242 @@
+---
+documentclass: jss
+author:
+  - name: Tam\'as Nagy
+    orcid: 00000-0001-5244-0356
+    address: |
+      | 'Institute of Psychology,
+      | ELTE Eotvos Lorend University,
+      | Budapest, Hungary'
+    affiliation: |
+      | 'ELTE Eotvos Lorend University'
+    email: \email{nagy.tamas@ppk.elte.hu} \AND
+  - name: Alexandra Sarafoglou
+    orcid: 0000-0003-0031-685X
+    address: |
+      | Department of Psychology,
+      | University of Amsterdam,
+      | Amsterdam, The Netherlands'
+    affiliation: |
+      | University of Amsterdam'
+title:
+  # If you use tex in the formatted title, also supply version without
+  # For running headers, if needed
+  formatted: "\\pkg{Vazul}: An R Package for Analysis Blinding"
+  plain:     "An R Package for Analysis Blinding"
+  short:     "\\pkg{Vazul}: A Capitalized Title"
+abstract: >
+  The abstract of the article.
+keywords:
+  # at least one keyword must be supplied
+  formatted: [keywords, not capitalized, "\\proglang{Java}"]
+  plain:     [keywords, not capitalized, Java]
+preamble: >
+  \usepackage{amsmath}
+output: rticles::jss_article
+editor_options: 
+  chunk_output_type: console
+---
+
+## Overview of the main functions 
+
+The package provides functions for two main types of analysis blinding:
+
+1. **Masking**: Replaces original values with anonymous labels, completely hiding the original information.
+2. **Scrambling**: Randomizes the order of existing values while preserving all original data content.
+
+Each approach is available at three levels:
+
+- **Vector level**: `mask_labels()` and `scramble_values()` - operate on single vectors
+- **Data frame level**: `mask_variables()` and `scramble_variables()` - operate on columns in a data frame
+- **Row-wise level**: `mask_variables_rowwise()` and `scramble_variables_rowwise()` - operate within rows across columns
+
+```{r setup, message = FALSE}
+library(vazul)
+library(dplyr)
+
+set.seed(123)
+```
+
+
+## Included datasets
+
+The `vazul` package includes two research datasets for demonstration and practice. The `marp ` dataset contains cross-national survey data on religiosity, while the `williams` dataset contains experimental data from a stereotyping study.
+
+```{r}
+data(marp)
+data(williams)
+
+glimpse(marp)
+glimpse(williams)
+
+```
+
+## Masking functions
+
+Masking functions replace categorical values with anonymous labels. This is useful when you want to hide the original information, such as treatment conditions or group assignments. Masking variables is useful when there are a limited number of unique values. The `mask_labels()` function takes a character or factor vector and replaces each unique value with a randomly assigned masked label. The function preserves factor structure when the input is a factor. After masking, each unique value receives a unique masked label, the same original value always maps to the same masked label, and the assignment of masked labels to original values is randomized.
+
+```{r}
+# Create a simple treatment vector
+treatment <- c("control", "treatment", "control", "treatment", "control")
+
+# Mask the labels
+mask_labels(treatment)
+
+```
+
+It is possible to customize the prefix used for masked labels:
+
+```{r}
+mask_labels(treatment, prefix = "group_")
+```
+
+The `mask_variables()` function extends the masking functionality to multiple columns in a data frame simultaneously. It is possible to use tidyelect helpers to select columns.
+
+```{r}
+marp |> 
+    select(rel_1:rel_9, country, denomination) |> 
+    mask_variables(c("country", "denomination")) |> 
+    head()
+
+marp |> 
+    select(rel_1:rel_9, country, denomination) |> 
+    mask_variables(where(is.character)) |> 
+    head()
+
+```
+
+By default, each column gets its own set of masked labels with the column name as prefix. When `across_variables = TRUE`, all selected columns share the same mapping. This can be useful when the same conditions appear in multiple columns.
+
+```{r}
+df <- data.frame(
+  pre_condition = c("A", "B", "C", "A"),
+  post_condition = c("B", "A", "A", "C"),
+  score = c(1, 2, 3, 4)
+)
+
+mask_variables(df, c("pre_condition", "post_condition"),
+                                across_variables = TRUE)
+
+```
+
+The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful in case when of categrical data that is repeated across columns, such as treatment conditions or item responses. Each row gets its own independent mapping of original values to masked labels. 
+
+```{r}
+df <- data.frame(
+  treat_1 = c("control", "treatment_1", "treatment_2", "control"),
+  treat_2 = c("treatment_1", "treatment_2", "control", "control"),
+  treat_3 = c("treatment_2", "control", "treatment_1", "control"),
+  id = 1:4
+)
+
+mask_variables_rowwise(df, starts_with("treat_"))
+
+```
+
+
+## Scrambling functions
+
+Scrambling functions randomize the order of values while preserving all original data content. This approach maintains the data distribution while breaking the connection between observations and their original values. The `scramble_values()` function randomly reorders the elements of a vector. The vector can contain numeric, character, or factor data. Scrambling is useful when you want to preserve the original values but eliminate any correspondence between observations and their values.
+
+```{r}
+# Numeric data
+numbers <- 1:10
+scramble_values(numbers)
+```
+
+The `scramble_variables()` function extends the scrambling functionality to data frames. It allows scrambling multiple columns simultaneously, with options for independent scrambling, joint scrambling, and within-group scrambling. Columns can be selected using tidyselect helpers.
+
+```{r}
+
+df <-
+    williams |>
+    select(subject, age, ecology) |> 
+    head()
+
+scramble_variables(df, c("age", "ecology"))
+
+```
+
+By default, columns are scrambled independently of each other. When `together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
+
+```{r}
+df  <-
+    marp |> 
+    select(subject, country, rel_1:rel_3)
+
+tail(df)
+    
+scramble_variables(df, starts_with("rel_"), together = TRUE) |> 
+    tail()
+```
+
+Scrambling can be done in groups using the `.groups` parameter. This ensures that values are only scrambled within their original groups.
+
+```{r}
+df |> 
+    scramble_variables(starts_with("rel_"), .groups = "country")
+
+```
+
+The `scramble_variables_rowwise()` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.
+
+```{r}
+df <- data.frame(
+  item1 = c(1, 4, 7),
+  item2 = c(2, 5, 8),
+  item3 = c(3, 6, 9),
+  id = 1:3
+)
+
+scramble_variables_rowwise(df, c("item1", "item2", "item3"))
+
+```
+
+Within each row, the values are shuffled among the item columns. You can scramble multiple sets of columns independently. The function can use tidyselect helpers. 
+
+```{r}
+df2 <- data.frame(
+  day_1 = c(1, 4, 7),
+  day_2 = c(2, 5, 8),
+  day_3 = c(3, 6, 9),
+  score_a = c(10, 40, 70),
+  score_b = c(20, 50, 80),
+  id = 1:3
+)
+
+scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
+```
+
+## Choosing between masking and scrambling
+
+| Aspect | Masking | Scrambling |
+|--------|---------|------------|
+| **Original values** | Hidden (replaced) | Preserved (reordered) |
+| **Distribution** | Same proportion, new labels | Unchanged |
+| **Best for** | Categorical variables | Numeric or categorical |
+| **Use case** | Hide treatment conditions | Break correlations |
+
+Use Masking:
+
+- When you need to hide categorical labels (e.g., treatment conditions, group names)
+- When analysts should not know the meaning of categories
+- When you want different prefixes for different variables
+
+Use Scrambling:
+
+- When you want to preserve the original data distribution
+- When you need to break the association between variables of interest (e.g., treatment and outcome)
+- When working with numeric data that shouldn't be categorically relabeled
+
+## Functions
+
+The `vazul` package provides a comprehensive toolkit for data blinding:
+
+| Function | Level | Purpose |
+|----------|-------|---------|
+| `mask_labels()` | Vector | Replace categorical values with anonymous labels |
+| `mask_variables()` | Data frame | Mask multiple columns |
+| `mask_variables_rowwise()` | Row-wise | Consistent masking within rows |
+| `scramble_values()` | Vector | Randomize value order |
+| `scramble_variables()` | Data frame | Scramble multiple columns |
+| `scramble_variables_rowwise()` | Row-wise | Scramble values within rows |

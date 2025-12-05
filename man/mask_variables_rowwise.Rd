@@ -24,7 +24,6 @@ A data frame with labels masked rowwise within each selected column set.
 }
 \description{
 For each row, independently mask labels within each group of selected columns.
-This function uses mask_labels_rowwise() for each column set.
 }
 \examples{
 df <- data.frame(

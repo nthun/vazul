@@ -1,3 +1,12 @@
+# vazul 0.5.0
+## 2025-12-02
+
+* Now all main functions use the `...` for accepting tidyselect helpers (BREAKING CHANGE!)
+* Update documentation
+* Add vignette for main functions
+* Removed `mask_labels_rowwise()` and `scramble_values_rowwise()` functions as they were confusing and unnecessary.
+* Updated the README file to reflect the changes.
+
 # vazul 0.4.0
 ## 2025-09-29
 
@@ -8,7 +17,7 @@
 # vazul 0.3.0
 ## 2025-09-25
 
-* Add `mask_labels()`, `mask_variables()`, `mask_labels_rowwise()`, `mask_variables_rowwise()`, `mask_names()` functions to mask factor levels and variable names.
+* Add `mask_labels()`, `mask_variables()`, `mask_variables_rowwise()`, `mask_names()` functions to mask factor levels and variable names.
 * Add unit tests for all new functions
 * Add lifcycle badge to README
 
