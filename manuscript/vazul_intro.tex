@@ -67,37 +67,48 @@ Amsterdam, The Netherlands\\
 \section{Introduction}\label{introduction}
 
 In data analysis, researchers face the challenge of maintaining
-objectivity and minimizing bias. A key issue in this context is the
-considerable analytic flexibility available at various stages of the
-process, including data preprocessing, variable selection, model
-specification, and statistical testing. This flexibility has been
-described as the ``garden of forking paths'\,' \citep{gelman2013garden},
-as a multitude of plausible analytic strategies can be applied to the
-same dataset. Depending on the complexity of the analysis, this can
-result in hundreds or thousands of plausible, non-redundant analytic
-pipelines \citep{steegen2016increasing, SimonsohnEtAl2020}. Importantly,
-different analytic paths can yield different results, and analysts may,
-intentionally or unintentionally, gravitate toward those that align with
-their expectations. Such flexibility can therefore lead to biased
-outcomes if researchers make analytic choices that are influenced by
-their hypotheses or prior beliefs about the data.
+objectivity and minimizing bias. A central concern is the considerable
+analytic flexibility present at various stages of the workflow,
+including data preprocessing, variable selection, model specification,
+and statistical testing. This flexibility has been described as the
+``garden of forking paths'\,' \citep{gelman2013garden}, meaning that
+possibly hundreds or thousands of plausible, non-redundant analytic
+strategies can be applied to the same dataset
+\citep{steegen2016increasing, SimonsohnEtAl2020}. Crucially, different
+analytic paths can yield different results, and analysts may,
+intentionally or not, gravitate toward those that align with their
+expectations.
 
-To ensure the reliability of results and the validity of conclusions
-drawn from empirical data, it is crucial to prevent the idiosyncrasies
-of the data from feeding back into the formulation of the hypotheses
-being tested \citep[HARKing,][]{kerr1998harking} or from prompting
-researchers to exploit their analytic freedom to accentuate desired
-outcomes \citep{simmons2011false}.
+The result can be biased or even spurious findings
+\citep{ioannidis2005most, simmons2011false, gelman2016statistical},
+which have eroded trust in science and contributed to replication
+failures across medical sciences, psychology, economics, and computer
+science
+\citep{ioannidis2005contradicted, open2015estimating, baker2016scientists, nosek2022replicability, pashler2012editors, camerer2016evaluating, cockburn2020threats}.\footnote{But
+  see \citet{gilbert2016}, \citet{muradchanian2021best},
+  \citet{savitz2024responding}, and \citet{mcshane2024statistical} for
+  critiques of how replication failure is measured and of the design and
+  validity of some replication attempts.} To ensure the reliability of
+empirical findings, it is therefore essential to prevent the
+idiosyncrasies of the data from feeding back into the formulation of the
+hypotheses being tested \citep[HARKing,][]{kerr1998harking} or from
+prompting researchers to exploit their analytic freedom to accentuate
+desired outcomes \citep{simmons2011false}. In response, researchers have
+proposed methodologies to limit the influence of bias in data analysis.
+One such method is analysis blinding, which supplies analysts with an
+altered version of the real data that conceals biasing features until
+the analysis plan is finalized.
 
-Analysis blinding \citep{maccoun2015hide} is a methodological approach
-designed to protect the confirmatory status of an analysis by concealing
-crucial test-relevant aspects of the data from the analysts---for
-example, by scrambling dependent variables or masking key labels. The
-procedure typically involves two independent parties: a data manager,
-who has full access to the raw data and is responsible for implementing
-the blinding steps, and an analyst, who is tasked with developing the
-analysis plan. After the data manager applies the blinding procedure,
-the analyst receives the resulting modified dataset: the blinded data.
+Analysis blinding, or blind analysis \citep{maccoun2015hide}, is a
+methodological approach designed to protect the confirmatory status of
+an analysis by concealing crucial test-relevant aspects of the data from
+the analysts---for example, by scrambling dependent variables or masking
+key labels. The procedure typically involves two independent parties: a
+data manager, who has full access to the raw data and is responsible for
+implementing the blinding steps, and an analyst, who is tasked with
+developing the analysis plan. After the data manager applies the
+blinding procedure, the analyst receives the resulting modified dataset:
+the blinded data.
 
 Working with the blinded data, the analyst can explore and preprocess
 the dataset and develop an analysis plan without being influenced by
@@ -108,58 +119,68 @@ meaningful characteristics remain intact, including demographic
 information, secondary variables, and the distributional properties of
 both dependent and independent variables. As a result, the analyst
 retains all information necessary to tailor the analytic approach to the
-specific, and potentially unexpected, features of the data.
-
-Once the analysis plan has been finalized using the blinded data, the
-analyst is granted access to the raw, unblinded dataset, and the
-confirmatory analysis can then be carried out strictly according to the
+specific, and potentially unexpected, features of the data. Once the
+analysis plan has been finalized using the blinded data, the analyst is
+granted access to the raw, unblinded dataset, and the confirmatory
+analysis can then be carried out strictly according to the
 pre-established plan.
 
 Analysis blinding ties in with other methodologies to minimize bias in
 the research cycle, such as single-blind or double-blind experimental
 designs, where participants and/or experimenters are unaware of certain
-aspects of the study to prevent bias in data collection (REF). Here, the
-analysts is intentionally kept unaware of certain aspects of the data to
-prevent bias in data analysis, which is why the methodology is also
-referred to as triple-blind (REF).
+aspects of the study to prevent bias in data collection
+\citep{schulz2002blinding}. Here, the analysts is intentionally kept
+unaware of certain aspects of the data to prevent bias in data analysis,
+which is why the methodology is also referred to as triple-blind
+\citep{schulz2002blinding}.
 
-The \pkg{vazul} package in \proglang{R}
-\url{(https://CRAN.R-project.org/package=vazul} provides the tools
-needed for data managers to implement blinding procedures. The package
-includes functionality for data scrambling, data masking, and
-subset-based analyses. In the remainder of this article, we introduce
-the methodology in more detail, describe the functionalities of the
-\pkg{vazul} package, and illustrate its application through practical
-examples. We conclude with a brief discussion and outline future
-directions.
+Although many blinding techniques are conceptually straightforward, such
+as scrambling outcome variables or masking variable names and factor
+labels, their practical implementation can become technically
+challenging once real research designs and data structures are
+considered. For instance, in hierarchical models, researchers may need
+to scramble the outcome variable to destroy the effect of interest while
+still preserving information within grouping levels, such as
+country-level means in cross-cultural datasets
+\citep[e.g.,][]{sarafoglou2023comparing}. Similarly, in
+repeated-measures designs, condition labels may need to be masked so
+that each participant's condition structure is preserved while permuting
+the mapping of conditions across participants to obscure the true
+experimental effect. These complexities make manual analysis blinding
+difficult to carry out consistently and correctly. To lower barriers for
+data managers and facilitate the broader adoption of analysis blinding
+in research labs, dedicated software tools, such as \proglang{R}
+packages, are needed to implement these procedures reliably.
+
+To meet this need, the \pkg{vazul} package in \proglang{R}
+\url{(https://CRAN.R-project.org/package=vazul)} offers flexible and
+reproducible tools for implementing analysis blinding. It provides
+functionality for data scrambling as well as data and variable masking.
+In the remainder of this article, we introduce the methodology in more
+detail, describe the functionalities of the \pkg{vazul} package, and
+illustrate its application through practical examples. We conclude with
+a brief discussion and outline future directions.
 
 \subsection{Analysis Blinding: Safeguarding Against Bias Without
 Preregistration}\label{analysis-blinding-safeguarding-against-bias-without-preregistration}
 
 Originally, analysis blinding gained traction in astrophysics in the
-early 2000s (REF) as a means of safeguarding analysts against bias.
-Since then, the methodology has also been advocated in the social and
-behavioral sciences
-\citep{dutilh2021blinding, nagy2025bestiary, maccoun2021removebiases, maccoun2015hide, maccoun2018psychological},
-where preregistration of analysis plans, that is, requiring researchers
-to specify their planned analyses before data collection begins or
-before they view the data, has been the predominant approach for
-limiting analytic flexibility (e.g., existing estimates of
-preregistration rates in empirical psychology published in prominent
-journals range from about 14\% \citet{hardwicke2024prevalence2024} to
-about 40\% \citet{pfadt2025practicesPreprint}). In the literature,
-analysis blinding has been proposed as an alternative or complementary
-method to preregistration \citep[e.g.,][]{dutilh2021blinding} as it
-addresses several of preregistration's major shortcomings. Specifically,
-preregistration can restrict analysts so rigidly that they are unable to
-adapt their analyses to unexpected peculiarities in the data. Although
-deviations from preregistered plans are both possible and accepted when
+early 2000s \citep{maccoun2018psychological} as a means of safeguarding
+analysts against bias. Since then, the methodology has also been
+advocated in the social and behavioral sciences as an alternative or
+complement to preregistration
+\citep{dutilh2021blinding, nagy2025bestiary, maccoun2021removebiases, maccoun2015hide, maccoun2018psychological, aczel2020transparency}.
+This interest partly reflects the fact that analysis blinding addresses
+several of preregistration's major shortcomings. Preregistration can
+restrict analysts so rigidly that they are unable to adapt their
+analyses to unexpected peculiarities in the data. Although deviations
+from preregistered plans are both possible and accepted when
 transparently disclosed in the final manuscript, such deviations run
 counter to the spirit of preregistration, as they reintroduce
 data-dependent decisions that may bias the results. At the same time,
 text-based preregistrations, that is, the description of analysis plans
-in a preregistration template, often fail to be `specific, precise, and
-exhaustive' \citep[2]{wicherts2016degrees}, which leaves substantial
+in a preregistration template, often fail to be ``specific, precise, and
+exhaustive'\,' \citep[2]{wicherts2016degrees}, which leaves substantial
 degrees of freedom unaccounted for.
 
 In contrast to preregistration, analysis blinding allows researchers to
@@ -168,15 +189,16 @@ data without being constrained by a rigid preregistered protocol. This
 flexibility is especially important in analyses involving advanced
 statistical modeling or preprocessing, where not all decisions can be
 anticipated in advance and researchers must make data-dependent choices.
-For instance, in longitudinal network analysis, statistical models
-typically assume stationarity--an assumption which is frequently
-violated in psychological data and one that must be detected and
-addressed through detrending techniques
-\citep{epskamp2018gaussian, burger2022network, hoekstra2025safeguardingPreprint}.
-The flexibility gained by analysis blinding enables researchers to
-develop analysis strategies that are appropriately tailored to the
-specific characteristics of the dataset without the need to anticipate
-and specify all eventualities in advance. Consequently, researchers who
+For instance, many psychological constructs, such as well-being, are
+measured with multi-item scales whose factor structure must be examined
+before further analysis; whether the items load onto a single factor or
+multiple factors determines subsequent analytic steps, including whether
+composite scores can be computed or whether a more complex measurement
+model is required \citep[see e.g.,][]{MARP2022discussion}. The
+flexibility gained by analysis blinding enables researchers to develop
+analysis strategies that are appropriately tailored to the specific
+characteristics of the dataset without the need to anticipate and
+specify all eventualities in advance. Consequently, researchers who
 analyze their data with analysis blinding are less likely to deviate
 from their developed analysis plan compared to researchers who
 preregister their analytic strategy in a text-based format
