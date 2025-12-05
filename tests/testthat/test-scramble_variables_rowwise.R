@@ -93,14 +93,14 @@ test_that("scramble_variables_rowwise handles single column sets", {
     # Single column as character string should work and warn about only one column
     expect_warning(
         result <- scramble_variables_rowwise(df, "x"),
-        "Only one column selected",
+        "was passed as a single-column set",
         fixed = FALSE
     )
     expect_equal(result, df)
 
     expect_warning(
         result2 <- scramble_variables_rowwise(df, c("x")),
-        "Only one column selected",
+        "was passed as a single-column set",
         fixed = FALSE
     )
     expect_equal(result2, df)
@@ -485,4 +485,37 @@ test_that("scramble_variables_rowwise works with multiple tidyselect helpers", {
 
   # id column should remain unchanged
   expect_equal(result$id, df$id)
+})
+
+test_that("scramble_variables_rowwise provides informative warning for bare
+  column names", {
+  df <- data.frame(
+    a = c(1, 2, 3),
+    b = c(10, 20, 30),
+    c = c(100, 200, 300)
+  )
+
+  # When passing bare column names, each is treated as a separate set
+  # The warning should explain this and suggest using c()
+  warnings_captured <- NULL
+  result <- withCallingHandlers(
+    scramble_variables_rowwise(df, a, b),
+    warning = function(w) {
+      warnings_captured <<- c(warnings_captured, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  # Should have 2 warnings (one for each bare column)
+  expect_equal(length(warnings_captured), 2)
+
+  # Warnings should include the column name
+  expect_true(grepl("Column 'a'", warnings_captured[1]))
+  expect_true(grepl("Column 'b'", warnings_captured[2]))
+
+  # Warnings should include guidance about using c()
+  expect_true(grepl("use c\\(\\)", warnings_captured[1]))
+
+  # Data should be unchanged since no scrambling occurred
+  expect_equal(result, df)
 })
