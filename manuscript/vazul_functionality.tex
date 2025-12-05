@@ -11,11 +11,11 @@ Tamás Nagy~\orcidlink{00000-0001-5244-0356}\\`ELTE Eötvos Loránd
 University' \And Alexandra
 Sarafoglou~\orcidlink{0000-0003-0031-685X}\\University of Amsterdam'
 }
-\title{\pkg{Vazul}: An R Package for Analysis Blinding}
+\title{\pkg{vazul}: An R Package for Analysis Blinding}
 
 \Plainauthor{Tamás Nagy, Alexandra Sarafoglou}
 \Plaintitle{An R Package for Analysis Blinding}
-\Shorttitle{\pkg{Vazul}: A Capitalized Title}
+\Shorttitle{\pkg{vazul}: Analysis blinding package}
 
 
 \Abstract{
@@ -125,17 +125,17 @@ values.
 
 Scrambling becomes the better choice when the goal is to preserve the
 marginal distributions of numeric variables while severing their
-meaningful associations. It is particularly useful in settings where
+hypothesized associations. It is particularly useful in settings where
 analysts need access to realistic distributions---variance, skew---to
 make decisions about transformations, model families, or robustness
-checks, yet must remain blind to the true relationship between
-predictors and outcomes. By permuting values within variables,
-scrambling prevents recognition of treatment effects, correlations, or
-temporal patterns, making it harder to inadvertently tune an analysis
-toward the true result. It is often the preferred option in longitudinal
-studies, high-dimensional observational datasets where categorical
-relabeling would either destroy important numeric structure or be easy
-to reverse-engineer. Scrambling is generally the more versatile option,
+checks, yet must remain blind to the relationship between predictors and
+outcomes. By permuting values within variables, scrambling prevents
+recognition of treatment effects, correlations, or temporal patterns,
+making it harder to inadvertently tune an analysis toward the desired
+result. It is often the preferred option in longitudinal studies,
+high-dimensional observational datasets where categorical relabeling
+would either destroy important numeric structure or be easy to
+reverse-engineer. Scrambling is generally the more versatile option,
 because it can be applied across variable types and adapts well to a
 wide range of study designs and analytic workflows. Its ability to break
 associations while preserving distributions makes it suitable for almost
@@ -169,27 +169,26 @@ datasets, including high-dimensional or mixed-format data.
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{Original values} & Replaced with arbitrary codes & Preserved but
+Original values & Replaced with arbitrary codes & Preserved but
 permuted \\
-\textbf{Data distribution} & Category counts preserved with different
-labels & Marginal distributions fully preserved \\
-\textbf{Associations between variables} & Preserved & Broken
-(correlations, treatment--outcome links removed) \\
-\textbf{Risk addressed} & Hiding the identity or meaning of categories
-or variable names & Preventing recognition of true relationships or
+Data distribution & Category counts preserved with different labels &
+Marginal distributions fully preserved \\
+Associations between variables & Preserved & Broken (correlations,
+treatment--outcome links removed) \\
+Risk addressed & Hiding the identity or meaning of categories or
+variable names & Preventing recognition of true relationships or
 effects \\
-\textbf{Best suited for} & Categorical variables; variables whose names
-convey substantive meaning & Numeric or categorical variables;
-mixed-type data \\
-\textbf{Typical use cases} & Clinical trials, behavioral experiments,
+Best suited for & Categorical variables; variables whose names convey
+substantive meaning & Numeric or categorical variables; mixed-type
+data \\
+Typical use cases & Clinical trials, behavioral experiments,
 preregistered analyses, network analysis, factor analysis & Longitudinal
 data, observational datasets, robustness checks \\
-\textbf{When essential} & When variable names or category labels carry
+When essential & When variable names or category labels carry
 substantive information & When analysts need realistic numeric structure
 but must remain blind to associations \\
-\textbf{Flexibility across research settings} & Limited by
-categorical/semantic constraints & Broadly applicable to most data types
-and study designs \\
+Flexibility across research settings & Limited by categorical/semantic
+constraints & Broadly applicable to most data types and study designs \\
 \end{longtable}
 
 In the \texttt{vazul} package, each approach is available at three
@@ -608,33 +607,33 @@ unit, preserving row-level relationships:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> df  <-
-+     marp |> 
-+     select(subject, country, rel_1:rel_3)
-R> 
-R> tail(df)
+R> df <- 
++     data.frame(x = 1:6,
++                y = letters[1:6],
++                group = c("A", "A", "A", "B", "B", "B")
++                )
+R> df 
 \end{CodeInput}
 \begin{CodeOutput}
-      subject country     rel_1     rel_2 rel_3
-10530   10530      US 0.8333333 0.7142857   1.0
-10531   10531      US 0.0000000 0.0000000   0.5
-10532   10532      US 0.0000000 0.0000000   0.0
-10533   10533      US 0.1666667 1.0000000   1.0
-10534   10534      US 0.0000000 0.0000000   0.0
-10535   10535      US 0.8333333 0.7142857   1.0
+  x y group
+1 1 a     A
+2 2 b     A
+3 3 c     A
+4 4 d     B
+5 5 e     B
+6 6 f     B
 \end{CodeOutput}
 \begin{CodeInput}
-R> scramble_variables(df, starts_with("rel_"), together = TRUE) |> 
-+     tail()
+R> scramble_variables(df, c("x", "y"), together = TRUE)
 \end{CodeInput}
 \begin{CodeOutput}
-      subject country     rel_1     rel_2 rel_3
-10530   10530      US 0.1666667 0.0000000   0.5
-10531   10531      US 0.0000000 0.2857143   0.5
-10532   10532      US 0.0000000 0.0000000   0.0
-10533   10533      US 0.5000000 1.0000000   1.0
-10534   10534      US 0.1666667 0.4285714   0.5
-10535   10535      US 0.0000000 0.0000000   0.5
+  x y group
+1 1 a     A
+2 4 d     A
+3 6 f     A
+4 2 b     B
+5 5 e     B
+6 3 c     B
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -645,52 +644,26 @@ groups.
 \begin{CodeChunk}
 \begin{CodeInput}
 R> df |> 
-+     scramble_variables(starts_with("rel_"), .groups = "country")
++     scramble_variables(c("x", "y"), .groups = "group")
 \end{CodeInput}
 \begin{CodeOutput}
-# A tibble: 10,535 x 5
-   subject country   rel_1 rel_2 rel_3
-     <int> <chr>     <dbl> <dbl> <int>
- 1       1 Australia 0.857   1     197
- 2       2 Australia 0.714   1     280
- 3       3 Australia 1       0.5    99
- 4       4 Australia 0.857   1     320
- 5       5 Australia 0.714   0     374
- 6       6 Australia 0       1     162
- 7       7 Australia 0.143   1     389
- 8       8 Australia 1       0.5   175
- 9       9 Australia 0       0.5   346
-10      10 Australia 0.143   0.5   147
-# i 10,525 more rows
+# A tibble: 6 x 3
+      x y     group
+  <int> <chr> <chr>
+1     3 c     A    
+2     1 b     A    
+3     2 a     A    
+4     5 d     B    
+5     4 f     B    
+6     6 e     B    
 \end{CodeOutput}
 \end{CodeChunk}
 
 The \texttt{scramble\_variables\_rowwise()} function scrambles values
 within each row across specified columns. This is useful for scrambling
-repeated measures or item responses.
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> df <- data.frame(
-+   item1 = c(1, 4, 7),
-+   item2 = c(2, 5, 8),
-+   item3 = c(3, 6, 9),
-+   id = 1:3
-+ )
-R> 
-R> scramble_variables_rowwise(df, c("item1", "item2", "item3"))
-\end{CodeInput}
-\begin{CodeOutput}
-  item1 item2 item3 id
-1     3     1     2  1
-2     6     4     5  2
-3     8     7     9  3
-\end{CodeOutput}
-\end{CodeChunk}
-
-Within each row, the values are shuffled among the item columns. You can
-scramble multiple sets of columns independently. The function can use
-tidyselect helpers.
+repeated measures or item responses. Within each row, the values are
+shuffled among the item columns. You can scramble multiple sets of
+columns independently. The function can use tidyselect helpers.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -707,9 +680,9 @@ R> scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
 \end{CodeInput}
 \begin{CodeOutput}
   day_1 day_2 day_3 score_a score_b id
-1     3     1     2      20      10  1
+1     2     1     3      20      10  1
 2     5     4     6      50      40  2
-3     7     8     9      70      80  3
+3     8     9     7      80      70  3
 \end{CodeOutput}
 \end{CodeChunk}
 

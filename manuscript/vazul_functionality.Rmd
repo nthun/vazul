@@ -21,9 +21,9 @@ author:
 title:
   # If you use tex in the formatted title, also supply version without
   # For running headers, if needed
-  formatted: "\\pkg{Vazul}: An R Package for Analysis Blinding"
+  formatted: "\\pkg{vazul}: An R Package for Analysis Blinding"
   plain:     "An R Package for Analysis Blinding"
-  short:     "\\pkg{Vazul}: A Capitalized Title"
+  short:     "\\pkg{vazul}: Analysis blinding package"
 abstract: >
   The abstract of the article.
 keywords:
@@ -50,7 +50,7 @@ The package provides functions for two main types of analysis blinding:
 
 When choosing between masking and scrambling for analysis blinding, the decision usually turns on what information must be concealed and what structure must be preserved for meaningful exploratory work. Masking is most appropriate when the core risk lies in revealing the identity or meaning of categorical variables—treatment groups, study arms, demographic categories, or experimental conditions. In these situations, replacing labels with arbitrary codes prevents analysts from inferring substantive content while still allowing them to run the full range of models that depend on category-level distinctions. Masking also accommodates cases where different variables require different relabeling schemes or prefixes, for example when several independent categorical factors need to remain distinguishable but substantively opaque. This approach is common in clinical trials, behavioral experiments, and preregistered confirmatory analyses where preserving the structure of factors is essential but knowledge of factor identity would bias analytic choices. Masking can be indispensable in situations where the variable names themselves carry substantive meaning. This occurs, for example, in network analysis, where variables become nodes with interpretable labels, or in factor-analytic work, where item names often hint at their psychological content. In such settings, simply scrambling values would not prevent analysts from inferring the underlying constructs, whereas masking removes this semantic cue entirely. The `vazul` package supports this use case directly by offering functionality for masking variable names alongside their values.
 
-Scrambling becomes the better choice when the goal is to preserve the marginal distributions of numeric variables while severing their meaningful associations. It is particularly useful in settings where analysts need access to realistic distributions—variance, skew—to make decisions about transformations, model families, or robustness checks, yet must remain blind to the true relationship between predictors and outcomes. By permuting values within variables, scrambling prevents recognition of treatment effects, correlations, or temporal patterns, making it harder to inadvertently tune an analysis toward the true result. It is often the preferred option in longitudinal studies, high-dimensional observational datasets where categorical relabeling would either destroy important numeric structure or be easy to reverse-engineer. Scrambling is generally the more versatile option, because it can be applied across variable types and adapts well to a wide range of study designs and analytic workflows. Its ability to break associations while preserving distributions makes it suitable for almost everything from tightly controlled experiments to complex observational datasets, including high-dimensional or mixed-format data.
+Scrambling becomes the better choice when the goal is to preserve the marginal distributions of numeric variables while severing their hypothesized associations. It is particularly useful in settings where analysts need access to realistic distributions—variance, skew—to make decisions about transformations, model families, or robustness checks, yet must remain blind to the relationship between predictors and outcomes. By permuting values within variables, scrambling prevents recognition of treatment effects, correlations, or temporal patterns, making it harder to inadvertently tune an analysis toward the desired result. It is often the preferred option in longitudinal studies, high-dimensional observational datasets where categorical relabeling would either destroy important numeric structure or be easy to reverse-engineer. Scrambling is generally the more versatile option, because it can be applied across variable types and adapts well to a wide range of study designs and analytic workflows. Its ability to break associations while preserving distributions makes it suitable for almost everything from tightly controlled experiments to complex observational datasets, including high-dimensional or mixed-format data.
 
 
 | **Aspect**                               | **Masking**                                                                                        | **Scrambling**                                                                       |
@@ -234,39 +234,26 @@ scramble_variables(df, c("age", "ecology"))
 By default, columns are scrambled independently of each other. When `together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
 
 ```{r}
-df  <-
-    marp |> 
-    select(subject, country, rel_1:rel_3)
+df <- 
+    data.frame(x = 1:6,
+               y = letters[1:6],
+               group = c("A", "A", "A", "B", "B", "B")
+               )
+df 
 
-tail(df)
-    
-scramble_variables(df, starts_with("rel_"), together = TRUE) |> 
-    tail()
+scramble_variables(df, c("x", "y"), together = TRUE)
+
 ```
 
 Scrambling can be done in groups using the `.groups` parameter. This ensures that values are only scrambled within their original groups.
 
 ```{r}
 df |> 
-    scramble_variables(starts_with("rel_"), .groups = "country")
+    scramble_variables(c("x", "y"), .groups = "group")
 
 ```
 
-The `scramble_variables_rowwise()` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.
-
-```{r}
-df <- data.frame(
-  item1 = c(1, 4, 7),
-  item2 = c(2, 5, 8),
-  item3 = c(3, 6, 9),
-  id = 1:3
-)
-
-scramble_variables_rowwise(df, c("item1", "item2", "item3"))
-
-```
-
-Within each row, the values are shuffled among the item columns. You can scramble multiple sets of columns independently. The function can use tidyselect helpers. 
+The `scramble_variables_rowwise()` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses. Within each row, the values are shuffled among the item columns. You can scramble multiple sets of columns independently. The function can use tidyselect helpers. 
 
 ```{r}
 df2 <- data.frame(
