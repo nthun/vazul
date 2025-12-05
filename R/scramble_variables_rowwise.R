@@ -91,47 +91,56 @@ scramble_variables_rowwise <- function(data, ...) {
 
   # Helper to handle one set
   scramble_one_set <- function(set_quo) {
-    # Try evaluating as character vector first
-    try_char <- tryCatch(
-      expr = {
-        set <- rlang::eval_tidy(set_quo, data = data)
-        if (is.character(set)) {
-            if (length(missing) > 0) {
-                stop("Error in column selection: Can't subset columns that ",
-                     "don't exist. Column `",
-                     paste(missing, collapse = "`, `"),
-                     "` doesn't exist.", call. = FALSE)
-            }
-          return(scramble_rowwise_internal(data, set)[set])
-        } else {
-          # Not character — fall through to tidyselect
-          NULL
-        }
-      },
-      error = function(e) {
-        # Not a character vector — fall through to tidyselect
-        NULL
-      }
-    )
-
-    if (!is.null(try_char)) {
-      return(try_char)
-    }
-
-    # If not character, treat as tidyselect expression
+    # For symbols (bare column names) or calls (tidyselect expressions like
+    # c(x, y), starts_with(), etc.), use tidyselect first
     if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
       selected <- tryCatch(
         tidyselect::eval_select(set_quo, data),
         error = function(e) {
-          warning("Failed to evaluate column set: ", conditionMessage(e), call. = FALSE)
+          warning("Failed to evaluate column set: ", conditionMessage(e),
+                  call. = FALSE)
           return(NULL)
         }
       )
-      if (length(selected) == 0) return(NULL)
+      if (is.null(selected) || length(selected) == 0) return(NULL)
       col_names <- names(data)[selected]
       scramble_rowwise_internal(data, col_names)[col_names]
     } else {
-      warning("Each column set must be a character vector or tidyselect expression.", call. = FALSE)
+      # Try evaluating as character vector for literal strings
+      handled_error <- FALSE
+      try_char <- tryCatch(
+        expr = {
+          set <- rlang::eval_tidy(set_quo, data = data)
+          if (is.character(set)) {
+            missing <- setdiff(set, names(data))
+            if (length(missing) > 0) {
+              stop("Error in column selection: Can't subset columns that ",
+                   "don't exist. Column `",
+                   paste(missing, collapse = "`, `"),
+                   "` doesn't exist.", call. = FALSE)
+            }
+            return(scramble_rowwise_internal(data, set)[set])
+          } else {
+            # Not character — warn and return NULL
+            NULL
+          }
+        },
+        error = function(e) {
+          handled_error <<- TRUE
+          warning("Failed to evaluate column set: ", conditionMessage(e),
+                  call. = FALSE)
+          return(NULL)
+        }
+      )
+
+      if (!is.null(try_char)) {
+        return(try_char)
+      }
+
+      if (!handled_error) {
+        warning("Each column set must be a character vector or tidyselect ",
+                "expression.", call. = FALSE)
+      }
       return(NULL)
     }
   }

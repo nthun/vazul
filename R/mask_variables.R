@@ -91,7 +91,23 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
 
   # Helper to resolve column names from one column set
   resolve_column_set <- function(set_quo) {
-    # Try evaluating as character vector first
+    # For symbols (bare column names) or calls (tidyselect expressions like
+    # c(x, y), starts_with(), etc.), use tidyselect first
+    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
+      selected <- tryCatch(
+        tidyselect::eval_select(set_quo, data),
+        error = function(e) {
+          stop("Error in column selection: ", conditionMessage(e),
+               call. = FALSE)
+        }
+      )
+      if (length(selected) == 0) {
+        return(character(0))
+      }
+      return(names(data)[selected])
+    }
+
+    # Try evaluating as character vector for literal strings
     try_char <- tryCatch(
       expr = {
         set <- rlang::eval_tidy(set_quo, data = data)
@@ -120,24 +136,9 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
       return(try_char)
     }
 
-    # If not character, treat as tidyselect expression
-    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
-      selected <- tryCatch(
-        tidyselect::eval_select(set_quo, data),
-        error = function(e) {
-          stop("Error in column selection: ", conditionMessage(e),
-               call. = FALSE)
-        }
-      )
-      if (length(selected) == 0) {
-        return(character(0))
-      }
-      return(names(data)[selected])
-    } else {
-      warning("Each column set must be a character vector or ",
-              "tidyselect expression.", call. = FALSE)
-      return(character(0))
-    }
+    warning("Each column set must be a character vector or ",
+            "tidyselect expression.", call. = FALSE)
+    return(character(0))
   }
 
   # Resolve all column sets to column names

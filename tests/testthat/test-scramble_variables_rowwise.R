@@ -90,9 +90,10 @@ test_that("scramble_variables_rowwise handles single column sets", {
         z = 6:10
     )
 
+    # Both "x" and c("x") should now correctly produce "Only one column selected"
     expect_warning(
         result <- scramble_variables_rowwise(df, "x"),
-        "Each column set must be a character vector or tidyselect expression.",
+        "Only one column selected",
         fixed = FALSE
     )
     expect_equal(result, df)
@@ -103,6 +104,14 @@ test_that("scramble_variables_rowwise handles single column sets", {
         fixed = FALSE
     )
     expect_equal(result2, df)
+
+    # Bare symbol x should also work the same way
+    expect_warning(
+        result3 <- scramble_variables_rowwise(df, x),
+        "Only one column selected",
+        fixed = FALSE
+    )
+    expect_equal(result3, df)
 })
 
 test_that("scramble_variables_rowwise validates input correctly", {
@@ -122,7 +131,7 @@ test_that("scramble_variables_rowwise validates input correctly", {
 
     expect_warning(
         scramble_variables_rowwise(df, "nonexistent_column"),
-        "Each column set must be a character vector or tidyselect expression.",
+        "Failed to evaluate column set",
         fixed = FALSE
     )
 
@@ -391,5 +400,59 @@ test_that("scramble_variables_rowwise warns for each mixed-type set", {
     expect_type(result$b_num, "character")
     expect_type(result$b_char, "character")
     expect_setequal(c(result$b_num[1], result$b_char[1]), c("3", "z"))
+})
+
+test_that("scramble_variables_rowwise works with bare column names using c()", {
+    df <- data.frame(
+        day_1 = c(1, 4, 7),
+        day_2 = c(2, 5, 8),
+        day_3 = c(3, 6, 9),
+        id = 1:3
+    )
+
+    # Multiple bare column names wrapped in c() should be treated as one set
+    set.seed(123)
+    result <- expect_warning(
+        scramble_variables_rowwise(df, c(day_1, day_2, day_3)),
+        NA  # expect NO warning
+    )
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(dim(result), dim(df))
+    expect_equal(names(result), names(df))
+
+    # Check scrambling rowwise
+    orig_list <- asplit(df[c("day_1", "day_2", "day_3")], 1)
+    scrambled_list <- asplit(result[c("day_1", "day_2", "day_3")], 1)
+    expect_true(all(mapply(setequal, orig_list, scrambled_list)))
+
+    expect_equal(result$id, df$id)
+})
+
+test_that("scramble_variables_rowwise bare column names as separate args create separate sets", {
+    df <- data.frame(
+        day_1 = c(1, 4, 7),
+        day_2 = c(2, 5, 8),
+        day_3 = c(3, 6, 9),
+        id = 1:3
+    )
+
+    # Multiple bare column names as separate args should each be a separate set
+    # Each single-column set will warn "Only one column selected"
+    w <- NULL
+    result <- withCallingHandlers(
+        scramble_variables_rowwise(df, day_1, day_2, day_3),
+        warning = function(warn) {
+            w <<- c(w, conditionMessage(warn))
+            invokeRestart("muffleWarning")
+        }
+    )
+
+    # Should have 3 warnings (one for each single-column set)
+    expect_equal(length(w), 3)
+    expect_true(all(grepl("Only one column selected", w)))
+
+    # Data should be unchanged since single-column sets can't be scrambled
+    expect_equal(result, df)
 })
 

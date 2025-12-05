@@ -348,3 +348,28 @@ test_that("mask_variables shared labels work with complex scenario", {
   # "A" and "B" should have different masked labels
   expect_false(unique(a_masked) == unique(b_masked))
 })
+
+test_that("mask_variables works with bare column names", {
+  df <- data.frame(
+    treatment = c("control", "intervention", "control"),
+    outcome = c("success", "failure", "success"),
+    score = c(1, 2, 3),
+    stringsAsFactors = FALSE
+  )
+
+  # Test with multiple bare column names using c()
+  set.seed(123)
+  result <- mask_variables(df, c(treatment, outcome))
+
+  expect_true(all(grepl("^treatment_group_", result$treatment)))
+  expect_true(all(grepl("^outcome_group_", result$outcome)))
+  expect_equal(result$score, df$score)  # unchanged
+
+  # Test with single bare column name
+  set.seed(123)
+  result2 <- mask_variables(df, treatment)
+
+  expect_true(all(grepl("^treatment_group_", result2$treatment)))
+  expect_equal(result2$outcome, df$outcome)  # unchanged
+  expect_equal(result2$score, df$score)  # unchanged
+})
