@@ -90,7 +90,8 @@ test_that("scramble_variables_rowwise handles single column sets", {
         z = 6:10
     )
 
-    # Both "x" and c("x") should now correctly produce "Only one column selected"
+    # String "x", c("x"), and bare symbol x should all produce
+    # "Only one column selected" warning
     expect_warning(
         result <- scramble_variables_rowwise(df, "x"),
         "Only one column selected",
