@@ -1,14 +1,14 @@
 ---
 documentclass: jss
 author:
-  - name: Tam\'as Nagy
+  - name: "Tamás Nagy"
     orcid: 00000-0001-5244-0356
     address: |
       | 'Institute of Psychology,
-      | ELTE Eotvos Lorend University,
+      | ELTE Eötvös Loránd University,
       | Budapest, Hungary'
     affiliation: |
-      | 'ELTE Eotvos Lorend University'
+      | 'ELTE Eötvos Loránd University'
     email: \email{nagy.tamas@ppk.elte.hu} \AND
   - name: Alexandra Sarafoglou
     orcid: 0000-0003-0031-685X
@@ -37,6 +37,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+# Blinding Data for Analysis with the vazul Package
+
 ## Overview of the main functions 
 
 The package provides functions for two main types of analysis blinding:
@@ -44,11 +46,43 @@ The package provides functions for two main types of analysis blinding:
 1. **Masking**: Replaces original values with anonymous labels, completely hiding the original information.
 2. **Scrambling**: Randomizes the order of existing values while preserving all original data content.
 
-Each approach is available at three levels:
+## Choosing between masking and scrambling
+
+When choosing between masking and scrambling for analysis blinding, the decision usually turns on what information must be concealed and what structure must be preserved for meaningful exploratory work. Masking is most appropriate when the core risk lies in revealing the identity or meaning of categorical variables—treatment groups, study arms, demographic categories, or experimental conditions. In these situations, replacing labels with arbitrary codes prevents analysts from inferring substantive content while still allowing them to run the full range of models that depend on category-level distinctions. Masking also accommodates cases where different variables require different relabeling schemes or prefixes, for example when several independent categorical factors need to remain distinguishable but substantively opaque. This approach is common in clinical trials, behavioral experiments, and preregistered confirmatory analyses where preserving the structure of factors is essential but knowledge of factor identity would bias analytic choices. Masking can be indispensable in situations where the variable names themselves carry substantive meaning. This occurs, for example, in network analysis, where variables become nodes with interpretable labels, or in factor-analytic work, where item names often hint at their psychological content. In such settings, simply scrambling values would not prevent analysts from inferring the underlying constructs, whereas masking removes this semantic cue entirely. The `vazul` package supports this use case directly by offering functionality for masking variable names alongside their values.
+
+Scrambling becomes the better choice when the goal is to preserve the marginal distributions of numeric variables while severing their meaningful associations. It is particularly useful in settings where analysts need access to realistic distributions—variance, skew—to make decisions about transformations, model families, or robustness checks, yet must remain blind to the true relationship between predictors and outcomes. By permuting values within variables, scrambling prevents recognition of treatment effects, correlations, or temporal patterns, making it harder to inadvertently tune an analysis toward the true result. It is often the preferred option in longitudinal studies, high-dimensional observational datasets where categorical relabeling would either destroy important numeric structure or be easy to reverse-engineer. Scrambling is generally the more versatile option, because it can be applied across variable types and adapts well to a wide range of study designs and analytic workflows. Its ability to break associations while preserving distributions makes it suitable for almost everything from tightly controlled experiments to complex observational datasets, including high-dimensional or mixed-format data.
+
+
+| **Aspect**                               | **Masking**                                                                                        | **Scrambling**                                                                       |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Original values                      | Replaced with arbitrary codes                                                                      | Preserved but permuted                                                               |
+| Data distribution                    | Category counts preserved with different labels                             | Marginal distributions fully preserved                                               |
+| Associations between variables       | Preserved                                                                                          | Broken (correlations, treatment–outcome links removed)                               |
+| Risk addressed                       | Hiding the identity or meaning of categories or variable names                                     | Preventing recognition of true relationships or effects                              |
+| Best suited for                      | Categorical variables; variables whose names convey substantive meaning                            | Numeric or categorical variables; mixed-type data                        |
+| Typical use cases                    | Clinical trials, behavioral experiments, preregistered analyses, network analysis, factor analysis | Longitudinal data, observational datasets, robustness checks   |
+| When essential                       | When variable names or category labels carry substantive information                               | When analysts need realistic numeric structure but must remain blind to associations |
+| Flexibility across research settings | Limited by categorical/semantic constraints                                                        | Broadly applicable to most data types and study designs                              |
+:Comparison of masking and scrambling approaches
+
+In the `vazul` package, each approach is available at three levels:
 
 - **Vector level**: `mask_labels()` and `scramble_values()` - operate on single vectors
 - **Data frame level**: `mask_variables()` and `scramble_variables()` - operate on columns in a data frame
 - **Row-wise level**: `mask_variables_rowwise()` and `scramble_variables_rowwise()` - operate within rows across columns
+
+All of the functions require a data frame or vector as input and return a modified version with masked or scrambled values. The original data structure is preserved.
+
+| Function | Level | Purpose |
+|----------|-------|---------|
+| `mask_labels()` | Vector | Replace categorical values with anonymous labels |
+| `mask_variables()` | Data frame | Mask multiple columns |
+| `mask_variables_rowwise()` | Row-wise | Consistent masking within rows |
+| `mask_names()` | Variable names | Mask column names |
+| `scramble_values()` | Vector | Randomize value order |
+| `scramble_variables()` | Data frame | Scramble multiple columns |
+| `scramble_variables_rowwise()` | Row-wise | Scramble values within rows |
+: Overview of vazul functions for masking and scrambling data
 
 ```{r setup, message = FALSE}
 library(vazul)
@@ -57,7 +91,6 @@ library(dplyr)
 set.seed(123)
 ```
 
-
 ## Included datasets
 
 The `vazul` package includes two research datasets for demonstration and practice. The `marp ` dataset contains cross-national survey data on religiosity, while the `williams` dataset contains experimental data from a stereotyping study.
@@ -65,9 +98,6 @@ The `vazul` package includes two research datasets for demonstration and practic
 ```{r}
 data(marp)
 data(williams)
-
-glimpse(marp)
-glimpse(williams)
 
 ```
 
@@ -109,9 +139,9 @@ By default, each column gets its own set of masked labels with the column name a
 
 ```{r}
 df <- data.frame(
-  pre_condition = c("A", "B", "C", "A"),
-  post_condition = c("B", "A", "A", "C"),
-  score = c(1, 2, 3, 4)
+  pre_condition = c("A", "B", "C", "D"),
+  post_condition = c("B", "D", "D", "C"),
+  id = c(1, 2, 3, 4)
 )
 
 mask_variables(df, c("pre_condition", "post_condition"),
@@ -119,7 +149,7 @@ mask_variables(df, c("pre_condition", "post_condition"),
 
 ```
 
-The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful in case when of categrical data that is repeated across columns, such as treatment conditions or item responses. Each row gets its own independent mapping of original values to masked labels. 
+The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful in case when of categrical data that is repeated across columns, such as treatment conditions or item responses. 
 
 ```{r}
 df <- data.frame(
@@ -133,6 +163,50 @@ df <- data.frame(
 mask_variables_rowwise(df, starts_with("treat_"))
 
 ```
+
+### Masking variable names
+
+The `mask_names()` function allows users to rename variables in a dataset to anonymous, generic labels. This is especially useful in analyses where variable names carry substantive meaning (e.g., questionnaire items, network nodes, test-items), and one wants to prevent analysts from recognizing which item is which during preprocessing or exploratory phases.
+
+The `mask_names()` function takes a data frame and one or more variable sets, which can be specified either with tidyselect expressions (e.g., `starts_with("Q")`) or as character vectors of column names. The `prefix` argument sets the base for the masked names, while `set_id` allows customizing the identifier for each set; if left `NULL`, letters A, B, C… are used automatically.
+
+```{r}
+williams |> 
+    mask_names(starts_with("Impuls"), prefix = "masked_", set_id = "LH") |> 
+    names()
+```
+
+By applying `mask_names()`, the selected variables will be renamed to a pattern such as `variable_set_A_01`, `variable_set_A_02`, etc.—where the letter (e.g., “A”) denotes the first block of masked variables. Because the renaming order is randomized, an analyst cannot reliably guess which original variable corresponds to which masked label. Below is a minimal example illustrating how to use `mask_names()` in practice.
+
+```{r}
+names(williams)
+
+masked_williams <- 
+    williams |> 
+    mask_names(
+        starts_with("SexUnres"),
+        starts_with("Impuls"),
+        starts_with("Opport"),
+        starts_with("InvEdu"),
+        starts_with("InvChild")
+    )
+
+names(masked_williams)
+```
+
+Once masked, one can proceed with exploratory analyses (e.g. factor analysis, network analysis) on the masked variables, without knowing which original items correspond to which columns. For instance:
+
+```{r}
+masked_williams |> 
+  select(starts_with("variable_set_")) |> 
+  factanal(factors = 5, rotation = "varimax") |> 
+  loadings() |> 
+  print(cutoff = 0.3, sort = TRUE)
+```
+
+Because the column names are anonymized, any decisions about factor inclusion or rotation are made blind to the substantive meaning of items, reducing the risk of interpretive bias.
+
+In short, `mask_names()` supports naming-based blinding by decoupling analysis from semantic content, while preserving the full data structure needed for legitimate exploratory workflows.
 
 ## Scrambling functions
 
@@ -207,36 +281,6 @@ df2 <- data.frame(
 scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
 ```
 
-## Choosing between masking and scrambling
 
-| Aspect | Masking | Scrambling |
-|--------|---------|------------|
-| **Original values** | Hidden (replaced) | Preserved (reordered) |
-| **Distribution** | Same proportion, new labels | Unchanged |
-| **Best for** | Categorical variables | Numeric or categorical |
-| **Use case** | Hide treatment conditions | Break correlations |
 
-Use Masking:
 
-- When you need to hide categorical labels (e.g., treatment conditions, group names)
-- When analysts should not know the meaning of categories
-- When you want different prefixes for different variables
-
-Use Scrambling:
-
-- When you want to preserve the original data distribution
-- When you need to break the association between variables of interest (e.g., treatment and outcome)
-- When working with numeric data that shouldn't be categorically relabeled
-
-## Functions
-
-The `vazul` package provides a comprehensive toolkit for data blinding:
-
-| Function | Level | Purpose |
-|----------|-------|---------|
-| `mask_labels()` | Vector | Replace categorical values with anonymous labels |
-| `mask_variables()` | Data frame | Mask multiple columns |
-| `mask_variables_rowwise()` | Row-wise | Consistent masking within rows |
-| `scramble_values()` | Vector | Randomize value order |
-| `scramble_variables()` | Data frame | Scramble multiple columns |
-| `scramble_variables_rowwise()` | Row-wise | Scramble values within rows |

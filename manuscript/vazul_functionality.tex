@@ -7,13 +7,13 @@
 \usepackage[utf8]{inputenc}
 
 \author{
-Tam\textquotesingle as Nagy~\orcidlink{00000-0001-5244-0356}\\`ELTE
-Eotvos Lorend University' \And Alexandra
+Tamás Nagy~\orcidlink{00000-0001-5244-0356}\\`ELTE Eötvos Loránd
+University' \And Alexandra
 Sarafoglou~\orcidlink{0000-0003-0031-685X}\\University of Amsterdam'
 }
 \title{\pkg{Vazul}: An R Package for Analysis Blinding}
 
-\Plainauthor{Tam\textquotesingle as Nagy, Alexandra Sarafoglou}
+\Plainauthor{Tamás Nagy, Alexandra Sarafoglou}
 \Plaintitle{An R Package for Analysis Blinding}
 \Shorttitle{\pkg{Vazul}: A Capitalized Title}
 
@@ -34,10 +34,10 @@ The abstract of the article.
 %% \Acceptdate{2012-06-04}
 
 \Address{
-    Tam\textquotesingle as Nagy\\
-    `ELTE Eotvos Lorend University'\\
+    Tamás Nagy\\
+    `ELTE Eötvos Loránd University'\\
     'Institute of Psychology,\\
-ELTE Eotvos Lorend University,\\
+ELTE Eötvös Loránd University,\\
 Budapest, Hungary'\\
   E-mail: \email{nagy.tamas@ppk.elte.hu}\\
   
@@ -75,6 +75,9 @@ Amsterdam, The Netherlands'\\
 
 
 
+\section{Blinding Data for Analysis with the vazul
+Package}\label{blinding-data-for-analysis-with-the-vazul-package}
+
 \subsection{Overview of the main
 functions}\label{overview-of-the-main-functions}
 
@@ -91,7 +94,106 @@ The package provides functions for two main types of analysis blinding:
   preserving all original data content.
 \end{enumerate}
 
-Each approach is available at three levels:
+\subsection{Choosing between masking and
+scrambling}\label{choosing-between-masking-and-scrambling}
+
+When choosing between masking and scrambling for analysis blinding, the
+decision usually turns on what information must be concealed and what
+structure must be preserved for meaningful exploratory work. Masking is
+most appropriate when the core risk lies in revealing the identity or
+meaning of categorical variables---treatment groups, study arms,
+demographic categories, or experimental conditions. In these situations,
+replacing labels with arbitrary codes prevents analysts from inferring
+substantive content while still allowing them to run the full range of
+models that depend on category-level distinctions. Masking also
+accommodates cases where different variables require different
+relabeling schemes or prefixes, for example when several independent
+categorical factors need to remain distinguishable but substantively
+opaque. This approach is common in clinical trials, behavioral
+experiments, and preregistered confirmatory analyses where preserving
+the structure of factors is essential but knowledge of factor identity
+would bias analytic choices. Masking can be indispensable in situations
+where the variable names themselves carry substantive meaning. This
+occurs, for example, in network analysis, where variables become nodes
+with interpretable labels, or in factor-analytic work, where item names
+often hint at their psychological content. In such settings, simply
+scrambling values would not prevent analysts from inferring the
+underlying constructs, whereas masking removes this semantic cue
+entirely. The \texttt{vazul} package supports this use case directly by
+offering functionality for masking variable names alongside their
+values.
+
+Scrambling becomes the better choice when the goal is to preserve the
+marginal distributions of numeric variables while severing their
+meaningful associations. It is particularly useful in settings where
+analysts need access to realistic distributions---variance, skew---to
+make decisions about transformations, model families, or robustness
+checks, yet must remain blind to the true relationship between
+predictors and outcomes. By permuting values within variables,
+scrambling prevents recognition of treatment effects, correlations, or
+temporal patterns, making it harder to inadvertently tune an analysis
+toward the true result. It is often the preferred option in longitudinal
+studies, high-dimensional observational datasets where categorical
+relabeling would either destroy important numeric structure or be easy
+to reverse-engineer. Scrambling is generally the more versatile option,
+because it can be applied across variable types and adapts well to a
+wide range of study designs and analytic workflows. Its ability to break
+associations while preserving distributions makes it suitable for almost
+everything from tightly controlled experiments to complex observational
+datasets, including high-dimensional or mixed-format data.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1802}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4414}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3784}}@{}}
+\caption{Comparison of masking and scrambling approaches}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Aspect}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Masking}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Scrambling}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Aspect}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Masking}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Scrambling}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Original values} & Replaced with arbitrary codes & Preserved but
+permuted \\
+\textbf{Data distribution} & Category counts preserved with different
+labels & Marginal distributions fully preserved \\
+\textbf{Associations between variables} & Preserved & Broken
+(correlations, treatment--outcome links removed) \\
+\textbf{Risk addressed} & Hiding the identity or meaning of categories
+or variable names & Preventing recognition of true relationships or
+effects \\
+\textbf{Best suited for} & Categorical variables; variables whose names
+convey substantive meaning & Numeric or categorical variables;
+mixed-type data \\
+\textbf{Typical use cases} & Clinical trials, behavioral experiments,
+preregistered analyses, network analysis, factor analysis & Longitudinal
+data, observational datasets, robustness checks \\
+\textbf{When essential} & When variable names or category labels carry
+substantive information & When analysts need realistic numeric structure
+but must remain blind to associations \\
+\textbf{Flexibility across research settings} & Limited by
+categorical/semantic constraints & Broadly applicable to most data types
+and study designs \\
+\end{longtable}
+
+In the \texttt{vazul} package, each approach is available at three
+levels:
 
 \begin{itemize}
 \tightlist
@@ -106,6 +208,51 @@ Each approach is available at three levels:
   \texttt{scramble\_variables\_rowwise()} - operate within rows across
   columns
 \end{itemize}
+
+All of the functions require a data frame or vector as input and return
+a modified version with masked or scrambled values. The original data
+structure is preserved.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3846}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2692}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3462}}@{}}
+\caption{Overview of vazul functions for masking and scrambling
+data}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Function
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Function
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Level
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{mask\_labels()} & Vector & Replace categorical values with
+anonymous labels \\
+\texttt{mask\_variables()} & Data frame & Mask multiple columns \\
+\texttt{mask\_variables\_rowwise()} & Row-wise & Consistent masking
+within rows \\
+\texttt{mask\_names()} & Variable names & Mask column names \\
+\texttt{scramble\_values()} & Vector & Randomize value order \\
+\texttt{scramble\_variables()} & Data frame & Scramble multiple
+columns \\
+\texttt{scramble\_variables\_rowwise()} & Row-wise & Scramble values
+within rows \\
+\end{longtable}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -127,91 +274,7 @@ dataset contains experimental data from a stereotyping study.
 \begin{CodeInput}
 R> data(marp)
 R> data(williams)
-R> 
-R> glimpse(marp)
 \end{CodeInput}
-\begin{CodeOutput}
-Rows: 10,535
-Columns: 46
-$ subject         <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,~
-$ country         <chr> "Australia", "Australia", "Australia", "Australia", "A~
-$ rel_1           <dbl> 0.0000000, 0.8333333, 0.0000000, 0.0000000, 0.0000000,~
-$ rel_2           <dbl> 0.0000000, 0.7142857, 0.0000000, 0.0000000, 0.0000000,~
-$ rel_3           <dbl> 0.5, 1.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5,~
-$ rel_4           <int> 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, ~
-$ rel_5           <dbl> 0.1666667, 0.5000000, 0.1666667, 0.5000000, 0.1666667,~
-$ rel_6           <dbl> 0.5000000, 0.5000000, 0.0000000, 0.6666667, 0.0000000,~
-$ rel_7           <dbl> 0.5000000, 0.3333333, 0.1666667, 0.3333333, 0.3333333,~
-$ rel_8           <dbl> 0.00, 0.50, 0.00, 0.25, 0.00, 0.25, 0.00, 0.00, 0.00, ~
-$ rel_9           <dbl> 0.50, 0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, ~
-$ cnorm_1         <dbl> 0.50, 0.25, 0.25, 0.25, 0.50, 0.50, 0.25, 0.50, 0.00, ~
-$ cnorm_2         <dbl> 0.50, 0.25, 0.25, 0.75, 0.50, 0.50, 0.25, 0.25, 0.00, ~
-$ wb_gen_1        <int> 4, 4, 3, 4, 3, 4, 4, 3, 4, 4, 3, 5, 4, 4, 1, 4, 4, 3, ~
-$ wb_gen_2        <int> 2, 3, 4, 3, 4, 4, 4, 2, 4, 4, 3, 5, 4, 4, 5, 4, 4, 2, ~
-$ wb_phys_1       <int> 3, 3, 4, 4, 5, 5, 4, 3, 4, 4, 3, 4, 5, 4, 3, 4, 4, 4, ~
-$ wb_phys_2       <int> 3, 3, 5, 3, 5, 5, 5, 4, 3, 4, 3, 1, 5, 5, 4, 3, 5, 4, ~
-$ wb_phys_3       <int> 3, 4, 2, 2, 3, 4, 2, 1, 4, 2, 3, 5, 4, 5, 4, 4, 4, 1, ~
-$ wb_phys_4       <int> 4, 5, 5, 3, 4, 4, 4, 3, 4, 3, 3, 4, 4, 5, 5, 3, 4, 4, ~
-$ wb_phys_5       <int> 2, 2, 4, 2, 4, 4, 2, 2, 3, 3, 3, 4, 4, 3, 4, 4, 4, 1, ~
-$ wb_phys_6       <int> 3, 4, 3, 3, 5, 4, 3, 3, 4, 2, 3, 5, 4, 4, 5, 4, 5, 3, ~
-$ wb_phys_7       <int> 2, 4, 4, 3, 4, 4, 3, 2, 4, 2, 3, 5, 4, 5, 4, 3, 5, 3, ~
-$ wb_psych_1      <int> 1, 2, 3, 3, 3, 3, 3, 1, 3, 3, 3, 5, 4, 4, 4, 4, 3, 3, ~
-$ wb_psych_2      <int> 1, 4, 2, 2, 2, 3, 2, 1, 2, 2, 3, 4, 4, 1, 4, 4, 5, 3, ~
-$ wb_psych_3      <int> 3, 3, 3, 4, 4, 4, 3, 2, 3, 3, 3, 4, 4, 3, 4, 4, 4, 2, ~
-$ wb_psych_4      <int> 3, 3, 1, 3, 4, 4, 4, 1, 1, 4, 3, 5, 4, 5, 4, 3, 4, 2, ~
-$ wb_psych_5      <int> 2, 3, 2, 2, 2, 4, 3, 1, 4, 3, 3, 5, 4, 5, 5, 4, 5, 2, ~
-$ wb_psych_6      <int> 3, 3, 2, 4, 3, 4, 3, 1, 2, 3, 4, 4, 4, 4, 4, 4, 5, 3, ~
-$ wb_soc_1        <int> 3, 3, 3, 4, 2, 4, 4, 1, 2, 4, 3, 4, 4, 4, 5, 5, 4, 4, ~
-$ wb_soc_2        <int> 1, 3, 1, 3, 3, 3, 4, 2, 2, 4, 3, 3, 4, 3, 4, 4, 3, 3, ~
-$ wb_soc_3        <int> 3, 4, 3, 4, 1, 4, 1, 3, 2, 1, 4, 5, 3, 2, 5, 5, NA, 4,~
-$ wb_overall_mean <dbl> 2.555556, 3.333333, 3.000000, 3.111111, 3.388889, 3.94~
-$ wb_phys_mean    <dbl> 2.857143, 3.571429, 3.857143, 2.857143, 4.285714, 4.28~
-$ wb_psych_mean   <dbl> 2.166667, 3.000000, 2.166667, 3.000000, 3.000000, 3.66~
-$ wb_soc_mean     <dbl> 2.333333, 3.333333, 2.333333, 3.666667, 2.000000, 3.66~
-$ age             <int> 41, 31, 26, 51, 21, 28, 49, 23, 23, 18, 22, 20, 42, 18~
-$ gender          <chr> "man", "man", "woman", "man", "man", "woman", "man", "~
-$ ses             <int> 4, 6, 5, 7, 5, 4, 5, 5, 4, 7, 5, 7, 6, 7, 5, 8, 6, 5, ~
-$ education       <int> 4, 5, 5, 2, 5, 5, 3, 3, 2, 4, 5, 4, 3, 5, 5, 3, 5, 4, ~
-$ ethnicity       <chr> "East Asian", "East Asian", "Caucasian/European", "Cau~
-$ denomination    <chr> NA, "Christian (Roman Catholic)", NA, NA, NA, "Buddhis~
-$ gdp             <dbl> 57305.3, 57305.3, 57305.3, 57305.3, 57305.3, 57305.3, ~
-$ gdp_scaled      <dbl> 1.001802, 1.001802, 1.001802, 1.001802, 1.001802, 1.00~
-$ sample_type     <chr> "online panel", "online panel", "online panel", "onlin~
-$ compensation    <chr> "monetary reward", "monetary reward", "monetary reward~
-$ attention_check <int> 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~
-\end{CodeOutput}
-\begin{CodeInput}
-R> glimpse(williams)
-\end{CodeInput}
-\begin{CodeOutput}
-Rows: 112
-Columns: 25
-$ subject             <chr> "A30MP4LXV4MIFD", "A16X5FB3HAFCKN", "A1E9D1OT9VJYD~
-$ SexUnres_1          <dbl> 5, 7, 2, 5, 5, 5, 5, 4, 6, 4, 5, 3, 5, 6, 3, 6, 2,~
-$ SexUnres_2          <dbl> 3, 7, 4, 4, 5, 6, 6, 6, 5, 4, 5, 2, 5, 3, 2, 3, 1,~
-$ SexUnres_3          <dbl> 2, 7, 6, 5, 6, 6, 5, 5, 6, 4, 7, 3, 5, 3, 3, 6, 3,~
-$ SexUnres_4_r        <dbl> 3, 4, 3, 3, 3, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 3, 4,~
-$ SexUnres_5_r        <dbl> 2, 2, 3, 3, 3, 2, 4, 3, 2, 1, 2, 2, 4, 6, 3, 1, 3,~
-$ Impuls_1            <dbl> 3, 6, 3, 4, 5, 5, 5, 6, 6, 1, 6, 2, 4, 7, 5, 4, 5,~
-$ Impuls_2_r          <dbl> 3, 2, 3, 4, 2, 3, 3, 2, 3, 1, 3, 2, 3, 6, 3, 3, 7,~
-$ Impul_3_r           <dbl> 2, 1, 3, 4, 4, 3, 2, 3, 2, 1, 4, 1, 4, 5, 3, 3, 5,~
-$ Opport_1            <dbl> 1, 5, 3, 4, 4, 4, 5, 5, 5, 1, 7, 3, 5, 7, 5, 2, 6,~
-$ Opport_2            <dbl> 2, 7, 5, 4, 6, 3, 5, 4, 4, 4, 6, 4, 6, 5, 2, 3, 4,~
-$ Opport_3            <dbl> 2, 7, 5, 4, 4, 4, 6, 5, 5, 1, 7, 3, 5, 5, 5, 3, 1,~
-$ Opport_4            <dbl> 3, 6, 3, 5, 4, 6, 5, 5, 4, 4, 6, 3, 6, 4, 4, 3, 3,~
-$ Opport_5            <dbl> 1, 6, 3, 4, 5, 4, 6, 6, 4, 1, 6, 3, 6, 5, 5, 4, 6,~
-$ Opport_6_r          <dbl> 3, 2, 3, 4, 3, 3, 2, 2, 3, 2, 1, 3, 1, 6, 4, 3, 4,~
-$ InvEdu_1_r          <dbl> 2, 3, 2, 3, 4, 3, 3, 3, 3, 2, 3, 4, 4, 4, 3, 1, 6,~
-$ InvEdu_2_r          <dbl> 3, 2, 3, 4, 3, 4, 2, 3, 4, 1, 2, 2, 3, 7, 4, 1, 3,~
-$ InvChild_1          <dbl> 2, 5, 6, 5, 5, 5, 6, 5, 6, 1, 5, 2, 4, 4, 5, 2, 6,~
-$ InvChild_2_r        <dbl> 3, 2, 3, 4, 3, 4, 2, 4, 3, 2, 4, 2, 3, 7, 3, 2, 6,~
-$ age                 <dbl> 34, 30, 40, 35, 26, 33, 33, 30, 48, 33, 40, 39, 25~
-$ gender              <dbl> 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1,~
-$ ecology             <chr> "Hopeful", "Desperate", "Desperate", "Hopeful", "D~
-$ duration_in_seconds <dbl> 164, 100, 47, 31, 40, 32, 98, 34, 32, 87, 71, 103,~
-$ attention_1         <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,~
-$ attention_2         <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,~
-\end{CodeOutput}
 \end{CodeChunk}
 
 \subsection{Masking functions}\label{masking-functions}
@@ -314,28 +377,27 @@ same conditions appear in multiple columns.
 \begin{CodeChunk}
 \begin{CodeInput}
 R> df <- data.frame(
-+   pre_condition = c("A", "B", "C", "A"),
-+   post_condition = c("B", "A", "A", "C"),
-+   score = c(1, 2, 3, 4)
++   pre_condition = c("A", "B", "C", "D"),
++   post_condition = c("B", "D", "D", "C"),
++   id = c(1, 2, 3, 4)
 + )
 R> 
 R> mask_variables(df, c("pre_condition", "post_condition"),
 +                                 across_variables = TRUE)
 \end{CodeInput}
 \begin{CodeOutput}
-    pre_condition  post_condition score
-1 masked_group_02 masked_group_03     1
-2 masked_group_03 masked_group_02     2
-3 masked_group_01 masked_group_02     3
-4 masked_group_02 masked_group_01     4
+    pre_condition  post_condition id
+1 masked_group_02 masked_group_04  1
+2 masked_group_04 masked_group_01  2
+3 masked_group_03 masked_group_01  3
+4 masked_group_01 masked_group_03  4
 \end{CodeOutput}
 \end{CodeChunk}
 
 The \texttt{mask\_variables\_rowwise()} function applies consistent
 masking within each row across multiple columns. This is useful in case
 when of categrical data that is repeated across columns, such as
-treatment conditions or item responses. Each row gets its own
-independent mapping of original values to masked labels.
+treatment conditions or item responses.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -351,11 +413,144 @@ R> mask_variables_rowwise(df, starts_with("treat_"))
 \end{CodeInput}
 \begin{CodeOutput}
           treat_1         treat_2         treat_3         treat_4 id
-1 masked_group_02 masked_group_03 masked_group_01 masked_group_01  1
-2 masked_group_03 masked_group_01 masked_group_02 masked_group_02  2
-3 masked_group_01 masked_group_02 masked_group_03 masked_group_03  3
+1 masked_group_03 masked_group_02 masked_group_01 masked_group_01  1
+2 masked_group_02 masked_group_01 masked_group_03 masked_group_03  2
+3 masked_group_01 masked_group_03 masked_group_02 masked_group_02  3
 \end{CodeOutput}
 \end{CodeChunk}
+
+\subsubsection{Masking variable names}\label{masking-variable-names}
+
+The \texttt{mask\_names()} function allows users to rename variables in
+a dataset to anonymous, generic labels. This is especially useful in
+analyses where variable names carry substantive meaning (e.g.,
+questionnaire items, network nodes, test-items), and one wants to
+prevent analysts from recognizing which item is which during
+preprocessing or exploratory phases.
+
+The \texttt{mask\_names()} function takes a data frame and one or more
+variable sets, which can be specified either with tidyselect expressions
+(e.g., \texttt{starts\_with("Q")}) or as character vectors of column
+names. The \texttt{prefix} argument sets the base for the masked names,
+while \texttt{set\_id} allows customizing the identifier for each set;
+if left \texttt{NULL}, letters A, B, C\ldots{} are used automatically.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> williams |> 
++     mask_names(starts_with("Impuls"), prefix = "masked_", set_id = "LH") |> 
++     names()
+\end{CodeInput}
+\begin{CodeOutput}
+ [1] "subject"             "SexUnres_1"          "SexUnres_2"         
+ [4] "SexUnres_3"          "SexUnres_4_r"        "SexUnres_5_r"       
+ [7] "masked_LH_02"        "masked_LH_01"        "Impul_3_r"          
+[10] "Opport_1"            "Opport_2"            "Opport_3"           
+[13] "Opport_4"            "Opport_5"            "Opport_6_r"         
+[16] "InvEdu_1_r"          "InvEdu_2_r"          "InvChild_1"         
+[19] "InvChild_2_r"        "age"                 "gender"             
+[22] "ecology"             "duration_in_seconds" "attention_1"        
+[25] "attention_2"        
+\end{CodeOutput}
+\end{CodeChunk}
+
+By applying \texttt{mask\_names()}, the selected variables will be
+renamed to a pattern such as \texttt{variable\_set\_A\_01},
+\texttt{variable\_set\_A\_02}, etc.---where the letter (e.g., ``A'')
+denotes the first block of masked variables. Because the renaming order
+is randomized, an analyst cannot reliably guess which original variable
+corresponds to which masked label. Below is a minimal example
+illustrating how to use \texttt{mask\_names()} in practice.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> names(williams)
+\end{CodeInput}
+\begin{CodeOutput}
+ [1] "subject"             "SexUnres_1"          "SexUnres_2"         
+ [4] "SexUnres_3"          "SexUnres_4_r"        "SexUnres_5_r"       
+ [7] "Impuls_1"            "Impuls_2_r"          "Impul_3_r"          
+[10] "Opport_1"            "Opport_2"            "Opport_3"           
+[13] "Opport_4"            "Opport_5"            "Opport_6_r"         
+[16] "InvEdu_1_r"          "InvEdu_2_r"          "InvChild_1"         
+[19] "InvChild_2_r"        "age"                 "gender"             
+[22] "ecology"             "duration_in_seconds" "attention_1"        
+[25] "attention_2"        
+\end{CodeOutput}
+\begin{CodeInput}
+R> masked_williams <- 
++     williams |> 
++     mask_names(
++         starts_with("SexUnres"),
++         starts_with("Impuls"),
++         starts_with("Opport"),
++         starts_with("InvEdu"),
++         starts_with("InvChild")
++     )
+R> 
+R> names(masked_williams)
+\end{CodeInput}
+\begin{CodeOutput}
+ [1] "subject"             "variable_set_A_03"   "variable_set_A_04"  
+ [4] "variable_set_A_02"   "variable_set_A_01"   "variable_set_A_05"  
+ [7] "variable_set_B_01"   "variable_set_B_02"   "Impul_3_r"          
+[10] "variable_set_C_01"   "variable_set_C_03"   "variable_set_C_05"  
+[13] "variable_set_C_06"   "variable_set_C_04"   "variable_set_C_02"  
+[16] "variable_set_D_02"   "variable_set_D_01"   "variable_set_E_02"  
+[19] "variable_set_E_01"   "age"                 "gender"             
+[22] "ecology"             "duration_in_seconds" "attention_1"        
+[25] "attention_2"        
+\end{CodeOutput}
+\end{CodeChunk}
+
+Once masked, one can proceed with exploratory analyses (e.g.~factor
+analysis, network analysis) on the masked variables, without knowing
+which original items correspond to which columns. For instance:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> masked_williams |> 
++   select(starts_with("variable_set_")) |> 
++   factanal(factors = 5, rotation = "varimax") |> 
++   loadings() |> 
++   print(cutoff = 0.3, sort = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+
+Loadings:
+                  Factor1 Factor2 Factor3 Factor4 Factor5
+variable_set_A_03  0.606           0.516                 
+variable_set_A_04  0.686                                 
+variable_set_A_02  0.700           0.493                 
+variable_set_B_01  0.761                                 
+variable_set_C_01  0.900                                 
+variable_set_C_03  0.828                                 
+variable_set_C_05  0.842                                 
+variable_set_C_06  0.737                                 
+variable_set_C_04  0.871                                 
+variable_set_E_02  0.778                                 
+variable_set_A_01          0.739   0.303                 
+variable_set_A_05          0.569                   0.394 
+variable_set_B_02          0.864                         
+variable_set_C_02          0.687           0.591         
+variable_set_D_02          0.675                         
+variable_set_D_01          0.838                         
+variable_set_E_01          0.882                         
+
+               Factor1 Factor2 Factor3 Factor4 Factor5
+SS loadings      6.166   4.248   0.813   0.489   0.334
+Proportion Var   0.363   0.250   0.048   0.029   0.020
+Cumulative Var   0.363   0.613   0.660   0.689   0.709
+\end{CodeOutput}
+\end{CodeChunk}
+
+Because the column names are anonymized, any decisions about factor
+inclusion or rotation are made blind to the substantive meaning of
+items, reducing the risk of interpretive bias.
+
+In short, \texttt{mask\_names()} supports naming-based blinding by
+decoupling analysis from semantic content, while preserving the full
+data structure needed for legitimate exploratory workflows.
 
 \subsection{Scrambling functions}\label{scrambling-functions}
 
@@ -375,7 +570,7 @@ R> numbers <- 1:10
 R> scramble_values(numbers)
 \end{CodeInput}
 \begin{CodeOutput}
- [1]  4  1  6  8  7  3 10  2  9  5
+ [1]  7  5  6  9  3  4 10  2  8  1
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -398,12 +593,12 @@ R> scramble_variables(df, c("age", "ecology"))
 # A tibble: 6 x 3
   subject          age ecology  
   <chr>          <dbl> <chr>    
-1 A30MP4LXV4MIFD    34 Desperate
-2 A16X5FB3HAFCKN    40 Desperate
-3 A1E9D1OT9VJYDZ    26 Desperate
-4 A16FPOYD7566WI    33 Hopeful  
+1 A30MP4LXV4MIFD    40 Desperate
+2 A16X5FB3HAFCKN    34 Desperate
+3 A1E9D1OT9VJYDZ    33 Desperate
+4 A16FPOYD7566WI    30 Hopeful  
 5 A11NOTVHWST7Y3    35 Hopeful  
-6 A3TDR6MXS6UO5Z    30 Desperate
+6 A3TDR6MXS6UO5Z    26 Desperate
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -434,11 +629,11 @@ R> scramble_variables(df, starts_with("rel_"), together = TRUE) |>
 \end{CodeInput}
 \begin{CodeOutput}
       subject country     rel_1     rel_2 rel_3
-10530   10530      US 0.0000000 0.0000000   0.5
-10531   10531      US 0.3333333 0.0000000   0.5
+10530   10530      US 0.1666667 0.0000000   0.5
+10531   10531      US 0.0000000 0.2857143   0.5
 10532   10532      US 0.0000000 0.0000000   0.0
-10533   10533      US 0.0000000 0.0000000   0.5
-10534   10534      US 0.0000000 0.8571429   1.0
+10533   10533      US 0.5000000 1.0000000   1.0
+10534   10534      US 0.1666667 0.4285714   0.5
 10535   10535      US 0.0000000 0.0000000   0.5
 \end{CodeOutput}
 \end{CodeChunk}
@@ -455,17 +650,17 @@ R> df |>
 \begin{CodeOutput}
 # A tibble: 10,535 x 5
    subject country   rel_1 rel_2 rel_3
-     <int> <chr>     <dbl> <dbl> <dbl>
- 1      85 Australia 0.667 0       0  
- 2     300 Australia 0     1       0  
- 3     218 Australia 0     0       1  
- 4     168 Australia 0     0.571   1  
- 5     178 Australia 0     1       1  
- 6     102 Australia 0.833 1       1  
- 7     465 Australia 0     0.857   1  
- 8     240 Australia 0     0.429   0.5
- 9     120 Australia 0.833 1       0.5
-10     221 Australia 0.167 0.714   0.5
+     <int> <chr>     <dbl> <dbl> <int>
+ 1       1 Australia 0.857   1     197
+ 2       2 Australia 0.714   1     280
+ 3       3 Australia 1       0.5    99
+ 4       4 Australia 0.857   1     320
+ 5       5 Australia 0.714   0     374
+ 6       6 Australia 0       1     162
+ 7       7 Australia 0.143   1     389
+ 8       8 Australia 1       0.5   175
+ 9       9 Australia 0       0.5   346
+10      10 Australia 0.143   0.5   147
 # i 10,525 more rows
 \end{CodeOutput}
 \end{CodeChunk}
@@ -517,82 +712,6 @@ R> scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
 3     7     8     9      70      80  3
 \end{CodeOutput}
 \end{CodeChunk}
-
-\subsection{Choosing between masking and
-scrambling}\label{choosing-between-masking-and-scrambling}
-
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Aspect & Masking & Scrambling \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\textbf{Original values} & Hidden (replaced) & Preserved (reordered) \\
-\textbf{Distribution} & Same proportion, new labels & Unchanged \\
-\textbf{Best for} & Categorical variables & Numeric or categorical \\
-\textbf{Use case} & Hide treatment conditions & Break correlations \\
-\end{longtable}
-
-Use Masking:
-
-\begin{itemize}
-\tightlist
-\item
-  When you need to hide categorical labels (e.g., treatment conditions,
-  group names)
-\item
-  When analysts should not know the meaning of categories
-\item
-  When you want different prefixes for different variables
-\end{itemize}
-
-Use Scrambling:
-
-\begin{itemize}
-\tightlist
-\item
-  When you want to preserve the original data distribution
-\item
-  When you need to break the association between variables of interest
-  (e.g., treatment and outcome)
-\item
-  When working with numeric data that shouldn't be categorically
-  relabeled
-\end{itemize}
-
-\subsection{Functions}\label{functions}
-
-The \texttt{vazul} package provides a comprehensive toolkit for data
-blinding:
-
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3846}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2692}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3462}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Function
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Level
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Purpose
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{mask\_labels()} & Vector & Replace categorical values with
-anonymous labels \\
-\texttt{mask\_variables()} & Data frame & Mask multiple columns \\
-\texttt{mask\_variables\_rowwise()} & Row-wise & Consistent masking
-within rows \\
-\texttt{scramble\_values()} & Vector & Randomize value order \\
-\texttt{scramble\_variables()} & Data frame & Scramble multiple
-columns \\
-\texttt{scramble\_variables\_rowwise()} & Row-wise & Scramble values
-within rows \\
-\end{longtable}
 
 
 
