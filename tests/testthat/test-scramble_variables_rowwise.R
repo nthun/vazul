@@ -487,8 +487,7 @@ test_that("scramble_variables_rowwise works with multiple tidyselect helpers", {
   expect_equal(result$id, df$id)
 })
 
-test_that("scramble_variables_rowwise provides informative warning for bare
-  column names", {
+test_that("scramble_variables_rowwise warns about single-column sets", {
   df <- data.frame(
     a = c(1, 2, 3),
     b = c(10, 20, 30),

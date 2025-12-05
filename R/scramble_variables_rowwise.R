@@ -50,15 +50,17 @@ scramble_variables_rowwise <- function(data, ...) {
 
     # Warn if only one column (no scrambling possible)
     if (length(col_names) == 1) {
-      warning(
-        "Column '", col_names,
-        "' was passed as a single-column set - ",
-        "rowwise scrambling requires at least 2 columns. ",
-        "To scramble multiple columns together, ",
-        "use c() or tidyselect helpers, e.g., ",
-        "scramble_variables_rowwise(data, c(\"col1\", \"col2\")).",
-        call. = FALSE
+      msg <- sprintf(
+        paste0(
+          "Column '%s' was passed as a single-column set - ",
+          "rowwise scrambling requires at least 2 columns. ",
+          "To scramble multiple columns together, use c() or tidyselect ",
+          "helpers, e.g., scramble_variables_rowwise(data, c(\"col1\", ",
+          "\"col2\"))."
+        ),
+        col_names
       )
+      warning(msg, call. = FALSE)
       return(df)
     }
 
