@@ -58,10 +58,10 @@ if (requireNamespace("dplyr", quietly = TRUE)) {
   # Using bare names (recommended for interactive use)
   williams |> scramble_variables(ecology, age)
   williams |> scramble_variables(1:5)
-  williams |> scramble_variables(ecology, age, .groups = gender)
+  williams |> scramble_variables(ecology, age, .groups = "gender")
   williams |> scramble_variables(c(1, 2), .groups = c(3))
   williams |> scramble_variables(ecology, age, together = TRUE)
-  williams |> scramble_variables(ecology, age, .groups = gender, together = TRUE)
+  williams |> scramble_variables(ecology, age, .groups = "gender", together = TRUE)
 }
 }
 \keyword{functions}
