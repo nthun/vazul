@@ -11,6 +11,7 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
 
 \item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble. Each can be:
 \itemize{
+\item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treat_")})
 \item A character vector of column names (e.g., \code{c("var1", "var2")})
 \item Multiple sets can be provided as separate arguments
@@ -32,6 +33,9 @@ df <- data.frame(x = 1:6, y = letters[1:6], group = c("A", "A", "A", "B", "B", "
 
 set.seed(123)
 # Example without grouping. Variables scrambled across the entire data frame.
+# Using bare names
+df |> scramble_variables(x, y)
+# Or using character vector
 df |> scramble_variables(c("x", "y"))
 
 # Example with together = TRUE. Variables scrambled together as a unit per row.
@@ -51,12 +55,13 @@ df |> scramble_variables(where(is.numeric), .groups = "group")
 # Example with the 'williams' dataset
 if (requireNamespace("dplyr", quietly = TRUE)) {
   data(williams, package = "vazul")
-  williams |> scramble_variables(c("ecology", "age"))
+  # Using bare names (recommended for interactive use)
+  williams |> scramble_variables(ecology, age)
   williams |> scramble_variables(1:5)
-  williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
+  williams |> scramble_variables(ecology, age, .groups = gender)
   williams |> scramble_variables(c(1, 2), .groups = c(3))
-  williams |> scramble_variables(c("ecology", "age"), together = TRUE)
-  williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
+  williams |> scramble_variables(ecology, age, together = TRUE)
+  williams |> scramble_variables(ecology, age, .groups = gender, together = TRUE)
 }
 }
 \keyword{functions}
