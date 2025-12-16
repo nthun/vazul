@@ -5,10 +5,10 @@ author:
     orcid: 00000-0001-5244-0356
     address: |
       | Institute of Psychology,
-      | ELTE Eotvos Lorend University,
+      | ELTE Eötvös Loránd University,
       | Budapest, Hungary
     affiliation: |
-      | ELTE Eotvos Lorend University
+      | ELTE Eötvös Loránd University
     email: \email{nagy.tamas@ppk.elte.hu} \AND
   - name: Alexandra Sarafoglou
     orcid: 0000-0003-0031-685X
@@ -20,17 +20,17 @@ author:
       | University of Amsterdam
     email: \email{a.s.g.sarafoglou@uva.nl} 
 title:
-  formatted: "\\pkg{Vazul}: An R Package for Analysis Blinding"
+  formatted: "\\pkg{vazul}: An R Package for Analysis Blinding"
   # If you use tex in the formatted title, also supply version without
   plain:     "An R Package for Analysis Blinding"
   # For running headers, if needed
-  short:     "\\pkg{Vazul}: A Capitalized Title"
+  short:     "\\pkg{vazul}: An R Package for Analysis Blinding"
 abstract: >
   The abstract of the article.
 keywords:
   # at least one keyword must be supplied
-  formatted: [keywords, not capitalized, "\\proglang{Java}"]
-  plain:     [keywords, not capitalized, Java]
+  formatted: [analysis blinding, R package, bias control]
+  plain:     [analysis blinding, R package, bias control]
 preamble: >
   \usepackage{amsmath}
 output: rticles::jss_article
@@ -56,7 +56,7 @@ Analysis blinding ties in with other methodologies to minimize bias in the resea
 
 Although many blinding techniques are conceptually straightforward, such as scrambling outcome variables or masking variable names and factor labels, their practical implementation can become technically challenging once real research designs and data structures are considered. For instance, in hierarchical models, researchers may need to scramble the outcome variable to destroy the effect of interest while still preserving information within grouping levels, such as country-level means in cross-cultural datasets [e.g., @sarafoglou2023comparing]. Similarly, in repeated-measures designs, condition labels may need to be masked so that each participant’s condition structure is preserved while permuting the mapping of conditions across participants to obscure the true experimental effect. These complexities make manual analysis blinding difficult to carry out consistently and correctly. To lower barriers for data managers and facilitate the broader adoption of analysis blinding in research labs, dedicated software tools, such as \proglang{R} packages, are needed to implement these procedures reliably.
 
-To meet this need, the \pkg{vazul} package in \proglang{R} \url{(https://CRAN.R-project.org/package=vazul)} offers flexible and reproducible tools for implementing analysis blinding. It provides functionality for data scrambling as well as data and variable masking. In the remainder of this article, we introduce the methodology in more detail, describe the functionalities of the \pkg{vazul} package, and illustrate its application through practical examples. We conclude with a brief discussion and outline future directions.
+To meet this need, the \pkg{vazul} package in \proglang{R} \url{(https://CRAN.R-project.org/package=vazul)} offers flexible and reproducible tools for implementing analysis blinding. The package is named after Vazul, a Hungarian prince of the 11th century who was blinded on the orders of King Stephen I of Hungary to render him unfit for the throne. Analogously, analysis blinding temporarily renders data unfit for the (unintentional) exploitation of researcher degrees of freedom. The \proglang{R} package provides functionality for data scrambling as well as data and variable masking. In the remainder of this article, we introduce the methodology in more detail, describe the functionalities of the \pkg{vazul} package, and illustrate its application through practical examples. We conclude with a brief discussion and outline future directions.
 
 ## Analysis Blinding: Safeguarding Against Bias Without Preregistration
 

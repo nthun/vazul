@@ -28,8 +28,8 @@ abstract: >
   The abstract of the article.
 keywords:
   # at least one keyword must be supplied
-  formatted: [keywords, not capitalized, "\\proglang{Java}"]
-  plain:     [keywords, not capitalized, Java]
+  formatted: [analysis blinding, R package, bias control]
+  plain:     [analysis blinding, R package, bias control]
 preamble: >
   \usepackage{amsmath}
 output: rticles::jss_article
@@ -268,6 +268,9 @@ df2 <- data.frame(
 scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
 ```
 
+# Acknowledgements
+
+Tamás Nagy was supported by the University Excellence Fund of Eötvös Loránd University, Budapest, Hungary (ELTE), and the János Bolyai research fellowship of the Hungarian Academy of Sciences. Alexandra Sarafoglou was supported by an 2024 Ammodo Science Award.
 
 
 
