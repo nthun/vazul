@@ -10,7 +10,7 @@
 #' x <- letters[1:10]
 #' scramble_values(x)
 #'
-#'#' # Example with numeric vector
+#' # Example with numeric vector
 #' nums <- 1:5
 #' scramble_values(nums)
 #'

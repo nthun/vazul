@@ -60,8 +60,7 @@ mask_names(df,
 )
 
 # Example with the 'williams' dataset
-library(dplyr)
-
+data(williams)
 set.seed(42)
 
 williams |>
@@ -71,7 +70,7 @@ mask_names(starts_with("SexUnres"),
            starts_with("InvEdu"),
            starts_with("InvChild"),
            ) |>
- glimpse()
+ dplyr::glimpse()
 
 
 }
