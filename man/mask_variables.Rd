@@ -11,6 +11,7 @@ mask_variables(data, ..., across_variables = FALSE)
 
 \item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. Each can be:
 \itemize{
+\item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treat_")})
 \item A character vector of column names (e.g., \code{c("var1", "var2")})
 \item Multiple sets can be provided as separate arguments
@@ -44,6 +45,9 @@ df <- data.frame(
 set.seed(123)
 # Independent masking for each variable (default - uses column names as
 # prefixes)
+# Using bare names
+mask_variables(df, treatment, outcome)
+# Or using character vector
 mask_variables(df, c("treatment", "outcome"))
 
 set.seed(456)
@@ -65,7 +69,8 @@ print(result)
 # Example with williams dataset (multiple categorical columns)
 data(williams)
 set.seed(456)
-williams_masked <- mask_variables(williams, c("subject", "ecology"))
+# Using bare names (recommended for interactive use)
+williams_masked <- mask_variables(williams, subject, ecology)
 head(williams_masked[c("subject", "ecology")])
 
 }
