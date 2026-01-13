@@ -1,5 +1,5 @@
 Package: vazul
-Title: Package for data blinding
+Title: Analysis Blinding Tools
 Version: 0.4.0
 Authors@R: c(
     person(given = "Tamás", 
@@ -18,7 +18,9 @@ Authors@R: c(
            role = c("aut"),
            comment = c(ORCID = "0000-0002-8142-8492"))
            )
-Description: The vazul package provides functions for data blinding.
+Description: Provides tools for analysis blinding in confirmatory research contexts
+  by masking and scrambling test-relevant aspects of data. Vector-, data frame-, and
+  row-wise operations support blinding for hierarchical and repeated-measures designs.
 License: MIT + file LICENSE
 URL: https://nthun.github.io/vazul/
 BugReports: https://github.com/nthun/vazul/issues
@@ -28,7 +30,8 @@ Imports:
     dplyr,
     lifecycle,
     rlang,
-    tidyselect
+    tidyselect,
+    stats
 Suggests: 
     testthat,
     covr,

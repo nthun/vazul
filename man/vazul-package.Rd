@@ -4,11 +4,11 @@
 \name{vazul-package}
 \alias{vazul}
 \alias{vazul-package}
-\title{vazul: Package for data blinding}
+\title{vazul: Analysis Blinding Tools}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-The vazul package provides functions for data blinding.
+Provides tools for analysis blinding in confirmatory research contexts by masking and scrambling test-relevant aspects of data. Vector-, data frame-, and row-wise operations support blinding for hierarchical and repeated-measures designs.
 }
 \seealso{
 Useful links:

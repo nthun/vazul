@@ -48,8 +48,7 @@
 #' )
 #'
 #' # Example with the 'williams' dataset
-#' library(dplyr)
-#'
+#' data(williams)
 #' set.seed(42)
 #'
 #' williams |>
@@ -59,7 +58,7 @@
 #'            starts_with("InvEdu"),
 #'            starts_with("InvChild"),
 #'            ) |>
-#'  glimpse()
+#'  dplyr::glimpse()
 #'
 #'
 #' @export
