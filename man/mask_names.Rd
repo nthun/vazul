@@ -70,7 +70,7 @@ mask_names(starts_with("SexUnres"),
            starts_with("InvEdu"),
            starts_with("InvChild"),
            ) |>
- dplyr::glimpse()
+ colnames()
 
 
 }
