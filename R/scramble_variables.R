@@ -1,7 +1,8 @@
 #' Scrambling the content of several variables in a data frame
 #'
-#' Scramble the values of several variables in a data frame.
-#' @keywords functions
+#' Scramble the values of several selected variables in a data frame simultaneously. 
+#'   Supports independent scrambling, joint scrambling, and within-group scrambling.
+#' @keywords scramble functions
 #' @param data a data frame
 #' @param ... <tidy-select> Columns to scramble. Each can be:
 #'   \itemize{
@@ -9,14 +10,22 @@
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'     \item Multiple sets can be provided as separate arguments
 #'   }
-#' @param together logical. If TRUE, variables are scrambled together as a unit per row. Values across different variables are kept intact but assigned to different rows. If FALSE (default), each variable is scrambled independently.
-#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. Supports same tidyselect syntax as column selection.
+#' @param together logical. If `TRUE`, variables are scrambled together as a unit per row.
+#'   Values across different variables are kept intact but assigned to different rows.
+#'   If `FALSE` (default), each variable is scrambled independently.
+#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group. 
+#'   Supports the same tidyselect syntax as column selection.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
+#' 
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector, 
 #'
 #' @examples
-#'
-#' df <- data.frame(x = 1:6, y = letters[1:6], group = c("A", "A", "A", "B", "B", "B"))
+#' df <- data.frame(
+#'   x = 1:6,
+#'   y = letters[1:6],
+#'   group = c("A", "A", "A", "B", "B", "B")
+#' )
 #'
 #' set.seed(123)
 #' # Example without grouping. Variables scrambled across the entire data frame.
@@ -37,17 +46,15 @@
 #' df |> scramble_variables(where(is.numeric), .groups = "group")
 #'
 #' # Example with the 'williams' dataset
-#' if (requireNamespace("dplyr", quietly = TRUE)) {
-#'   data(williams, package = "vazul")
-#'   williams |> scramble_variables(c("ecology", "age"))
-#'   williams |> scramble_variables(1:5)
-#'   williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
-#'   williams |> scramble_variables(c(1, 2), .groups = c(3))
-#'   williams |> scramble_variables(c("ecology", "age"), together = TRUE)
-#'   williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
-#' }
+#' data(williams)
+#' williams |> scramble_variables(c("ecology", "age"))
+#' williams |> scramble_variables(1:5)
+#' williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
+#' williams |> scramble_variables(c(1, 2), .groups = 3)
+#' williams |> scramble_variables(c("ecology", "age"), together = TRUE)
+#' williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
+#' 
 #' @export
-#'
 scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
 
     # Input validation
