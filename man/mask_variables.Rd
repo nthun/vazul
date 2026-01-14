@@ -74,4 +74,9 @@ williams_masked <- mask_variables(williams, subject, ecology)
 head(williams_masked[c("subject", "ecology")])
 
 }
-\keyword{functions}
+\seealso{
+\code{\link{mask_labels}} for masking a single vector,
+\code{\link{mask_variables_rowwise}} for rowwise masking, and
+\code{\link{mask_names}} for masking variable names.
+}
+\keyword{mask}

@@ -49,4 +49,8 @@ df |>
   scramble_variables_rowwise(c("score_a", "score_b"))
 
 }
-\keyword{functions}
+\seealso{
+\code{\link{scramble_values}} for scrambling a single vector, and
+\code{\link{scramble_variables}} for scrambling multiple variables.
+}
+\keyword{scramble}

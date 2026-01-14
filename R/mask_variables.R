@@ -4,7 +4,7 @@
 #' the \code{mask_labels()} function. Each variable gets independent random
 #' masked labels by default, or can optionally use the same masked labels
 #' across all selected variables.
-#' @keywords functions
+#' @keywords mask
 #' @param data a data frame
 #' @param ... <tidy-select> Columns to mask. Each can be:
 #'   \itemize{
@@ -21,7 +21,11 @@
 #'
 #' @return A data frame with the specified categorical columns masked.
 #'   Only character and factor columns can be processed.
-#'
+#' 
+#' @seealso \code{\link{mask_labels}} for masking a single vector, 
+#' \code{\link{mask_variables_rowwise}} for rowwise masking, and 
+#' \code{\link{mask_names}} for masking variable names.
+#' 
 #' @examples
 #'
 #' # Create example data
@@ -66,8 +70,6 @@
 mask_variables <- function(data, ..., across_variables = FALSE) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
-
-  # Validate across_variables parameter
   validate_logical_parameter(across_variables, "across_variables")
 
   # Capture all ... arguments as quosures

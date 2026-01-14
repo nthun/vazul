@@ -3,7 +3,7 @@
 #' For each row, independently mask labels within the selected columns.
 #' All selected columns are combined into a single set and processed together.
 #' To mask different variable groups separately, call the function multiple times.
-#' @keywords functions
+#' @keywords mask
 #' @param data A data frame.
 #' @param ... <tidy-select> Columns to mask. All arguments are combined into
 #'   a single set. Each can be:
@@ -15,7 +15,11 @@
 #' @param prefix character string to use as prefix for masked labels.
 #'   Default is "masked_group_"
 #' @return A data frame with labels masked rowwise within the selected columns.
-#'
+#' 
+#' @seealso \code{\link{mask_labels}} for masking a single vector, 
+#' \code{\link{mask_variables}} for masking multiple variables, and 
+#' \code{\link{mask_names}} for masking variable names.
+#' 
 #' @examples
 #' df <- data.frame(
 #'   treat_1 = c("control", "treatment", "placebo"),
@@ -44,7 +48,6 @@
 #' 
 #' @export
 mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
-  # Input validation
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
   validate_prefix(prefix)

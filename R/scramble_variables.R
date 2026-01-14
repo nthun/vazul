@@ -2,7 +2,7 @@
 #'
 #' Scramble the values of several selected variables in a data frame simultaneously. 
 #'   Supports independent scrambling, joint scrambling, and within-group scrambling.
-#' @keywords scramble functions
+#' @keywords scramble
 #' @param data a data frame
 #' @param ... <tidy-select> Columns to scramble. Each can be:
 #'   \itemize{
@@ -19,7 +19,8 @@
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #' 
-#' @seealso \code{\link{scramble_values}} for scrambling a single vector, 
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and 
+#' \code{\link{scramble_variables_rowwise}} for rowwise scrambling.
 #'
 #' @examples
 #' df <- data.frame(
@@ -60,91 +61,89 @@
 #' 
 #' @export
 scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
+  validate_data_frame(data)
+  validate_data_frame_not_empty(data)
+  validate_logical_parameter(together, "together")
 
-    # Input validation
-    validate_data_frame(data)
-    validate_data_frame_not_empty(data)
-    validate_logical_parameter(together, "together")
+  # Capture all ... arguments as quosures
+  column_sets <- rlang::enquos(...)
 
-    # Capture all ... arguments as quosures
-    column_sets <- rlang::enquos(...)
+  # Resolve column names from ... arguments
+  all_col_names <- resolve_all_column_sets(column_sets, data)
 
-    # Resolve column names from ... arguments
-    all_col_names <- resolve_all_column_sets(column_sets, data)
+  if (!validate_column_selection_not_empty(all_col_names)) {
+    return(data)
+  }
 
-    if (!validate_column_selection_not_empty(all_col_names)) {
-        return(data)
-    }
+  # Get column indices from resolved names
+  col_indices <- match(all_col_names, names(data))
 
-    # Get column indices from resolved names
-    col_indices <- match(all_col_names, names(data))
+  # Capture original column order
+  orig_order <- names(data)
 
-    # Capture original column order
-    orig_order <- names(data)
+  # Handle group selection similarly if provided
+  if (!is.null(.groups)) {
+    group_indices <- tidyselect::eval_select(rlang::enquo(.groups), data)
+  } else {
+    group_indices <- NULL
+  }
 
-    # Handle group selection similarly if provided
-    if (!is.null(.groups)) {
-        group_indices <- tidyselect::eval_select(rlang::enquo(.groups), data)
+  # Perform scrambling
+  if (!is.null(group_indices)) {
+    # Extract group column names
+    group_cols <- names(data)[group_indices]
+
+    # Add original row order as a column to restore later
+    data <- dplyr::mutate(data, .row_id = dplyr::row_number())
+
+    if (together) {
+      # Group by the specified columns and scramble row order within each group
+      data <- data |>
+        dplyr::group_by(!!!rlang::syms(group_cols)) |>
+        dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>
+        dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(col_indices),
+                                    .fns = ~ .x[.scrambled_rows]
+        )) |>
+        dplyr::select(-.scrambled_rows) |>
+        dplyr::ungroup()
     } else {
-        group_indices <- NULL
+      # Group by the specified columns and scramble selected columns within each group
+      data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
+        dplyr::mutate(
+          dplyr::across(.cols = tidyselect::all_of(col_indices),
+                        .fns = ~ scramble_values(.x)
+          )
+        ) |>
+        dplyr::ungroup()
     }
 
-    # Perform scrambling
-    if (!is.null(group_indices)) {
-        # Extract group column names
-        group_cols <- names(data)[group_indices]
-
-        # Add original row order as a column to restore later
-        data <- dplyr::mutate(data, .row_id = dplyr::row_number())
-
-        if (together) {
-            # Group by the specified columns and scramble row order within each group
-            data <- data |>
-                dplyr::group_by(!!!rlang::syms(group_cols)) |>
-                dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>
-                dplyr::mutate(dplyr::across(.cols = tidyselect::all_of(col_indices),
-                                            .fns = ~ .x[.scrambled_rows]
-                )) |>
-                dplyr::select(-.scrambled_rows) |>
-                dplyr::ungroup()
-        } else {
-            # Group by the specified columns and scramble selected columns within each group
-            data <- dplyr::group_by(data, !!!rlang::syms(group_cols)) |>
-                dplyr::mutate(
-                    dplyr::across(.cols = tidyselect::all_of(col_indices),
-                                  .fns = ~ scramble_values(.x)
-                    )
-                ) |>
-                dplyr::ungroup()
-        }
-
-        # Restore original row order using .row_id, then drop it
-        data <- dplyr::arrange(data, .row_id) |>
-            dplyr::select(-.row_id)
+    # Restore original row order using .row_id, then drop it
+    data <- dplyr::arrange(data, .row_id) |>
+      dplyr::select(-.row_id)
+  } else {
+    if (together) {
+      # Non-grouped case with together: scramble row order
+      scrambled_indices <- scramble_values(seq_len(nrow(data)))
+      # Re-assign the selected columns based on scrambled row indices
+      data <- dplyr::mutate(
+        data,
+        dplyr::across(
+          .cols = tidyselect::all_of(col_indices),
+          .fns = ~ .x[scrambled_indices]
+        )
+      )
     } else {
-        if (together) {
-            # Non-grouped case with together: scramble row order
-            scrambled_indices <- scramble_values(seq_len(nrow(data)))
-            # Re-assign the selected columns based on scrambled row indices
-            data <- dplyr::mutate(
-                data,
-                dplyr::across(
-                    .cols = tidyselect::all_of(col_indices),
-                    .fns = ~ .x[scrambled_indices]
-                )
-            )
-        } else {
-            # Non-grouped case: directly scramble selected columns
-            data <- dplyr::mutate(
-                data,
-                dplyr::across(
-                    .cols = tidyselect::all_of(col_indices),
-                    .fns = ~ scramble_values(.x)
-                )
-            )
-        }
+      # Non-grouped case: directly scramble selected columns
+      data <- dplyr::mutate(
+        data,
+        dplyr::across(
+          .cols = tidyselect::all_of(col_indices),
+          .fns = ~ scramble_values(.x)
+        )
+      )
     }
+  }
 
-    # Return modified data
-    data
+  # Return modified data
+  return(data)
 }

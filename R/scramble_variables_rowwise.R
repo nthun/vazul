@@ -3,7 +3,7 @@
 #' For each row, independently shuffle values within the selected columns.
 #' All selected columns are combined into a single set and processed together.
 #' To scramble different variable groups separately, call the function multiple times.
-#' @keywords functions
+#' @keywords scramble
 #' @param data A data frame.
 #' @param ... <tidy-select> Columns to scramble. All arguments are combined into
 #'   a single set. Each can be:
@@ -13,7 +13,10 @@
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'   }
 #' @return A data frame with values scrambled rowwise within the selected columns.
-#'
+#' 
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and 
+#' \code{\link{scramble_variables}} for scrambling multiple variables.
+#' 
 #' @examples
 #' df <- data.frame(
 #'   day_1 = c(1, 4, 7),
@@ -39,7 +42,6 @@
 #' 
 #' @export
 scramble_variables_rowwise <- function(data, ...) {
-  # Input validation
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
 

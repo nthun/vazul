@@ -4,7 +4,7 @@
 #' All selected variables are combined into a single set and renamed with
 #' a common prefix. To mask different variable groups with different prefixes,
 #' call the function separately for each group.
-#' @keywords functions
+#' @keywords mask
 #' @param data A data frame.
 #' @param ... <tidy-select> Columns to mask. All arguments are combined into
 #'   a single set. Each can be:
@@ -19,7 +19,11 @@
 #'   The prefix is used as-is, so include a separator (e.g., underscore) if desired.
 #'
 #' @return A data frame with the specified variables renamed to masked names.
-#'
+#' 
+#' @seealso \code{\link{mask_labels}} for masking values in a vector, 
+#' \code{\link{mask_variables}} for masking values in multiple variables, and 
+#' \code{\link{mask_variables_rowwise}} for rowwise value masking.
+#' 
 #' @examples
 #' df <- data.frame(
 #'   treat_1 = c(1, 2, 3),
@@ -55,7 +59,6 @@ mask_names <- function(data, ..., prefix) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
 
-  # Validate prefix parameter
   if (missing(prefix)) {
     stop("Parameter 'prefix' is required. Please provide a character string ",
          "to use as the prefix for masked names.", call. = FALSE)

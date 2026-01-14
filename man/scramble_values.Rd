@@ -36,4 +36,8 @@ williams$ecology_scrambled <- scramble_values(williams$ecology)
 head(williams[c("ecology", "ecology_scrambled")])
 
 }
-\keyword{functions}
+\seealso{
+\code{\link{scramble_variables}} for scrambling multiple variables in a data frame, and
+\code{\link{scramble_variables_rowwise}} for rowwise scrambling.
+}
+\keyword{scramble}

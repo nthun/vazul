@@ -5,11 +5,16 @@
 #' allocation or categorical outcomes. Each unique original value gets a random
 #' new label, and the assignment order is randomized to prevent correspondence
 #' with the original order.
-#' @keywords functions
+#' @keywords mask
 #' @param x a character or factor vector
 #' @param prefix character string to use as prefix for masked labels.
 #'   Default is "masked_group_"
 #' @return a vector of the same type as input with masked labels
+#' 
+#' @seealso \code{\link{mask_variables}} for masking multiple variables in a data frame, 
+#' \code{\link{mask_variables_rowwise}} for rowwise masking, and 
+#' \code{\link{mask_names}} for masking variable names.
+#' 
 #' @examples
 #'
 #' # Example with character vector
@@ -35,11 +40,8 @@
 #'
 #' @export
 mask_labels <- function(x, prefix = "masked_group_") {
-  # Input validation
   validate_vector(x)
   validate_vector_categorical(x)
-
-  # Validate prefix parameter
   validate_prefix(prefix)
 
   # Get unique values from the input

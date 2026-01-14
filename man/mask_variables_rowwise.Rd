@@ -55,4 +55,9 @@ df |>
 df |> mask_variables_rowwise(starts_with("treat_"), prefix = "group_")
 
 }
-\keyword{functions}
+\seealso{
+\code{\link{mask_labels}} for masking a single vector,
+\code{\link{mask_variables}} for masking multiple variables, and
+\code{\link{mask_names}} for masking variable names.
+}
+\keyword{mask}

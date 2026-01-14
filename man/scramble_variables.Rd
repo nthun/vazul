@@ -70,7 +70,7 @@ williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together
 
 }
 \seealso{
-\code{\link{scramble_values}} for scrambling a single vector,
+\code{\link{scramble_values}} for scrambling a single vector, and
+\code{\link{scramble_variables_rowwise}} for rowwise scrambling.
 }
-\keyword{functions}
 \keyword{scramble}
