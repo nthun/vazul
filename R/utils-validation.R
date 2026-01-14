@@ -88,7 +88,8 @@ validate_vector_categorical <- function(x) {
 #' Validate prefix parameter
 #'
 #' Internal helper function for validating prefix parameter.
-#' Checks that prefix is not NULL, is character, and has length 1.
+#' Checks that prefix is not NULL, is character, has length 1, and is not
+#' an empty string.
 #'
 #' @param prefix The prefix to validate.
 #' @return NULL (invisibly). Throws an error if validation fails.
@@ -103,6 +104,11 @@ validate_prefix <- function(prefix) {
   if (!is.character(prefix) || length(prefix) != 1) {
     stop("Parameter 'prefix' must be a single character string.",
          call. = FALSE)
+  }
+
+  if (nchar(prefix) == 0) {
+    stop("Parameter 'prefix' cannot be an empty string. Please provide a ",
+         "non-empty character string.", call. = FALSE)
   }
 
   invisible(NULL)

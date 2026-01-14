@@ -183,6 +183,14 @@ test_that("mask_labels validates prefix parameter correctly", {
     "Parameter 'prefix' must be a single character string.",
     fixed = TRUE
   )
+
+  # Test empty string prefix
+  expect_error(
+    mask_labels(x, prefix = ""),
+    "Parameter 'prefix' cannot be an empty string. Please provide a ",
+    "non-empty character string.",
+    fixed = TRUE
+  )
 })
 
 test_that("mask_labels preserves factor levels correctly", {

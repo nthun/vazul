@@ -149,6 +149,14 @@ test_that("mask_names validates parameters correctly", {
     "Parameter 'prefix' must be a single character string"
   )
 
+  # Test empty string prefix
+  expect_error(
+    mask_names(df, c("var1"), prefix = ""),
+    "Parameter 'prefix' cannot be an empty string. Please provide a ",
+    "non-empty character string.",
+    fixed = TRUE
+  )
+
   # Test wrong length set_id
   expect_error(
     mask_names(df, c("var1"), c("var1"), set_id = c("A")),  # 2 sets, 1 set_id
