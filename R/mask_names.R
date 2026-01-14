@@ -1,21 +1,22 @@
 #' Mask variable names with anonymous labels
 #'
-#' Assigns new masked names to groups of variables in a data frame.
-#' Each group of variables gets its own prefix for the masked names,
-#' such as "variable_set_A_01", "variable_set_B_01", etc.
-#' The function ensures no name collisions occur with existing column names.
+#' Assigns new masked names to selected variables in a data frame.
+#' All selected variables are combined into a single set and renamed with
+#' a common prefix. To mask different variable groups with different prefixes,
+#' call the function separately for each group.
 #' @keywords functions
-#' @param data a data frame
-#' @param ... <tidy-select> One or more variable sets. Each can be:
+#' @param data A data frame.
+#' @param ... <tidy-select> Columns to mask. All arguments are combined into
+#'   a single set. Each can be:
 #'   \itemize{
+#'     \item Bare column names (e.g., \code{var1, var2})
 #'     \item A tidyselect expression (e.g., \code{starts_with("treatment_")})
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
-#'     \item Multiple sets can be provided as separate arguments
 #'   }
-#' @param prefix character string to use as base prefix for masked names.
-#'   Default is "variable_set_"
-#' @param set_id character string to append to prefix for each variable set.
-#'   If NULL (default), uses letters A, B, C, etc. for each set.
+#' @param set_id character string to use as prefix for masked names.
+#'   This becomes the base prefix, with numeric suffixes appended (e.g., 
+#'   \code{set_id = "treatment_"} produces "treatment_01", "treatment_02", etc.).
+#'   The prefix is used as-is, so include a separator (e.g., underscore) if desired.
 #'
 #' @return A data frame with the specified variables renamed to masked names.
 #'
@@ -28,197 +29,86 @@
 #'   id = 1:3
 #' )
 #'
-#' # Mask two variable sets with default prefixes
-#' mask_names(df,
-#'   starts_with("treat_"),
-#'   starts_with("outcome_")
-#' )
+#' # Mask one set of variables
+#' library(dplyr)
+#' mask_names(df, starts_with("treat_"), set_id = "treatment_")
 #'
 #' # Using character vectors
-#' mask_names(df,
-#'   c("treat_1", "treat_2"),
-#'   c("outcome_a", "outcome_b")
-#' )
+#' mask_names(df, c("treat_1", "treat_2"), set_id = "treatment_")
 #'
-#' # Custom set_id
-#' mask_names(df,
-#'   starts_with("treat_"),
-#'   starts_with("outcome_"),
-#'   set_id = c("treatment", "outcome")
-#' )
+#' # Mask multiple sets separately
+#' df |>
+#'   mask_names(starts_with("treat_"), set_id = "treatment_") |>
+#'   mask_names(starts_with("outcome_"), set_id = "outcome_")
 #'
 #' # Example with the 'williams' dataset
 #' data(williams)
 #' set.seed(42)
 #'
 #' williams |>
-#' mask_names(starts_with("SexUnres"),
-#'            starts_with("Impul"),
-#'            starts_with("Opport"),
-#'            starts_with("InvEdu"),
-#'            starts_with("InvChild"),
-#'            ) |>
-#'  colnames()
+#'   mask_names(starts_with("SexUnres"), set_id = "A_") |>
+#'   mask_names(starts_with("Impul"), set_id = "B_") |>
+#'   colnames()
 #'
 #'
 #' @export
-mask_names <- function(data, ..., prefix = "variable_set_", set_id = NULL) {
-  stopifnot(is.data.frame(data))
+mask_names <- function(data, ..., set_id) {
+  validate_data_frame(data)
+
+  # Validate set_id parameter
+  if (missing(set_id)) {
+    stop("Parameter 'set_id' is required. Please provide a character string ",
+         "to use as the prefix for masked names.", call. = FALSE)
+  }
+
+  if (is.null(set_id)) {
+    stop("Parameter 'set_id' cannot be NULL. Please provide a character ",
+         "string to use as the prefix for masked names.", call. = FALSE)
+  }
+
+  if (!is.character(set_id) || length(set_id) != 1) {
+    stop("Parameter 'set_id' must be a single character string.",
+         call. = FALSE)
+  }
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
 
-  # If no sets provided, return data unchanged
-  if (length(column_sets) == 0) {
-    warning("No variable sets provided. Returning data unchanged.",
+  # Resolve all column sets to column names (combined sets)
+  all_col_names <- resolve_all_column_sets(column_sets, data)
+
+  if (length(all_col_names) == 0) {
+    warning("No columns selected. Returning original data unchanged.",
             call. = FALSE)
     return(data)
   }
 
-  # Validate prefix parameter
-  if (is.null(prefix)) {
-    stop("Parameter 'prefix' cannot be NULL. Please provide a ",
-         "character string.", call. = FALSE)
-  }
+  # Create masked names using mask_labels() with set_id as prefix
+  # Use set_id directly as prefix (no normalization)
+  prefix <- set_id
+  masked_names <- mask_labels(all_col_names, prefix = prefix)
 
-  if (!is.character(prefix) || length(prefix) != 1) {
-    stop("Parameter 'prefix' must be a single character string.",
-         call. = FALSE)
-  }
-
-  # Validate set_id parameter if provided
-  if (!is.null(set_id)) {
-    if (!is.character(set_id)) {
-      stop("Parameter 'set_id' must be a character vector or NULL.",
-           call. = FALSE)
-    }
-    if (length(set_id) != length(column_sets)) {
-      stop("If 'set_id' is provided, it must have the same length as ",
-           "the number of variable sets.", call. = FALSE)
-    }
-  }
-
-  # Helper function to resolve one column set and generate masked names
-  resolve_and_mask_set <- function(set_quo, set_index) {
-    # First, resolve the column names from the quosure
-    selected_cols <- NULL
-
-    # Try evaluating as character vector first
-    try_char <- tryCatch(
-      expr = {
-        set <- rlang::eval_tidy(set_quo, data = data)
-        if (is.character(set)) {
-          missing <- setdiff(set, names(data))
-          if (length(missing) > 0) {
-              warning("Some column names not found: ",
-                      paste(missing, collapse = ", "), call. = FALSE)
-              set <- intersect(set, names(data))
-              if (length(set) == 0) {
-                  return(NULL)
-              }
-          }
-          set  # Return the character vector
-        } else {
-          # Not character — return NULL to try tidyselect
-          NULL
-        }
-      },
-      error = function(e) {
-        # Not a character vector — return NULL to try tidyselect
-        NULL
-      }
-    )
-
-    if (!is.null(try_char)) {
-      selected_cols <- try_char
-    } else {
-      # If not character, treat as tidyselect expression
-      if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
-        selected <- tryCatch(
-          tidyselect::eval_select(set_quo, data),
-          error = function(e) {
-            warning("Failed to evaluate variable set: ",
-                    conditionMessage(e), call. = FALSE)
-            return(integer(0))
-          }
-        )
-        if (length(selected) == 0) {
-          return(NULL)
-        }
-        selected_cols <- names(data)[selected]
-      } else {
-        warning("Each variable set must be a character vector or ",
-                "tidyselect expression.", call. = FALSE)
-        return(NULL)
-      }
-    }
-
-    if (is.null(selected_cols) || length(selected_cols) == 0) {
-      return(NULL)
-    }
-
-    # Generate set identifier for this set
-    if (is.null(set_id)) {
-        if (set_index > 26) {
-            stop("Cannot generate more than 26 default set IDs. Please provide 'set_id'.",
-                 call. = FALSE)
-        }
-        set_identifier <- LETTERS[set_index]
-    } else {
-        set_identifier <- set_id[set_index]
-    }
-
-    # Create masked names using mask_labels() with set-specific prefix
-    set_prefix <- paste0(prefix, set_identifier, "_")
-    masked_names <- mask_labels(selected_cols, prefix = set_prefix)
-
-    # Return mapping from original to masked names
-    stats::setNames(masked_names, selected_cols)
-  }
-
-  # Apply to each set and collect all name mappings
-  all_mappings <- Map(resolve_and_mask_set, column_sets, seq_along(column_sets))
-  all_mappings <- Filter(Negate(is.null), all_mappings)
-
-  # If no valid sets were processed, return original data
-  if (length(all_mappings) == 0) {
-    warning("No valid variable sets found. Returning data unchanged.",
-            call. = FALSE)
-    return(data)
-  }
-
-  # Check for overlapping columns between sets
-  all_cols <- unlist(lapply(all_mappings, names), use.names = FALSE)
-  if (any(duplicated(all_cols))) {
-      duplicates <- unique(all_cols[duplicated(all_cols)])
-      stop("The following columns were found in multiple variable sets: ",
-           paste(duplicates, collapse = ", "),
-           ". Each column can only belong to one set.", call. = FALSE)
-  }
-
-  # Combine all mappings into a single named vector
-  final_mapping <- unlist(all_mappings, use.names = TRUE)
-
-  # Check for name collisions with existing column names
-  new_names <- as.character(final_mapping)
-  existing_names <- setdiff(names(data), names(final_mapping))
-  name_collisions <- intersect(new_names, existing_names)
+  # Check for name collisions early (before creating mapping)
+  existing_names <- setdiff(names(data), all_col_names)
+  name_collisions <- intersect(masked_names, existing_names)
 
   if (length(name_collisions) > 0) {
     stop("Name collision detected. The following masked names already ",
          "exist in the data: ", paste(name_collisions, collapse = ", "),
-         ". Please use different prefixes or suffixes.", call. = FALSE)
+         ". Please use a different 'set_id'.", call. = FALSE)
   }
 
-  # Check for duplicate masked names across different sets
-  if (length(new_names) != length(unique(new_names))) {
-    duplicates <- new_names[duplicated(new_names)]
-    stop("Duplicate masked names generated: ",
-         paste(unique(duplicates), collapse = ", "),
-         ". This can occur if 'set_id' contains duplicate values. ",
-         "Please provide unique set identifiers for each variable set.",
-         call. = FALSE)
+  # Warn if masked names share prefix with existing columns (potential confusion)
+  existing_with_same_prefix <- existing_names[startsWith(existing_names, prefix)]
+  if (length(existing_with_same_prefix) > 0) {
+    warning("Masked names use prefix '", prefix, "' which matches existing ",
+            "column(s): ", paste(existing_with_same_prefix, collapse = ", "),
+            ". This may cause confusion. Consider using a different 'set_id'.",
+            call. = FALSE)
   }
+
+  # Create mapping from original to masked names
+  final_mapping <- stats::setNames(masked_names, all_col_names)
 
   # Apply the name changes to the data frame
   result <- data
