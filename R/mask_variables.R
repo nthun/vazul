@@ -68,50 +68,20 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   validate_data_frame_not_empty(data)
 
   # Validate across_variables parameter
-  if (is.null(across_variables)) {
-    stop("Parameter 'across_variables' cannot be NULL. ",
-         "Please provide a logical value.", call. = FALSE)
-  }
-
-  if (!is.logical(across_variables) || length(across_variables) != 1) {
-    stop("Parameter 'across_variables' must be a single logical value ",
-         "(TRUE or FALSE).", call. = FALSE)
-  }
+  validate_logical_parameter(across_variables, "across_variables")
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
 
-  # If no sets provided, return data unchanged
-  if (length(column_sets) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
-    return(data)
-  }
-
   # Resolve all column sets to column names
   all_col_names <- resolve_all_column_sets(column_sets, data)
 
-  if (length(all_col_names) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 
   # Validate that all selected columns are categorical
-  is_categorical <- vapply(data[all_col_names], function(x) {
-    is.character(x) || is.factor(x)
-  }, logical(1))
-
-  non_categorical_cols <- all_col_names[!is_categorical]
-
-  # Error if non-categorical columns are selected
-  if (length(non_categorical_cols) > 0) {
-    stop(
-      "The following selected columns are not character or factor: ",
-      paste(non_categorical_cols, collapse = ", "),
-      ". Only character and factor columns can be masked.", call. = FALSE
-    )
-  }
+  validate_columns_categorical(data, all_col_names)
 
   categorical_cols <- all_col_names
 

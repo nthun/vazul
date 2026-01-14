@@ -24,23 +24,8 @@
 #'
 #' @export
 scramble_values <- function(x) {
-    # Input validation - check if x is a vector
-    if (is.null(x)) {
-        stop("Input 'x' cannot be NULL. Please provide a vector.", call. = FALSE)
-    }
-
-    if (!is.atomic(x) && !is.list(x)) {
-        stop("Input 'x' must be an atomic vector or list. Received object of class: ",
-             paste(class(x), collapse = ", "), ".", call. = FALSE)
-    }
-    if (is.matrix(x) || is.data.frame(x)) {
-        stop("Input 'x' must be a 1-dimensional vector. Received object of class: ",
-             paste(class(x), collapse = ", "), ".", call. = FALSE)
-    }
-
-    if (length(x) == 0) {
-        stop("Input 'x' cannot be an empty vector. Please provide a vector with at least one element.", call. = FALSE)
-    }
+    # Input validation
+    validate_vector(x)
 
     # Handle the special case where length(x) == 1
     # This prevents R's sample() from treating a single integer as 1:x

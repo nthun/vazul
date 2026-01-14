@@ -63,23 +63,16 @@ scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
 
     # Input validation
     validate_data_frame(data)
+    validate_data_frame_not_empty(data)
+    validate_logical_parameter(together, "together")
 
     # Capture all ... arguments as quosures
     column_sets <- rlang::enquos(...)
 
-    # If no sets provided, return data unchanged with warning
-    if (length(column_sets) == 0) {
-        warning("No columns selected. Returning original data unchanged.",
-                call. = FALSE)
-        return(data)
-    }
-
     # Resolve column names from ... arguments
     all_col_names <- resolve_all_column_sets(column_sets, data)
 
-    if (length(all_col_names) == 0) {
-        warning("No columns selected. Returning original data unchanged.",
-                call. = FALSE)
+    if (!validate_column_selection_not_empty(all_col_names)) {
         return(data)
     }
 

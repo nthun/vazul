@@ -39,7 +39,9 @@
 #' 
 #' @export
 scramble_variables_rowwise <- function(data, ...) {
+  # Input validation
   validate_data_frame(data)
+  validate_data_frame_not_empty(data)
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -47,9 +49,7 @@ scramble_variables_rowwise <- function(data, ...) {
   # Resolve all column sets to column names (combined sets)
   all_col_names <- resolve_all_column_sets(column_sets, data)
 
-  if (length(all_col_names) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 

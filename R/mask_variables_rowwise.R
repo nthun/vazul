@@ -44,7 +44,10 @@
 #' 
 #' @export
 mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
+  # Input validation
   validate_data_frame(data)
+  validate_data_frame_not_empty(data)
+  validate_prefix(prefix)
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -52,23 +55,12 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
   # Resolve all column sets to column names (combined sets)
   all_col_names <- resolve_all_column_sets(column_sets, data)
 
-  if (length(all_col_names) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 
   # Check that all selected columns are character or factor
-  col_types <- vapply(data[all_col_names], function(x) {
-    is.character(x) || is.factor(x)
-  }, logical(1))
-
-  if (!all(col_types)) {
-    invalid_cols <- all_col_names[!col_types]
-    stop("All selected columns must be character or factor vectors. ",
-         "Invalid columns: ", paste(invalid_cols, collapse = ", "),
-         call. = FALSE)
-  }
+  validate_columns_categorical(data, all_col_names)
 
   # Get all unique values across all selected columns to create consistent mapping
   all_values <- unique(unlist(lapply(data[all_col_names], function(x) {

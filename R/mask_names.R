@@ -53,22 +53,14 @@
 #' @export
 mask_names <- function(data, ..., prefix) {
   validate_data_frame(data)
+  validate_data_frame_not_empty(data)
 
   # Validate prefix parameter
   if (missing(prefix)) {
     stop("Parameter 'prefix' is required. Please provide a character string ",
          "to use as the prefix for masked names.", call. = FALSE)
   }
-
-  if (is.null(prefix)) {
-    stop("Parameter 'prefix' cannot be NULL. Please provide a character ",
-         "string to use as the prefix for masked names.", call. = FALSE)
-  }
-
-  if (!is.character(prefix) || length(prefix) != 1) {
-    stop("Parameter 'prefix' must be a single character string.",
-         call. = FALSE)
-  }
+  validate_prefix(prefix)
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -76,9 +68,7 @@ mask_names <- function(data, ..., prefix) {
   # Resolve all column sets to column names (combined sets)
   all_col_names <- resolve_all_column_sets(column_sets, data)
 
-  if (length(all_col_names) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 

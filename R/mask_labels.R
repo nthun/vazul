@@ -35,44 +35,12 @@
 #'
 #' @export
 mask_labels <- function(x, prefix = "masked_group_") {
-  # Input validation - check if x is a vector
-  if (is.null(x)) {
-    stop("Input 'x' cannot be NULL. Please provide a vector.", call. = FALSE)
-  }
-
-  if (!is.atomic(x) && !is.list(x)) {
-    stop("Input 'x' must be an atomic vector or list. ",
-         "Received object of class: ",
-         paste(class(x), collapse = ", "), ".", call. = FALSE)
-  }
-
-  if (is.matrix(x) || is.data.frame(x)) {
-    stop("Input 'x' must be a 1-dimensional vector. Received object of class: ",
-         paste(class(x), collapse = ", "), ".", call. = FALSE)
-  }
-
-  if (length(x) == 0) {
-    stop("Input 'x' cannot be an empty vector. Please provide a vector ",
-         "with at least one element.", call. = FALSE)
-  }
-
-  # Check if x is character or factor
-  if (!is.character(x) && !is.factor(x)) {
-    stop("Input 'x' must be a character or factor vector. ",
-         "Received object of class: ",
-         paste(class(x), collapse = ", "), ".", call. = FALSE)
-  }
+  # Input validation
+  validate_vector(x)
+  validate_vector_categorical(x)
 
   # Validate prefix parameter
-  if (is.null(prefix)) {
-    stop("Parameter 'prefix' cannot be NULL. Please provide a character ",
-         "string.", call. = FALSE)
-  }
-
-  if (!is.character(prefix) || length(prefix) != 1) {
-    stop("Parameter 'prefix' must be a single character string.",
-         call. = FALSE)
-  }
+  validate_prefix(prefix)
 
   # Get unique values from the input
   unique_values <- unique(x)
