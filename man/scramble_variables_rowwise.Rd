@@ -2,25 +2,28 @@
 % Please edit documentation in R/scramble_variables_rowwise.R
 \name{scramble_variables_rowwise}
 \alias{scramble_variables_rowwise}
-\title{Scramble multiple column sets rowwise in a data frame}
+\title{Scramble values across multiple columns rowwise in a data frame}
 \usage{
 scramble_variables_rowwise(data, ...)
 }
 \arguments{
 \item{data}{A data frame.}
 
-\item{...}{\if{html}{\out{<tidy-select>}} One or more column sets. Each can be:
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble. All arguments are combined into
+a single set. Each can be:
 \itemize{
+\item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("day_")})
-\item A character vector of column names (e.g., \code{c("day_1", "day_2")})
-\item Multiple sets can be provided as separate arguments
+\item A character vector of column names (e.g., \code{c("var1", "var2")})
 }}
 }
 \value{
-A data frame with values scrambled rowwise within each selected column set.
+A data frame with values scrambled rowwise within the selected columns.
 }
 \description{
-For each row, independently shuffle values within each group of selected columns.
+For each row, independently shuffle values within the selected columns.
+All selected columns are combined into a single set and processed together.
+To scramble different variable groups separately, call the function multiple times.
 }
 \examples{
 df <- data.frame(
@@ -33,11 +36,17 @@ df <- data.frame(
 )
 
 set.seed(123)
+# Scramble one set of variables
+library(dplyr)
 df |> scramble_variables_rowwise(starts_with("day_"))
-df |> scramble_variables_rowwise(c("day_1", "day_2"))
-df |> scramble_variables_rowwise(
-  starts_with("day_"),
-  c("score_a", "score_b")
-)
+
+# Using character vectors
+df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
+
+# Scramble multiple sets separately
+df |>
+  scramble_variables_rowwise(starts_with("day_")) |>
+  scramble_variables_rowwise(c("score_a", "score_b"))
+
 }
 \keyword{functions}

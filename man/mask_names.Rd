@@ -4,7 +4,7 @@
 \alias{mask_names}
 \title{Mask variable names with anonymous labels}
 \usage{
-mask_names(data, ..., set_id)
+mask_names(data, ..., prefix)
 }
 \arguments{
 \item{data}{A data frame.}
@@ -17,9 +17,9 @@ a single set. Each can be:
 \item A character vector of column names (e.g., \code{c("var1", "var2")})
 }}
 
-\item{set_id}{character string to use as prefix for masked names.
+\item{prefix}{character string to use as prefix for masked names.
 This becomes the base prefix, with numeric suffixes appended (e.g.,
-\code{set_id = "treatment_"} produces "treatment_01", "treatment_02", etc.).
+\code{prefix = "treatment_"} produces "treatment_01", "treatment_02", etc.).
 The prefix is used as-is, so include a separator (e.g., underscore) if desired.}
 }
 \value{
@@ -42,25 +42,24 @@ df <- data.frame(
 
 # Mask one set of variables
 library(dplyr)
-mask_names(df, starts_with("treat_"), set_id = "treatment_")
+mask_names(df, starts_with("treat_"), prefix = "treatment_")
 
 # Using character vectors
-mask_names(df, c("treat_1", "treat_2"), set_id = "treatment_")
+mask_names(df, c("treat_1", "treat_2"), prefix = "treatment_")
 
 # Mask multiple sets separately
 df |>
-  mask_names(starts_with("treat_"), set_id = "treatment_") |>
-  mask_names(starts_with("outcome_"), set_id = "outcome_")
+  mask_names(starts_with("treat_"), prefix = "treatment_") |>
+  mask_names(starts_with("outcome_"), prefix = "outcome_")
 
 # Example with the 'williams' dataset
 data(williams)
 set.seed(42)
 
 williams |>
-  mask_names(starts_with("SexUnres"), set_id = "A_") |>
-  mask_names(starts_with("Impul"), set_id = "B_") |>
+  mask_names(starts_with("SexUnres"), prefix = "A_") |>
+  mask_names(starts_with("Impul"), prefix = "B_") |>
   colnames()
-
 
 }
 \keyword{functions}

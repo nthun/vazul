@@ -13,9 +13,9 @@
 #'     \item A tidyselect expression (e.g., \code{starts_with("treatment_")})
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'   }
-#' @param set_id character string to use as prefix for masked names.
+#' @param prefix character string to use as prefix for masked names.
 #'   This becomes the base prefix, with numeric suffixes appended (e.g., 
-#'   \code{set_id = "treatment_"} produces "treatment_01", "treatment_02", etc.).
+#'   \code{prefix = "treatment_"} produces "treatment_01", "treatment_02", etc.).
 #'   The prefix is used as-is, so include a separator (e.g., underscore) if desired.
 #'
 #' @return A data frame with the specified variables renamed to masked names.
@@ -31,43 +31,42 @@
 #'
 #' # Mask one set of variables
 #' library(dplyr)
-#' mask_names(df, starts_with("treat_"), set_id = "treatment_")
+#' mask_names(df, starts_with("treat_"), prefix = "treatment_")
 #'
 #' # Using character vectors
-#' mask_names(df, c("treat_1", "treat_2"), set_id = "treatment_")
+#' mask_names(df, c("treat_1", "treat_2"), prefix = "treatment_")
 #'
 #' # Mask multiple sets separately
 #' df |>
-#'   mask_names(starts_with("treat_"), set_id = "treatment_") |>
-#'   mask_names(starts_with("outcome_"), set_id = "outcome_")
+#'   mask_names(starts_with("treat_"), prefix = "treatment_") |>
+#'   mask_names(starts_with("outcome_"), prefix = "outcome_")
 #'
 #' # Example with the 'williams' dataset
 #' data(williams)
 #' set.seed(42)
 #'
 #' williams |>
-#'   mask_names(starts_with("SexUnres"), set_id = "A_") |>
-#'   mask_names(starts_with("Impul"), set_id = "B_") |>
+#'   mask_names(starts_with("SexUnres"), prefix = "A_") |>
+#'   mask_names(starts_with("Impul"), prefix = "B_") |>
 #'   colnames()
 #'
-#'
 #' @export
-mask_names <- function(data, ..., set_id) {
+mask_names <- function(data, ..., prefix) {
   validate_data_frame(data)
 
-  # Validate set_id parameter
-  if (missing(set_id)) {
-    stop("Parameter 'set_id' is required. Please provide a character string ",
+  # Validate prefix parameter
+  if (missing(prefix)) {
+    stop("Parameter 'prefix' is required. Please provide a character string ",
          "to use as the prefix for masked names.", call. = FALSE)
   }
 
-  if (is.null(set_id)) {
-    stop("Parameter 'set_id' cannot be NULL. Please provide a character ",
+  if (is.null(prefix)) {
+    stop("Parameter 'prefix' cannot be NULL. Please provide a character ",
          "string to use as the prefix for masked names.", call. = FALSE)
   }
 
-  if (!is.character(set_id) || length(set_id) != 1) {
-    stop("Parameter 'set_id' must be a single character string.",
+  if (!is.character(prefix) || length(prefix) != 1) {
+    stop("Parameter 'prefix' must be a single character string.",
          call. = FALSE)
   }
 
@@ -83,9 +82,8 @@ mask_names <- function(data, ..., set_id) {
     return(data)
   }
 
-  # Create masked names using mask_labels() with set_id as prefix
-  # Use set_id directly as prefix (no normalization)
-  prefix <- set_id
+  # Create masked names using mask_labels() with prefix
+  # Use prefix directly (no normalization)
   masked_names <- mask_labels(all_col_names, prefix = prefix)
 
   # Check for name collisions early (before creating mapping)
@@ -95,7 +93,7 @@ mask_names <- function(data, ..., set_id) {
   if (length(name_collisions) > 0) {
     stop("Name collision detected. The following masked names already ",
          "exist in the data: ", paste(name_collisions, collapse = ", "),
-         ". Please use a different 'set_id'.", call. = FALSE)
+         ". Please use a different 'prefix'.", call. = FALSE)
   }
 
   # Warn if masked names share prefix with existing columns (potential confusion)
@@ -103,7 +101,7 @@ mask_names <- function(data, ..., set_id) {
   if (length(existing_with_same_prefix) > 0) {
     warning("Masked names use prefix '", prefix, "' which matches existing ",
             "column(s): ", paste(existing_with_same_prefix, collapse = ", "),
-            ". This may cause confusion. Consider using a different 'set_id'.",
+            ". This may cause confusion. Consider using a different 'prefix'.",
             call. = FALSE)
   }
 
