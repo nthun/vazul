@@ -12,8 +12,8 @@ test_that("mask_names basic functionality works", {
 
   set.seed(123)
   result <- mask_names(df,
-    c("treat_1", "treat_2"),
-    c("outcome_a", "outcome_b")
+    c("treat_1", "treat_2", "outcome_a", "outcome_b"),
+    prefix = "var_"
   )
 
   # Check that data frame has same number of columns
@@ -25,12 +25,11 @@ test_that("mask_names basic functionality works", {
 
   # Check that masked names follow expected pattern
   masked_names <- names(result)
-  treat_names <- masked_names[grepl("^variable_set_A_", masked_names)]
-  outcome_names <- masked_names[grepl("^variable_set_B_", masked_names)]
+  var_names <- masked_names[grepl("^var_", masked_names)]
 
-  expect_equal(length(treat_names), 2)  # treat_1, treat_2
-  expect_equal(length(outcome_names), 2)  # outcome_a, outcome_b
+  expect_equal(length(var_names), 4)  # All 4 selected columns
   expect_true("id" %in% masked_names)  # unchanged column
+  expect_true(all(grepl("^var_\\d{2}$", var_names)))  # var_01, var_02, etc.
 })
 
 test_that("mask_names works with tidyselect helpers", {
@@ -45,14 +44,14 @@ test_that("mask_names works with tidyselect helpers", {
   set.seed(123)
   result <- mask_names(df,
     starts_with("treat_"),
-    starts_with("outcome_")
+    prefix = "treatment_"
   )
 
   # Check masked names exist
   masked_names <- names(result)
-  expect_true(any(grepl("^variable_set_A_", masked_names)))
-  expect_true(any(grepl("^variable_set_B_", masked_names)))
+  expect_true(all(grepl("^treatment_\\d{2}$", masked_names[1:2])))
   expect_true("id" %in% masked_names)
+  expect_equal(sum(grepl("^treatment_", masked_names)), 2)
 })
 
 test_that("mask_names custom prefix works", {
@@ -68,38 +67,20 @@ test_that("mask_names custom prefix works", {
   )
 
   masked_names <- names(result)
-  expect_true(all(grepl("^masked_var_A_", masked_names)))
-})
-
-test_that("mask_names custom set_id works", {
-  df <- data.frame(
-    var1 = c(1, 2, 3),
-    var2 = c(4, 5, 6),
-    var3 = c(7, 8, 9)
-  )
-
-  set.seed(123)
-  result <- mask_names(df,
-    c("var1", "var2"),
-    c("var3"),
-    set_id = c("group1", "group2")
-  )
-
-  masked_names <- names(result)
-  expect_true(any(grepl("^variable_set_group1_", masked_names)))
-  expect_true(any(grepl("^variable_set_group2_", masked_names)))
+  expect_true(all(grepl("^masked_var_\\d{2}$", masked_names)))
+  expect_equal(length(masked_names), 2)
 })
 
 test_that("mask_names detects name collisions", {
   df <- data.frame(
     var1 = c(1, 2, 3),
     var2 = c(4, 5, 6),
-    variable_set_A_01 = c(7, 8, 9)  # This will cause collision
+    var_01 = c(7, 8, 9)  # This will cause collision
   )
 
   set.seed(123)
   expect_error(
-    mask_names(df, c("var1", "var2")),
+    mask_names(df, c("var1", "var2"), prefix = "var_"),
     "Name collision detected"
   )
 })
@@ -111,25 +92,20 @@ test_that("mask_names handles empty column sets gracefully", {
   )
 
   expect_warning(
-    result <- mask_names(df),
-    "No variable sets provided"
+    result <- mask_names(df, prefix = "var_"),
+    "No columns selected"
   )
   expect_equal(result, df)
 })
 
-test_that("mask_names handles non-existent columns", {
-  df <- data.frame(
-    var1 = c(1, 2, 3),
-    var2 = c(4, 5, 6)
-  )
-
-    expect_warning(
-      result <- mask_names(df, c("var1", "nonexistent")),
-      "Some column names not found")
-})
-
 test_that("mask_names validates parameters correctly", {
   df <- data.frame(var1 = c(1, 2, 3))
+
+  # Test missing prefix
+  expect_error(
+    mask_names(df, c("var1")),
+    "Parameter 'prefix' is required"
+  )
 
   # Test NULL prefix
   expect_error(
@@ -152,94 +128,119 @@ test_that("mask_names validates parameters correctly", {
   # Test empty string prefix
   expect_error(
     mask_names(df, c("var1"), prefix = ""),
-    "Parameter 'prefix' cannot be an empty string. Please provide a ",
-    "non-empty character string.",
-    fixed = TRUE
-  )
-
-  # Test wrong length set_id
-  expect_error(
-    mask_names(df, c("var1"), c("var1"), set_id = c("A")),  # 2 sets, 1 set_id
-    "If 'set_id' is provided, it must have the same length as the number of variable sets"
+    "Parameter 'prefix' cannot be an empty string"
   )
 })
 
-test_that("mask_names prevents duplicate masked names", {
-  # Create a scenario where the same column name exists in multiple sets
+test_that("mask_names warns about prefix collisions", {
   df <- data.frame(
-    common = c(1, 2, 3),
-    var1 = c(4, 5, 6),
-    var2 = c(7, 8, 9)
+    var1 = c(1, 2, 3),
+    var2 = c(4, 5, 6),
+    masked_other = c(7, 8, 9)  # Shares prefix
   )
 
-  # This should work fine with different set_ids
   set.seed(123)
-  result <- mask_names(df,
-    c("common", "var1"),
-    c("var2"),
-    set_id = c("set1", "set2")
+  expect_warning(
+    result <- mask_names(df, c("var1", "var2"), prefix = "masked_"),
+    "Masked names use prefix 'masked_' which matches existing column"
   )
-
-  expect_equal(ncol(result), ncol(df))
-  expect_equal(nrow(result), nrow(df))
-
-  expect_error(mask_names(df, c("common"), c("var1"), set_id = c("A", "A")))
-  expect_error(mask_names(df, c("common", "var1"), c("common", "var2")))
-
 })
 
 test_that("mask_names preserves data content while changing names", {
   df <- data.frame(
     var1 = c(1, 2, 3),
-    var2 = c(4, 5, 6),
-    unchanged = c(7, 8, 9)
+    var2 = c(4, 5, 6)
   )
 
   set.seed(123)
-  result <- mask_names(df, c("var1", "var2"))
+  result <- mask_names(df, c("var1", "var2"), prefix = "v_")
 
   # Check that data content is preserved
   expect_equal(nrow(result), nrow(df))
   expect_equal(ncol(result), ncol(df))
-
-  # Unchanged column should be identical
-  expect_equal(result$unchanged, df$unchanged)
-
-  # Masked columns should have same data but different names
-  masked_cols <- names(result)[grepl("^variable_set_", names(result))]
-  expect_equal(length(masked_cols), 2)
-
-  # The sum of values should be preserved (simple check)
-  expect_equal(sum(unlist(result)), sum(unlist(df)))
+  
+  # Check that values are unchanged (just names changed)
+  expect_equal(unname(sort(unlist(result))), unname(sort(unlist(df))))
 })
 
-test_that("mask_names works with single variable set", {
+test_that("mask_names produces consistent results with set.seed", {
   df <- data.frame(
     var1 = c(1, 2, 3),
     var2 = c(4, 5, 6),
-    unchanged = c(7, 8, 9)
+    var3 = c(7, 8, 9)
+  )
+
+  set.seed(42)
+  result1 <- mask_names(df, c("var1", "var2", "var3"), prefix = "x_")
+
+  set.seed(42)
+  result2 <- mask_names(df, c("var1", "var2", "var3"), prefix = "x_")
+
+  expect_equal(names(result1), names(result2))
+})
+
+test_that("mask_names works with single variable", {
+  df <- data.frame(
+    var1 = c(1, 2, 3),
+    var2 = c(4, 5, 6)
   )
 
   set.seed(123)
-  result <- mask_names(df, c("var1", "var2"))
+  result <- mask_names(df, c("var1"), prefix = "masked_")
 
-  masked_names <- names(result)
-  expect_true(any(grepl("^variable_set_A_", masked_names)))
-  expect_true("unchanged" %in% masked_names)
-  expect_equal(length(masked_names), 3)
+  expect_equal(ncol(result), 2)
+  expect_true(any(grepl("^masked_01$", names(result))))
+  expect_true("var2" %in% names(result))  # unchanged
 })
 
 test_that("mask_names handles data frame input validation", {
   # Test non-data.frame input
   expect_error(
-    mask_names("not_a_dataframe", c("var1")),
-    "is.data.frame\\(data\\) is not TRUE"
+    mask_names("not_a_dataframe", c("var1"), prefix = "x_"),
+    "Input 'data' must be a data frame"
   )
 
-  # Test with matrix
-  mat <- matrix(1:6, ncol = 2)
+  # Test empty data frame
   expect_error(
-    mask_names(mat, c("V1")),
-    "is.data.frame\\(data\\) is not TRUE"
+    mask_names(data.frame(), c("var1"), prefix = "x_"),
+    "Input 'data' cannot be an empty data frame"
   )
+})
+
+test_that("mask_names works with multiple tidyselect calls", {
+  df <- data.frame(
+    treat_1 = c(1, 2, 3),
+    treat_2 = c(4, 5, 6),
+    outcome_a = c(7, 8, 9),
+    outcome_b = c(10, 11, 12),
+    id = 1:3
+  )
+
+  set.seed(123)
+  # Mask treatment variables first
+  result <- df |>
+    mask_names(starts_with("treat_"), prefix = "T_") |>
+    mask_names(starts_with("outcome_"), prefix = "O_")
+
+  masked_names <- names(result)
+  expect_equal(sum(grepl("^T_", masked_names)), 2)
+  expect_equal(sum(grepl("^O_", masked_names)), 2)
+  expect_true("id" %in% masked_names)
+})
+
+test_that("mask_names randomizes name assignment", {
+  df <- data.frame(
+    var1 = c(1, 2, 3),
+    var2 = c(4, 5, 6),
+    var3 = c(7, 8, 9)
+  )
+
+  set.seed(123)
+  result1 <- mask_names(df, c("var1", "var2", "var3"), prefix = "x_")
+
+  set.seed(456)
+  result2 <- mask_names(df, c("var1", "var2", "var3"), prefix = "x_")
+
+  # Names should be different with different seeds
+  expect_false(identical(names(result1), names(result2)))
 })

@@ -44,41 +44,19 @@ mask_labels <- function(x, prefix = "masked_group_") {
   validate_vector_categorical(x)
   validate_prefix(prefix)
 
-  # Convert to character for consistent matching (factors -> labels)
+  # Get unique keys
   char_x <- as.character(x)
+  keys <- unique(char_x)
 
-  # Get unique values from the input
-  unique_values <- unique(char_x)
+  # Create mapping
+  mapping <- create_mapping(keys, prefix = prefix)
 
-  # Exclude NA values before creating the mapping
-  # NA positions will remain NA in the result
-  unique_values_no_na <- unique_values[!is.na(unique_values)]
-  n_unique <- length(unique_values_no_na)
-
-  if (n_unique == 0) {
-    # All values are NA - nothing to mask, return as-is
+  # Warn if all values are NA
+  if (length(mapping$keys) == 0) {
+    warning("All values in input are NA. Returning unchanged.", call. = FALSE)
     return(x)
   }
 
-  # Create masked labels with numeric padding
-  # Determine padding width based on number of unique values
-  padding_width <- max(2, nchar(as.character(n_unique)))
-  masked_labels <- paste0(prefix, sprintf(paste0("%0", padding_width, "d"), seq_len(n_unique)))
-
-  # Randomly assign masked labels to unique values
-  # This ensures the order doesn't correspond to the original order
-  random_assignment <- sample(masked_labels, n_unique, replace = FALSE)
-
-  # Apply mapping to the original vector via match().
-  # This reliably supports empty strings (""), which cannot be used as a name
-  # in a named atomic vector lookup (mapping[""] returns NA).
-  idx <- match(char_x, unique_values_no_na)
-  result <- random_assignment[idx]
-
-  # Preserve factor structure if input was a factor
-  if (is.factor(x)) {
-    result <- factor(result, levels = masked_labels)
-  }
-
-  return(unname(result))
+  # Apply mapping
+  apply_mapping(x, mapping)
 }

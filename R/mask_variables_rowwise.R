@@ -66,35 +66,21 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
   validate_columns_categorical(data, all_col_names)
 
   # Get all unique values across all selected columns to create consistent mapping
-  all_values <- unique(unlist(lapply(data[all_col_names], function(x) {
-    if (is.factor(x)) as.character(x) else x
-  }), use.names = FALSE))
-  all_values <- all_values[!is.na(all_values)]  # Remove NAs (empty strings are treated as valid labels)
+  all_values <- collect_unique_values(data, all_col_names)
 
-  if (length(all_values) == 0) {
-    warning("No non-NA values found in selected columns.", call. = FALSE)
+  # Create a mapping using all unique values
+  mapping <- create_mapping(all_values, prefix = prefix)
+
+  if (!validate_mapping_not_empty(mapping)) {
     return(data)
   }
-
-  # Create the mapping using mask_labels on all unique values
-  mapped_labels <- mask_labels(all_values, prefix = prefix)
 
   # Copy data
   result <- data
 
   # Apply mapping to each selected column
-  result[all_col_names] <- lapply(data[all_col_names], function(col) {
-    if (is.factor(col)) {
-      char_values <- as.character(col)
-      idx <- match(char_values, all_values)
-      masked_values <- mapped_labels[idx]
-      # Get all possible masked labels for factor levels
-      all_masked <- unique(mapped_labels)
-      factor(masked_values, levels = all_masked)
-    } else {
-      idx <- match(col, all_values)
-      mapped_labels[idx]
-    }
+  result[all_col_names] <- lapply(result[all_col_names], function(col) {
+    apply_mapping(col, mapping)
   })
 
   return(result)

@@ -393,6 +393,48 @@ result2 <- scramble_variables_rowwise(
 result2
 ```
 
+## Handling Special Values
+
+### Missing Values (NA)
+
+All masking functions preserve `NA` values in their original positions:
+
+```{r}
+# Vector with NA values
+x <- c("A", "B", NA, "A", NA, "C")
+
+set.seed(123)
+masked_x <- mask_labels(x)
+masked_x
+
+# NA positions are preserved
+which(is.na(masked_x))
+```
+
+If all values in a vector are `NA`, the function will issue a warning and return the vector unchanged:
+
+```{r}
+x_all_na <- c(NA_character_, NA_character_, NA_character_)
+mask_labels(x_all_na)
+```
+
+### Empty Strings
+
+Empty strings (`""`) are treated as valid categorical values and will be masked like any other value:
+
+```{r}
+x_with_empty <- c("A", "", "B", "", "C")
+
+set.seed(456)
+masked_with_empty <- mask_labels(x_with_empty)
+masked_with_empty
+
+# Empty strings get their own masked label
+unique(masked_with_empty)
+```
+
+This is different from `NA` values - empty strings are actual data values, not missing data.
+
 ## Choosing Between Masking and Scrambling
 
 | Aspect | Masking | Scrambling |

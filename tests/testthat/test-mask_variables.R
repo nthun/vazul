@@ -321,13 +321,36 @@ test_that("mask_variables handles all-NA columns", {
   )
   
   set.seed(123)
-  result <- mask_variables(df, c("x", "y"))
+  expect_warning(
+    result <- mask_variables(df, c("x", "y")),
+    "The following columns contain only NA values and were left unchanged: x.",
+    fixed = TRUE
+  )
   
   # All-NA column should remain unchanged
   expect_true(all(is.na(result$x)))
   
   # Non-NA column should be masked with column-specific prefix
   expect_true(all(grepl("^y_group_", result$y)))
+  
+  # Test with across_variables = TRUE and all-NA columns
+  df_across <- data.frame(
+    x = c(NA_character_, NA_character_),
+    y = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_warning(
+    result_across <- mask_variables(df_across, c("x", "y"), across_variables = TRUE),
+    "All values in selected categorical columns are NA. Returning original data unchanged.",
+    fixed = TRUE
+  )
+  
+  # All columns should remain unchanged
+  expect_true(all(is.na(result_across$x)))
+  expect_true(all(is.na(result_across$y)))
+  expect_equal(result_across, df_across)
 })
 
 test_that("mask_variables handles single row data", {

@@ -181,6 +181,27 @@ validate_column_selection_not_empty <- function(selected_cols) {
   TRUE
 }
 
+#' Validate that a masking mapping is not empty
+#'
+#' Internal helper function for validating that a masking mapping contains keys.
+#' Emits a warning when no non-NA values are available to create a mapping.
+#'
+#' @param mapping A mapping list produced by `create_mapping()`.
+#' @return Logical. `TRUE` if mapping has keys, `FALSE` otherwise (after warning).
+#' @keywords internal
+#' @noRd
+validate_mapping_not_empty <- function(mapping) {
+  if (is.null(mapping$keys) || length(mapping$keys) == 0) {
+    warning(
+      "All values in selected categorical columns are NA. ",
+      "Returning original data unchanged.",
+      call. = FALSE
+    )
+    return(FALSE)
+  }
+  TRUE
+}
+
 #' Validate that selected columns are categorical (character or factor)
 #'
 #' Internal helper function for validating that all selected columns in a data

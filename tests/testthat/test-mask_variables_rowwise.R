@@ -143,6 +143,25 @@ test_that("mask_variables_rowwise handles NA values", {
   expect_true(grepl("^masked_group_", result$x[1]))
   expect_true(grepl("^masked_group_", result$y[2]))
   expect_true(grepl("^masked_group_", result$z[1]))
+  
+  # Test with all-NA columns
+  df_all_na <- data.frame(
+    x = c(NA_character_, NA_character_),
+    y = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(444)
+  expect_warning(
+    result_all_na <- mask_variables_rowwise(df_all_na, c("x", "y")),
+    "All values in selected categorical columns are NA. Returning original data unchanged.",
+    fixed = TRUE
+  )
+  
+  # All columns should remain unchanged
+  expect_true(all(is.na(result_all_na$x)))
+  expect_true(all(is.na(result_all_na$y)))
+  expect_equal(result_all_na, df_all_na)
 })
 
 test_that("mask_variables_rowwise uses custom prefix", {

@@ -234,6 +234,16 @@ test_that("mask_labels handles NA values correctly", {
   expect_equal(length(result), 6)
   expect_equal(sum(is.na(result)), 2)  # Should preserve NA positions
   expect_equal(length(unique(result[!is.na(result)])), 2)  # 2 non-NA unique values
+  
+  # Test with all-NA vector - should warn and return unchanged
+  x_all_na <- c(NA_character_, NA_character_, NA_character_)
+  expect_warning(
+    result_all_na <- mask_labels(x_all_na),
+    "All values in input are NA. Returning unchanged.",
+    fixed = TRUE
+  )
+  expect_true(all(is.na(result_all_na)))
+  expect_equal(length(result_all_na), 3)
 })
 
 test_that("mask_labels handles empty strings correctly", {

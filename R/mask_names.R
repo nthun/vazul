@@ -75,11 +75,11 @@ mask_names <- function(data, ..., prefix) {
     return(data)
   }
 
-  # Create masked names using mask_labels() with prefix
-  # Use prefix directly (no normalization)
-  masked_names <- mask_labels(all_col_names, prefix = prefix)
+  # Create mapping for column names
+  mapping <- create_mapping(all_col_names, prefix = prefix)
+  masked_names <- mapping$values
 
-  # Check for name collisions early (before creating mapping)
+  # Check for name collisions (before applying)
   existing_names <- setdiff(names(data), all_col_names)
   name_collisions <- intersect(masked_names, existing_names)
 
