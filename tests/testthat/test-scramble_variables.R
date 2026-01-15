@@ -100,10 +100,7 @@ test_that("scramble_variables preserves column order", {
     expect_equal(names(result), original_order)
 })
 
-test_that("scramble_variables works with grouped data (using group_by) - test current behavior", {
-    # Test with dplyr grouped data
-    # NOTE: The current implementation appears to have issues with grouped data
-    # This test documents the current behavior rather than the expected behavior
+test_that("scramble_variables ignores existing dplyr grouping unless .groups is provided", {
     skip_if_not_installed("dplyr")
 
     df <- data.frame(
@@ -113,17 +110,29 @@ test_that("scramble_variables works with grouped data (using group_by) - test cu
     )
 
     set.seed(123)
-    result <- df |>
+    result_grouped_input <- df |>
         dplyr::group_by(group) |>
         scramble_variables("x") |>
         dplyr::ungroup()
 
-    expect_s3_class(result, "data.frame")
-    expect_equal(names(result), names(df))
-    expect_equal(nrow(result), nrow(df))
+    set.seed(123)
+    result_equivalent_tibble_input <- scramble_variables(dplyr::as_tibble(df), "x")
 
-    # Note: Current implementation has issues - this documents actual behavior
-    # The grouped scrambling doesn't work as expected
+    expect_equal(result_grouped_input, result_equivalent_tibble_input)
+})
+
+test_that("scramble_variables errors when .groups overlaps with selected columns", {
+    df <- data.frame(
+        x = 1:6,
+        y = letters[1:6],
+        group = c("A", "A", "A", "B", "B", "B")
+    )
+
+    expect_error(
+        scramble_variables(df, c("x", "group"), .groups = "group"),
+        "Grouping columns cannot overlap with columns being processed.",
+        fixed = TRUE
+    )
 })
 
 test_that("scramble_variables handles multiple grouping variables", {

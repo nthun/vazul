@@ -88,3 +88,59 @@ resolve_all_column_sets <- function(column_sets, data) {
                           use.names = FALSE)
   unique(all_col_names)
 }
+
+#' Resolve group columns from .groups parameter
+#'
+#' Internal helper function that resolves group column names from a quosure.
+#' Provides consistent error handling and validation for grouping columns.
+#'
+#' @param groups_quo A quosure captured from the .groups parameter.
+#' @param data The data frame to resolve columns from.
+#' @param col_names Character vector of column names being scrambled/masked.
+#'   Used to check for overlap with grouping columns.
+#' @return A character vector of group column names, or NULL if no groups.
+#' @keywords internal
+#' @noRd
+resolve_group_columns <- function(groups_quo, data, col_names = NULL) {
+  # If .groups is NULL, return NULL early
+  if (rlang::quo_is_null(groups_quo)) {
+    return(NULL)
+  }
+
+  # Unwrap rlang::expr(...) / expr(...) so users can pass `.groups = rlang::expr(starts_with("x"))`
+  # and have it behave like `.groups = starts_with("x")`.
+  groups_expr <- rlang::get_expr(groups_quo)
+  if (rlang::is_call(groups_expr) && identical(rlang::call_name(groups_expr), "expr")) {
+    groups_quo <- rlang::new_quosure(groups_expr[[2]], env = rlang::get_env(groups_quo))
+  }
+
+  # Evaluate the tidyselect expression with error handling
+  group_indices <- tryCatch(
+    tidyselect::eval_select(groups_quo, data),
+    error = function(e) {
+      stop("Error in .groups parameter: ", conditionMessage(e),
+           call. = FALSE)
+    }
+  )
+  
+  # Check if selection is empty
+  if (length(group_indices) == 0) {
+    stop("Error in .groups parameter: No columns selected for grouping.",
+         call. = FALSE)
+  }
+  
+  # Get group column names
+  group_cols <- names(data)[group_indices]
+  
+  # Check for overlap with columns being processed (if provided)
+  if (!is.null(col_names)) {
+    overlap <- intersect(group_cols, col_names)
+    if (length(overlap) > 0) {
+      stop("Grouping columns cannot overlap with columns being processed. ",
+           "The following columns are in both: ",
+           paste(overlap, collapse = ", "), ".", call. = FALSE)
+    }
+  }
+  
+  return(group_cols)
+}
