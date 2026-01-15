@@ -15,15 +15,23 @@ a single set. Each can be:
 \item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("day_")})
 \item A character vector of column names (e.g., \code{c("var1", "var2")})
-}}
+}
+If \code{data} is already a grouped \code{dplyr} data frame, existing grouping
+is ignored.}
 }
 \value{
 A data frame with values scrambled rowwise within the selected columns.
 }
 \description{
-For each row, independently shuffle values within the selected columns.
-All selected columns are combined into a single set and processed together.
+For each row, shuffle values across the selected columns. All selections passed
+via \code{...} are combined into a single set and scrambled together.
 To scramble different variable groups separately, call the function multiple times.
+}
+\details{
+Rowwise scrambling moves values between columns, so selected columns must be
+type-compatible. This function requires all selected columns to have the same
+class (or be an integer/double mix). For factors, the selected columns must
+also have identical levels.
 }
 \examples{
 df <- data.frame(
@@ -47,6 +55,9 @@ df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
 df |>
   scramble_variables_rowwise(starts_with("day_")) |>
   scramble_variables_rowwise(c("score_a", "score_b"))
+
+# Multiple selectors are combined into one set (values can move between day_* and score_*)
+df |> scramble_variables_rowwise(starts_with("day_"), starts_with("score_"))
 
 }
 \seealso{

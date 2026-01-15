@@ -1,8 +1,13 @@
 #' Scramble values across multiple columns rowwise in a data frame
 #'
-#' For each row, independently shuffle values within the selected columns.
-#' All selected columns are combined into a single set and processed together.
+#' For each row, shuffle values across the selected columns. All selections passed
+#' via \code{...} are combined into a single set and scrambled together.
 #' To scramble different variable groups separately, call the function multiple times.
+#'
+#' Rowwise scrambling moves values between columns, so selected columns must be
+#' type-compatible. This function requires all selected columns to have the same
+#' class (or be an integer/double mix). For factors, the selected columns must
+#' also have identical levels.
 #' @keywords scramble
 #' @param data A data frame.
 #' @param ... <tidy-select> Columns to scramble. All arguments are combined into
@@ -12,6 +17,8 @@
 #'     \item A tidyselect expression (e.g., \code{starts_with("day_")})
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'   }
+#'   If \code{data} is already a grouped \code{dplyr} data frame, existing grouping
+#'   is ignored.
 #' @return A data frame with values scrambled rowwise within the selected columns.
 #' 
 #' @seealso \code{\link{scramble_values}} for scrambling a single vector, and 
@@ -40,10 +47,18 @@
 #'   scramble_variables_rowwise(starts_with("day_")) |>
 #'   scramble_variables_rowwise(c("score_a", "score_b"))
 #' 
+#' # Multiple selectors are combined into one set (values can move between day_* and score_*)
+#' df |> scramble_variables_rowwise(starts_with("day_"), starts_with("score_"))
+#' 
 #' @export
 scramble_variables_rowwise <- function(data, ...) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
+
+  # Strip any existing dplyr grouping to avoid surprises (this function has no grouping semantics)
+  if (dplyr::is_grouped_df(data)) {
+    data <- dplyr::ungroup(data)
+  }
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -62,16 +77,31 @@ scramble_variables_rowwise <- function(data, ...) {
     return(data)
   }
 
-  # Check for type compatibility — but allow integer + double
+  # Validate type/class compatibility.
+  # Rowwise scrambling assigns values across columns within each row, so columns must be compatible.
+  col_classes <- lapply(data[all_col_names], class)
+  col_classes_key <- vapply(col_classes, paste, collapse = "|", character(1))
+  same_class <- length(unique(col_classes_key)) == 1
+
   col_types <- vapply(data[all_col_names], typeof, character(1))
   unique_types <- unique(col_types)
-  if (length(unique_types) > 1) {
-    # Only warn if types are NOT just integer and double
-    if (!setequal(unique_types, c("integer", "double"))) {
-      warning(
-        "Columns have mixed types: ",
-        paste(unique_types, collapse = ", "),
-        ". Scrambling may cause coercion.",
+  int_double_mix <- length(unique_types) == 2 && setequal(unique_types, c("integer", "double"))
+
+  if (!same_class && !int_double_mix) {
+    stop(
+      "Rowwise scrambling requires selected columns to have the same class ",
+      "(or be an integer/double mix). Selected classes: ",
+      paste(unique(vapply(col_classes, paste, collapse = "/", character(1))), collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # Extra safety for factors: levels must match, otherwise assignment will introduce NAs.
+  if (inherits(data[[all_col_names[[1]]]], "factor")) {
+    levs <- lapply(data[all_col_names], levels)
+    if (!all(vapply(levs, identical, logical(1), levs[[1]]))) {
+      stop(
+        "Rowwise scrambling of factors requires identical levels across selected columns.",
         call. = FALSE
       )
     }
@@ -80,16 +110,19 @@ scramble_variables_rowwise <- function(data, ...) {
   # Copy data
   result <- data
 
-  # Extract selected columns as matrix for row operations
-  mat <- as.matrix(data[all_col_names])
+  cols <- all_col_names
+  k <- length(cols)
+  n <- nrow(data)
 
-  # Scramble each row using scramble_values() function
-  scrambled_mat <- t(apply(mat, 1, function(row) {
-    row[scramble_values(seq_along(row))]
-  }))
-
-  # Assign scrambled values back — preserves types (but R may coerce if types were mixed!)
-  result[all_col_names] <- as.data.frame(scrambled_mat)
+  # Scramble each row by permuting values across the selected columns.
+  # This avoids matrix conversion and preserves column classes.
+  for (i in seq_len(n)) {
+    perm <- scramble_values(seq_len(k))
+    row_vals <- lapply(cols, function(nm) data[[nm]][i])
+    for (j in seq_len(k)) {
+      result[[cols[[j]]]][i] <- row_vals[[perm[[j]]]]
+    }
+  }
 
   return(result)
 }
