@@ -64,13 +64,12 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
 
   # Check that all selected columns are character or factor
   validate_columns_categorical(data, all_col_names)
-  validate_columns_warn_empty_strings(data, all_col_names)
 
   # Get all unique values across all selected columns to create consistent mapping
   all_values <- unique(unlist(lapply(data[all_col_names], function(x) {
     if (is.factor(x)) as.character(x) else x
   }), use.names = FALSE))
-  all_values <- all_values[!is.na(all_values) & all_values != ""]  # Remove NAs and empty strings
+  all_values <- all_values[!is.na(all_values)]  # Remove NAs (empty strings are treated as valid labels)
 
   if (length(all_values) == 0) {
     warning("No non-NA values found in selected columns.", call. = FALSE)
@@ -79,7 +78,6 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
 
   # Create the mapping using mask_labels on all unique values
   mapped_labels <- mask_labels(all_values, prefix = prefix)
-  mapping <- stats::setNames(mapped_labels, all_values)
 
   # Copy data
   result <- data
@@ -88,15 +86,14 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
   result[all_col_names] <- lapply(data[all_col_names], function(col) {
     if (is.factor(col)) {
       char_values <- as.character(col)
-      # Empty strings map to NA since they're not in the mapping
-      masked_values <- ifelse(is.na(char_values) | char_values == "", NA_character_,
-                              mapping[char_values])
+      idx <- match(char_values, all_values)
+      masked_values <- mapped_labels[idx]
       # Get all possible masked labels for factor levels
-      all_masked <- unique(mapping)
+      all_masked <- unique(mapped_labels)
       factor(masked_values, levels = all_masked)
     } else {
-      # Empty strings map to NA since they're not in the mapping
-      ifelse(is.na(col) | col == "", NA_character_, mapping[col])
+      idx <- match(col, all_values)
+      mapped_labels[idx]
     }
   })
 

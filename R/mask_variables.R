@@ -84,9 +84,6 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
 
   # Validate that all selected columns are categorical
   validate_columns_categorical(data, all_col_names)
-  validate_columns_warn_empty_strings(data, all_col_names)
-
-  categorical_cols <- all_col_names
 
   # Apply masking
   result <- data
@@ -94,7 +91,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   if (across_variables) {
     # For across_variables masking, create shared mapping using mask_labels
     # First, collect all unique values across all selected categorical columns
-    all_values <- unique(unlist(lapply(result[categorical_cols], function(x) {
+    all_values <- unique(unlist(lapply(result[all_col_names], function(x) {
       if (is.factor(x)) {
         as.character(x)
       } else {
@@ -102,8 +99,8 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
       }
     }), use.names = FALSE))
 
-    # Remove NAs and empty strings for mapping creation
-    all_values_no_na <- all_values[!is.na(all_values) & all_values != ""]
+    # Remove NAs for mapping creation (empty strings are treated as a valid label)
+    all_values_no_na <- all_values[!is.na(all_values)]
 
     if (length(all_values_no_na) == 0) {
       warning(
@@ -115,19 +112,16 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
 
     # Use mask_labels to create the shared mapping
     masked_values <- mask_labels(all_values_no_na, prefix = "masked_group_")
-    shared_mapping <- stats::setNames(masked_values, all_values_no_na)
 
     # Apply shared mapping to each column
-    result[categorical_cols] <- lapply(result[categorical_cols], function(x) {
-      if (all(is.na(x) | x == "")) {
-        return(x)  # Return unchanged if all NA or empty strings
+    result[all_col_names] <- lapply(result[all_col_names], function(x) {
+      if (all(is.na(x))) {
+        return(x)  # Return unchanged if all NA
       }
 
-      # Apply mapping (empty strings will map to NA since they're not in mapping)
       char_x <- as.character(x)
-      # Convert empty strings to NA before mapping (consistent with mask_labels behavior)
-      char_x[char_x == ""] <- NA_character_
-      masked <- shared_mapping[char_x]
+      idx <- match(char_x, all_values_no_na)
+      masked <- masked_values[idx]
 
       # Preserve factor structure if input was a factor
       if (is.factor(x)) {
@@ -139,11 +133,11 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
 
   } else {
     # Independent masking for each column using column name as prefix
-    result[categorical_cols] <- lapply(categorical_cols, function(col_name) {
+    result[all_col_names] <- lapply(all_col_names, function(col_name) {
       x <- result[[col_name]]
       
       # Convert to character to handle empty strings consistently
-      if (all(is.na(x) | x == "")) {
+      if (all(is.na(x))) {
         return(x)  # Return unchanged if all NA or empty strings
       }
       
@@ -152,7 +146,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
 
       # Apply mask_labels to each column independently with column-specific
       # prefix
-      # mask_labels() will preserve NA values (empty strings were converted to NA)
+      # mask_labels() will preserve NA values (empty strings are treated as valid labels)
       tryCatch({
         mask_labels(x, prefix = col_prefix)
       }, error = function(e) {

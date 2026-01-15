@@ -218,7 +218,7 @@ test_that("mask_variables handles edge cases", {
 })
 
 test_that("mask_variables handles empty strings correctly", {
-  # Test with empty strings in character columns - should warn and treat as NA
+  # Test with empty strings in character columns - treated as valid values
   df <- data.frame(
     x = c("A", "", "B"),
     y = c("X", "Y", ""),
@@ -226,21 +226,23 @@ test_that("mask_variables handles empty strings correctly", {
   )
   
   set.seed(123)
-  expect_warning(
-    result <- mask_variables(df, c("x", "y")),
-    "The following selected columns contain empty strings",
-    fixed = FALSE
+  expect_no_warning(
+    result <- mask_variables(df, c("x", "y"))
   )
   
-  # Empty strings should be converted to NA in the output
-  expect_true(is.na(result$x[2]))
-  expect_true(is.na(result$y[3]))
+  # Empty strings should be masked (not converted to NA)
+  expect_false(is.na(result$x[2]))
+  expect_false(is.na(result$y[3]))
   
   # Non-empty values should still be masked
   expect_true(grepl("^x_group_", result$x[1]))
   expect_true(grepl("^x_group_", result$x[3]))
   expect_true(grepl("^y_group_", result$y[1]))
   expect_true(grepl("^y_group_", result$y[2]))
+  
+  # Empty strings should also be masked with the proper column prefixes
+  expect_true(grepl("^x_group_", result$x[2]))
+  expect_true(grepl("^y_group_", result$y[3]))
   
   # Test with factor containing empty strings
   df_factor <- data.frame(
@@ -249,14 +251,13 @@ test_that("mask_variables handles empty strings correctly", {
   )
   
   set.seed(123)
-  expect_warning(
-    result_factor <- mask_variables(df_factor, "x"),
-    "The following selected columns contain empty strings",
-    fixed = FALSE
+  expect_no_warning(
+    result_factor <- mask_variables(df_factor, "x")
   )
   
-  # Empty strings should be converted to NA
-  expect_true(is.na(result_factor$x[2]))
+  # Empty strings should be masked (not converted to NA)
+  expect_s3_class(result_factor$x, "factor")
+  expect_false(is.na(result_factor$x[2]))
   
   # Test that NA values are allowed (not empty strings)
   df_with_na <- data.frame(
@@ -278,18 +279,17 @@ test_that("mask_variables handles empty strings correctly", {
   )
   
   set.seed(123)
-  expect_warning(
-    result_across <- mask_variables(df_across, c("x", "y"), across_variables = TRUE),
-    "The following selected columns contain empty strings",
-    fixed = FALSE
+  expect_no_warning(
+    result_across <- mask_variables(df_across, c("x", "y"), across_variables = TRUE)
   )
   
-  # Empty strings should be NA
-  expect_true(is.na(result_across$x[2]))
-  expect_true(is.na(result_across$y[3]))
+  # Empty strings should be masked (not converted to NA)
+  expect_false(is.na(result_across$x[2]))
+  expect_false(is.na(result_across$y[3]))
   
   # Same values should get same masked labels (across_variables = TRUE)
   expect_equal(result_across$x[1], result_across$y[1])  # Both "A"
+  expect_equal(result_across$x[2], result_across$y[3])  # Both ""
 })
 
 test_that("mask_variables handles NA values correctly", {

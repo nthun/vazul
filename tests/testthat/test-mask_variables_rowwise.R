@@ -172,20 +172,20 @@ test_that("mask_variables_rowwise validates input correctly", {
   # No column sets provided
   expect_warning(
     result <- mask_variables_rowwise(df),
-    "No column sets provided"
+    "No columns selected. Returning original data unchanged."
   )
   expect_equal(result, df)
 
-  # Nonexistent columns - now shows warning about missing columns
-  expect_warning(
+  # Nonexistent columns
+  expect_error(
     mask_variables_rowwise(df, "nonexistent_column"),
-    "Each column set must be a character vector or tidyselect expression."
+    "Column `nonexistent_column` doesn't exist"
   )
 
   # Invalid column set type - shows warning from failed evaluation
-  expect_warning(
+  expect_error(
     mask_variables_rowwise(df, data.frame(a = 1)),
-    "Failed to evaluate column set"
+    "must be numeric or character"
   )
 })
 
@@ -200,7 +200,7 @@ test_that("mask_variables_rowwise handles mixed data types correctly", {
   # mask_variables_rowwise throws an error for non-categorical columns
   expect_error(
     mask_variables_rowwise(df, c("x", "y", "z")),
-    "All selected columns must be character or factor"
+    "The following selected columns are not character or factor: y"
   )
 })
 
@@ -223,7 +223,7 @@ test_that("mask_variables_rowwise handles edge cases", {
 })
 
 test_that("mask_variables_rowwise handles empty strings correctly", {
-  # Test with empty strings in character columns - should warn and treat as NA
+  # Test with empty strings in character columns - treated as valid values
   df <- data.frame(
     x = c("A", "", "B"),
     y = c("X", "Y", ""),
@@ -231,19 +231,17 @@ test_that("mask_variables_rowwise handles empty strings correctly", {
   )
   
   set.seed(123)
-  expect_warning(
-    result <- mask_variables_rowwise(df, c("x", "y")),
-    "The following selected columns contain empty strings",
-    fixed = FALSE
+  expect_no_warning(
+    result <- mask_variables_rowwise(df, c("x", "y"))
   )
   
-  # Empty strings should be converted to NA in the output
-  expect_true(is.na(result$x[2]))
-  expect_true(is.na(result$y[3]))
+  # Empty strings should be masked (not converted to NA)
+  expect_false(is.na(result$x[2]))
+  expect_false(is.na(result$y[3]))
   
   # Non-empty values should still be masked
-  expect_true(all(grepl("^masked_group_", result$x[!is.na(result$x)])))
-  expect_true(all(grepl("^masked_group_", result$y[!is.na(result$y)])))
+  expect_true(all(grepl("^masked_group_", result$x)))
+  expect_true(all(grepl("^masked_group_", result$y)))
   
   # Test with factor containing empty strings
   df_factor <- data.frame(
@@ -252,14 +250,13 @@ test_that("mask_variables_rowwise handles empty strings correctly", {
   )
   
   set.seed(123)
-  expect_warning(
-    result_factor <- mask_variables_rowwise(df_factor, "x"),
-    "The following selected columns contain empty strings",
-    fixed = FALSE
+  expect_no_warning(
+    result_factor <- mask_variables_rowwise(df_factor, "x")
   )
   
-  # Empty strings should be converted to NA
-  expect_true(is.na(result_factor$x[2]))
+  # Empty strings should be masked (not converted to NA)
+  expect_s3_class(result_factor$x, "factor")
+  expect_false(is.na(result_factor$x[2]))
   
   # Test that NA values are allowed (not empty strings)
   df_with_na <- data.frame(

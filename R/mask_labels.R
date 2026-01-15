@@ -10,11 +10,11 @@
 #' @param prefix character string to use as prefix for masked labels.
 #'   Default is "masked_group_"
 #' @return a vector of the same type as input with masked labels
-#' 
-#' @seealso \code{\link{mask_variables}} for masking multiple variables in a data frame, 
-#' \code{\link{mask_variables_rowwise}} for rowwise masking, and 
+#'
+#' @seealso \code{\link{mask_variables}} for masking multiple variables in a data frame,
+#' \code{\link{mask_variables_rowwise}} for rowwise masking, and
 #' \code{\link{mask_names}} for masking variable names.
-#' 
+#'
 #' @examples
 #'
 #' # Example with character vector
@@ -44,31 +44,20 @@ mask_labels <- function(x, prefix = "masked_group_") {
   validate_vector_categorical(x)
   validate_prefix(prefix)
 
-  # Convert input to character to handle empty strings consistently
+  # Convert to character for consistent matching (factors -> labels)
   char_x <- as.character(x)
-
-  # Check for empty strings
-  has_empty_strings <- any(char_x == "" & !is.na(char_x))
-  if (has_empty_strings) {
-    warning(
-      "Input 'x' contains empty strings (\"\"). Empty strings will be treated as ",
-      "missing data and converted to NA.", call. = FALSE
-    )
-    # Convert empty strings to NA
-    char_x[char_x == ""] <- NA_character_
-  }
 
   # Get unique values from the input
   unique_values <- unique(char_x)
-  
+
   # Exclude NA values before creating the mapping
-  # NA positions (including converted empty strings) will remain NA in the result
+  # NA positions will remain NA in the result
   unique_values_no_na <- unique_values[!is.na(unique_values)]
   n_unique <- length(unique_values_no_na)
 
   if (n_unique == 0) {
-  # All values are NA - nothing to mask, return as-is
-  return(x)
+    # All values are NA - nothing to mask, return as-is
+    return(x)
   }
 
   # Create masked labels with numeric padding
@@ -80,18 +69,16 @@ mask_labels <- function(x, prefix = "masked_group_") {
   # This ensures the order doesn't correspond to the original order
   random_assignment <- sample(masked_labels, n_unique, replace = FALSE)
 
-  # Create mapping from original values to masked labels
-  # Only non-NA values are included in the mapping
-  mapping <- stats::setNames(random_assignment, unique_values_no_na)
-
-  # Apply mapping to the original vector
-  # Unname to avoid name attribute from mapping
-  result <- unname(mapping[char_x])
+  # Apply mapping to the original vector via match().
+  # This reliably supports empty strings (""), which cannot be used as a name
+  # in a named atomic vector lookup (mapping[""] returns NA).
+  idx <- match(char_x, unique_values_no_na)
+  result <- random_assignment[idx]
 
   # Preserve factor structure if input was a factor
   if (is.factor(x)) {
     result <- factor(result, levels = masked_labels)
   }
 
-  return(result)
+  return(unname(result))
 }
