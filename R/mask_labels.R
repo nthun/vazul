@@ -44,9 +44,32 @@ mask_labels <- function(x, prefix = "masked_group_") {
   validate_vector_categorical(x)
   validate_prefix(prefix)
 
+  # Convert input to character to handle empty strings consistently
+  char_x <- as.character(x)
+
+  # Check for empty strings
+  has_empty_strings <- any(char_x == "" & !is.na(char_x))
+  if (has_empty_strings) {
+    warning(
+      "Input 'x' contains empty strings (\"\"). Empty strings will be treated as ",
+      "missing data and converted to NA.", call. = FALSE
+    )
+    # Convert empty strings to NA
+    char_x[char_x == ""] <- NA_character_
+  }
+
   # Get unique values from the input
-  unique_values <- unique(x)
-  n_unique <- length(unique_values)
+  unique_values <- unique(char_x)
+  
+  # Exclude NA values before creating the mapping
+  # NA positions (including converted empty strings) will remain NA in the result
+  unique_values_no_na <- unique_values[!is.na(unique_values)]
+  n_unique <- length(unique_values_no_na)
+
+  if (n_unique == 0) {
+  # All values are NA - nothing to mask, return as-is
+  return(x)
+  }
 
   # Create masked labels with numeric padding
   # Determine padding width based on number of unique values
@@ -58,10 +81,12 @@ mask_labels <- function(x, prefix = "masked_group_") {
   random_assignment <- sample(masked_labels, n_unique, replace = FALSE)
 
   # Create mapping from original values to masked labels
-  mapping <- stats::setNames(random_assignment, unique_values)
+  # Only non-NA values are included in the mapping
+  mapping <- stats::setNames(random_assignment, unique_values_no_na)
 
   # Apply mapping to the original vector
-  result <- mapping[as.character(x)]
+  # Unname to avoid name attribute from mapping
+  result <- unname(mapping[char_x])
 
   # Preserve factor structure if input was a factor
   if (is.factor(x)) {

@@ -222,6 +222,58 @@ test_that("mask_variables_rowwise handles edge cases", {
   expect_equal(result, df_empty)
 })
 
+test_that("mask_variables_rowwise handles empty strings correctly", {
+  # Test with empty strings in character columns - should warn and treat as NA
+  df <- data.frame(
+    x = c("A", "", "B"),
+    y = c("X", "Y", ""),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_warning(
+    result <- mask_variables_rowwise(df, c("x", "y")),
+    "The following selected columns contain empty strings",
+    fixed = FALSE
+  )
+  
+  # Empty strings should be converted to NA in the output
+  expect_true(is.na(result$x[2]))
+  expect_true(is.na(result$y[3]))
+  
+  # Non-empty values should still be masked
+  expect_true(all(grepl("^masked_group_", result$x[!is.na(result$x)])))
+  expect_true(all(grepl("^masked_group_", result$y[!is.na(result$y)])))
+  
+  # Test with factor containing empty strings
+  df_factor <- data.frame(
+    x = factor(c("A", "", "B")),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_warning(
+    result_factor <- mask_variables_rowwise(df_factor, "x"),
+    "The following selected columns contain empty strings",
+    fixed = FALSE
+  )
+  
+  # Empty strings should be converted to NA
+  expect_true(is.na(result_factor$x[2]))
+  
+  # Test that NA values are allowed (not empty strings)
+  df_with_na <- data.frame(
+    x = c("A", NA, "B"),
+    y = c(NA, "Y", NA),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  result <- mask_variables_rowwise(df_with_na, c("x", "y"))
+  expect_equal(nrow(result), 3)
+  expect_true(is.na(result$x[2]))
+})
+
 # ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
 
 test_that("mask_variables_rowwise works with character vector column set", {

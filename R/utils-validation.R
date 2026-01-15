@@ -85,6 +85,30 @@ validate_vector_categorical <- function(x) {
   invisible(NULL)
 }
 
+#' Validate that categorical vector does not contain empty strings
+#'
+#' Internal helper function for validating that a categorical vector does not
+#' contain empty strings. Empty strings in categorical data may indicate
+#' missing data that should be represented as NA instead. Must be called after
+#' validate_vector_categorical().
+#'
+#' @param x The categorical vector to validate.
+#' @return NULL (invisibly). Throws an error if validation fails.
+#' @keywords internal
+#' @noRd
+validate_vector_no_empty_strings <- function(x) {
+  # Check for empty strings (excluding NA values)
+  has_empty_strings <- any(x == "" & !is.na(x))
+  
+  if (has_empty_strings) {
+    stop("Input 'x' contains empty strings (\"\"). Empty strings in categorical ",
+         "data may indicate missing data that should be represented as NA. ",
+         "Please convert empty strings to NA before masking.", call. = FALSE)
+  }
+  
+  invisible(NULL)
+}
+
 #' Validate prefix parameter
 #'
 #' Internal helper function for validating prefix parameter.
@@ -183,4 +207,40 @@ validate_columns_categorical <- function(data, col_names) {
   }
   
   invisible(NULL)
+}
+
+#' Warn if selected categorical columns contain empty strings
+#'
+#' Internal helper function for warning when selected categorical columns contain
+#' empty strings. Empty strings are treated as missing data and will be converted
+#' to NA during masking. Must be called after validate_columns_categorical().
+#'
+#' @param data The data frame to validate columns from.
+#' @param col_names Character vector of column names to validate.
+#' @return Logical. `TRUE` if empty strings were found (warning issued),
+#'   `FALSE` otherwise.
+#' @keywords internal
+#' @noRd
+validate_columns_warn_empty_strings <- function(data, col_names) {
+  cols_with_empty_strings <- character(0)
+  
+  for (col_name in col_names) {
+    x <- data[[col_name]]
+    # Check for empty strings (excluding NA values)
+    if (any(x == "" & !is.na(x))) {
+      cols_with_empty_strings <- c(cols_with_empty_strings, col_name)
+    }
+  }
+  
+  if (length(cols_with_empty_strings) > 0) {
+    warning(
+      "The following selected columns contain empty strings (\"\"): ",
+      paste(cols_with_empty_strings, collapse = ", "),
+      ". Empty strings will be treated as missing data and converted to NA ",
+      "during masking.", call. = FALSE
+    )
+    return(TRUE)
+  }
+  
+  return(FALSE)
 }

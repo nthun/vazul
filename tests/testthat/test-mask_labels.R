@@ -237,3 +237,39 @@ test_that("mask_labels handles NA values correctly", {
   expect_equal(length(unique(result[!is.na(result)])), 2)  # 2 non-NA unique values
 })
 
+test_that("mask_labels handles empty strings correctly", {
+  # Test with empty strings - should warn and convert to NA
+  x <- c("A", "", "B", "")
+  
+  expect_warning(
+    result <- mask_labels(x),
+    "Input 'x' contains empty strings",
+    fixed = FALSE
+  )
+  
+  # Empty strings should be converted to NA
+  expect_equal(length(result), 4)
+  expect_equal(sum(is.na(result)), 2)  # Two empty strings converted to NA
+  expect_equal(length(unique(result[!is.na(result)])), 2)  # A and B get masked
+  
+  # Test with factor containing empty strings
+  x_factor <- factor(c("A", "", "B"))
+  
+  expect_warning(
+    result_factor <- mask_labels(x_factor),
+    "Input 'x' contains empty strings",
+    fixed = FALSE
+  )
+  
+  # Empty strings should be converted to NA
+  expect_equal(sum(is.na(result_factor)), 1)
+  expect_s3_class(result_factor, "factor")
+  
+  # Test that NA values are allowed (not empty strings)
+  x_with_na <- c("A", NA, "B")
+  set.seed(123)
+  result <- mask_labels(x_with_na)
+  expect_equal(length(result), 3)
+  expect_equal(sum(is.na(result)), 1)
+})
+

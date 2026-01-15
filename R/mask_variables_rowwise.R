@@ -64,12 +64,13 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
 
   # Check that all selected columns are character or factor
   validate_columns_categorical(data, all_col_names)
+  validate_columns_warn_empty_strings(data, all_col_names)
 
   # Get all unique values across all selected columns to create consistent mapping
   all_values <- unique(unlist(lapply(data[all_col_names], function(x) {
     if (is.factor(x)) as.character(x) else x
   }), use.names = FALSE))
-  all_values <- all_values[!is.na(all_values)]  # Remove NAs
+  all_values <- all_values[!is.na(all_values) & all_values != ""]  # Remove NAs and empty strings
 
   if (length(all_values) == 0) {
     warning("No non-NA values found in selected columns.", call. = FALSE)
@@ -87,13 +88,15 @@ mask_variables_rowwise <- function(data, ..., prefix = "masked_group_") {
   result[all_col_names] <- lapply(data[all_col_names], function(col) {
     if (is.factor(col)) {
       char_values <- as.character(col)
-      masked_values <- ifelse(is.na(char_values), NA_character_,
+      # Empty strings map to NA since they're not in the mapping
+      masked_values <- ifelse(is.na(char_values) | char_values == "", NA_character_,
                               mapping[char_values])
       # Get all possible masked labels for factor levels
       all_masked <- unique(mapping)
       factor(masked_values, levels = all_masked)
     } else {
-      ifelse(is.na(col), NA_character_, mapping[col])
+      # Empty strings map to NA since they're not in the mapping
+      ifelse(is.na(col) | col == "", NA_character_, mapping[col])
     }
   })
 
