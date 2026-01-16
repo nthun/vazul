@@ -2,28 +2,31 @@
 % Please edit documentation in R/mask_variables_rowwise.R
 \name{mask_variables_rowwise}
 \alias{mask_variables_rowwise}
-\title{Mask categorical labels across multiple column sets rowwise in a data frame}
+\title{Mask categorical labels across multiple columns rowwise in a data frame}
 \usage{
 mask_variables_rowwise(data, ..., prefix = "masked_group_")
 }
 \arguments{
 \item{data}{A data frame.}
 
-\item{...}{\if{html}{\out{<tidy-select>}} One or more column sets. Each can be:
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. All arguments are combined into
+a single set. Each can be:
 \itemize{
+\item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treat_")})
-\item A character vector of column names (e.g., \code{c("treat_1", "treat_2")})
-\item Multiple sets can be provided as separate arguments
+\item A character vector of column names (e.g., \code{c("var1", "var2")})
 }}
 
 \item{prefix}{character string to use as prefix for masked labels.
 Default is "masked_group_"}
 }
 \value{
-A data frame with labels masked rowwise within each selected column set.
+A data frame with labels masked rowwise within the selected columns.
 }
 \description{
-For each row, independently mask labels within each group of selected columns.
+For each row, independently mask labels within the selected columns.
+All selected columns are combined into a single set and processed together.
+To mask different variable groups separately, call the function multiple times.
 }
 \examples{
 df <- data.frame(
@@ -35,12 +38,26 @@ df <- data.frame(
   id = 1:3
 )
 
-set.seed(123)
+set.seed(1037)
+# Mask one set of variables
+library(dplyr)
 df |> mask_variables_rowwise(starts_with("treat_"))
-df |> mask_variables_rowwise(c("treat_1", "treat_2"))
-df |> mask_variables_rowwise(
-  starts_with("treat_"),
-  c("condition_a", "condition_b")
-)
+
+# Using character vectors
+df |> mask_variables_rowwise(c("treat_1", "treat_2", "treat_3"))
+
+# Mask multiple sets separately
+df |>
+  mask_variables_rowwise(starts_with("treat_")) |>
+  mask_variables_rowwise(c("condition_a", "condition_b"))
+
+# Example with custom prefix
+df |> mask_variables_rowwise(starts_with("treat_"), prefix = "group_")
+
 }
-\keyword{functions}
+\seealso{
+\code{\link{mask_labels}} for masking a single vector,
+\code{\link{mask_variables}} for masking multiple variables, and
+\code{\link{mask_names}} for masking variable names.
+}
+\keyword{mask}

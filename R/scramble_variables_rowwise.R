@@ -1,16 +1,29 @@
-#' Scramble multiple column sets rowwise in a data frame
+#' Scramble values across multiple columns rowwise in a data frame
 #'
-#' For each row, independently shuffle values within each group of selected columns.
-#' @keywords functions
+#' For each row, shuffle values across the selected columns. All selections passed
+#' via \code{...} are combined into a single set and scrambled together.
+#' To scramble different variable groups separately, call the function multiple times.
+#'
+#' Rowwise scrambling moves values between columns, so selected columns must be
+#' type-compatible. This function requires all selected columns to have the same
+#' class (or be an integer/double mix). For factors, the selected columns must
+#' also have identical levels.
+#' @keywords scramble
 #' @param data A data frame.
-#' @param ... <tidy-select> One or more column sets. Each can be:
+#' @param ... <tidy-select> Columns to scramble. All arguments are combined into
+#'   a single set. Each can be:
 #'   \itemize{
+#'     \item Bare column names (e.g., \code{var1, var2})
 #'     \item A tidyselect expression (e.g., \code{starts_with("day_")})
-#'     \item A character vector of column names (e.g., \code{c("day_1", "day_2")})
-#'     \item Multiple sets can be provided as separate arguments
+#'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'   }
-#' @return A data frame with values scrambled rowwise within each selected column set.
-#'
+#'   If \code{data} is already a grouped \code{dplyr} data frame, existing grouping
+#'   is ignored.
+#' @return A data frame with values scrambled rowwise within the selected columns.
+#' 
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and 
+#' \code{\link{scramble_variables}} for scrambling multiple variables.
+#' 
 #' @examples
 #' df <- data.frame(
 #'   day_1 = c(1, 4, 7),
@@ -22,151 +35,94 @@
 #' )
 #'
 #' set.seed(123)
+#' # Scramble one set of variables
+#' library(dplyr)
 #' df |> scramble_variables_rowwise(starts_with("day_"))
-#' df |> scramble_variables_rowwise(c("day_1", "day_2"))
-#' df |> scramble_variables_rowwise(
-#'   starts_with("day_"),
-#'   c("score_a", "score_b")
-#' )
+#' 
+#' # Using character vectors
+#' df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
+#' 
+#' # Scramble multiple sets separately
+#' df |>
+#'   scramble_variables_rowwise(starts_with("day_")) |>
+#'   scramble_variables_rowwise(c("score_a", "score_b"))
+#' 
+#' # Multiple selectors are combined into one set (values can move between day_* and score_*)
+#' df |> scramble_variables_rowwise(starts_with("day_"), starts_with("score_"))
+#' 
 #' @export
 scramble_variables_rowwise <- function(data, ...) {
-    validate_data_frame(data)
+  validate_data_frame(data)
+  validate_data_frame_not_empty(data)
+
+  # Strip any existing dplyr grouping to avoid surprises (this function has no grouping semantics)
+  if (dplyr::is_grouped_df(data)) {
+    data <- dplyr::ungroup(data)
+  }
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
 
-  # If no sets provided, return data unchanged
-  if (length(column_sets) == 0) {
-    warning("No column sets provided. Returning data unchanged.", call. = FALSE)
+  # Resolve all column sets to column names (combined sets)
+  all_col_names <- resolve_all_column_sets(column_sets, data)
+
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 
-  # Internal helper: scramble values rowwise for a single set of columns
-  scramble_rowwise_internal <- function(df, col_names) {
-    # Validate at least one column selected
-    if (length(col_names) == 0) {
-      stop("No columns selected. Please provide valid column names or selection helpers.", call. = FALSE)
-    }
-
-    # Warn if only one column (no scrambling possible)
-    if (length(col_names) == 1) {
-      msg <- sprintf(
-        paste0(
-          "Column '%s' was passed as a single-column set - ",
-          "rowwise scrambling requires at least 2 columns. ",
-          "To scramble multiple columns together, use c() or tidyselect ",
-          "helpers, e.g., scramble_variables_rowwise(data, c(\"col1\", ",
-          "\"col2\"))."
-        ),
-        col_names
-      )
-      warning(msg, call. = FALSE)
-      return(df)
-    }
-
-    # Check for type compatibility — but allow integer + double
-    col_types <- vapply(df[col_names], typeof, character(1))
-    unique_types <- unique(col_types)
-    if (length(unique_types) > 1) {
-      # Only warn if types are NOT just integer and double
-      if (!setequal(unique_types, c("integer", "double"))) {
-        warning(
-          "Columns have mixed types: ",
-          paste(unique_types, collapse = ", "),
-          ". Scrambling may cause coercion.",
-          call. = FALSE
-        )
-      }
-    }
-
-    # Copy data
-    result <- df
-
-    # Extract selected columns as matrix for row operations
-    mat <- as.matrix(df[col_names])
-
-    # Scramble each row using scramble_values() function
-    scrambled_mat <- t(apply(mat, 1, function(row) {
-      row[scramble_values(seq_along(row))]
-    }))
-
-    # Assign scrambled values back — preserves types (but R may coerce if types were mixed!)
-    result[col_names] <- as.data.frame(scrambled_mat)
-
-    result
+  # Warn if only one column (no scrambling possible)
+  if (length(all_col_names) == 1) {
+    warning("Only one column selected. Rowwise scrambling requires at least 2 columns. ",
+            "Returning original data unchanged.", call. = FALSE)
+    return(data)
   }
 
-  # Helper to handle one set
-  scramble_one_set <- function(set_quo) {
-    # Try evaluating as character vector first
-    try_char <- tryCatch(
-      expr = {
-        set <- rlang::eval_tidy(set_quo, data = data)
-        if (is.character(set)) {
-          missing <- setdiff(set, names(data))
-          if (length(missing) > 0) {
-            stop("Error in column selection: Can't subset columns that ",
-                 "don't exist. Column `",
-                 paste(missing, collapse = "`, `"),
-                 "` doesn't exist.", call. = FALSE)
-          }
-          return(scramble_rowwise_internal(data, set)[set])
-        } else {
-          # Not character — fall through to tidyselect
-          NULL
-        }
-      },
-      error = function(e) {
-        # Not a character vector — fall through to tidyselect
-        NULL
-      }
+  # Validate type/class compatibility.
+  # Rowwise scrambling assigns values across columns within each row, so columns must be compatible.
+  col_classes <- lapply(data[all_col_names], class)
+  col_classes_key <- vapply(col_classes, paste, collapse = "|", character(1))
+  same_class <- length(unique(col_classes_key)) == 1
+
+  col_types <- vapply(data[all_col_names], typeof, character(1))
+  unique_types <- unique(col_types)
+  int_double_mix <- length(unique_types) == 2 && setequal(unique_types, c("integer", "double"))
+
+  if (!same_class && !int_double_mix) {
+    stop(
+      "Rowwise scrambling requires selected columns to have the same class ",
+      "(or be an integer/double mix). Selected classes: ",
+      paste(unique(vapply(col_classes, paste, collapse = "/", character(1))), collapse = ", "),
+      call. = FALSE
     )
+  }
 
-    if (!is.null(try_char)) {
-      return(try_char)
-    }
-
-    # If not character, treat as tidyselect expression
-    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
-      selected <- tryCatch(
-        tidyselect::eval_select(set_quo, data),
-        error = function(e) {
-          warning("Failed to evaluate column set: ", conditionMessage(e), call. = FALSE)
-          return(NULL)
-        }
+  # Extra safety for factors: levels must match, otherwise assignment will introduce NAs.
+  if (inherits(data[[all_col_names[[1]]]], "factor")) {
+    levs <- lapply(data[all_col_names], levels)
+    if (!all(vapply(levs, identical, logical(1), levs[[1]]))) {
+      stop(
+        "Rowwise scrambling of factors requires identical levels across selected columns.",
+        call. = FALSE
       )
-      if (length(selected) == 0) return(NULL)
-      col_names <- names(data)[selected]
-      scramble_rowwise_internal(data, col_names)[col_names]
-    } else {
-      warning("Each column set must be a character vector or tidyselect expression.", call. = FALSE)
-      return(NULL)
     }
   }
 
-  # Apply to each set
-  scrambled_dfs <- lapply(column_sets, scramble_one_set)
-  scrambled_dfs <- Filter(Negate(is.null), scrambled_dfs)
-
-  # If nothing was scrambled, return original
-  if (length(scrambled_dfs) == 0) {
-    return(data)
-  }
-
-  # Start with original data to preserve class
+  # Copy data
   result <- data
 
-  # Use functional approach to assign scrambled columns back
-  # This preserves the original data frame type (tibble vs data.frame)
-  result <- Reduce(
-    f = function(acc, scrambled_df) {
-      acc[names(scrambled_df)] <- scrambled_df
-      acc
-    },
-    x = scrambled_dfs,
-    init = result
-  )
+  cols <- all_col_names
+  k <- length(cols)
+  n <- nrow(data)
 
-  # Restore original column order (same as original implementation)
-  result[names(data)]
+  # Scramble each row by permuting values across the selected columns.
+  # This avoids matrix conversion and preserves column classes.
+  for (i in seq_len(n)) {
+    perm <- scramble_values(seq_len(k))
+    row_vals <- lapply(cols, function(nm) data[[nm]][i])
+    for (j in seq_len(k)) {
+      result[[cols[[j]]]][i] <- row_vals[[perm[[j]]]]
+    }
+  }
+
+  return(result)
 }

@@ -4,7 +4,7 @@
 #' the \code{mask_labels()} function. Each variable gets independent random
 #' masked labels by default, or can optionally use the same masked labels
 #' across all selected variables.
-#' @keywords functions
+#' @keywords mask
 #' @param data a data frame
 #' @param ... <tidy-select> Columns to mask. Each can be:
 #'   \itemize{
@@ -21,7 +21,11 @@
 #'
 #' @return A data frame with the specified categorical columns masked.
 #'   Only character and factor columns can be processed.
-#'
+#' 
+#' @seealso \code{\link{mask_labels}} for masking a single vector, 
+#' \code{\link{mask_variables_rowwise}} for rowwise masking, and 
+#' \code{\link{mask_names}} for masking variable names.
+#' 
 #' @examples
 #'
 #' # Create example data
@@ -66,54 +70,20 @@
 mask_variables <- function(data, ..., across_variables = FALSE) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
-
-  # Validate across_variables parameter
-  if (is.null(across_variables)) {
-    stop("Parameter 'across_variables' cannot be NULL. ",
-         "Please provide a logical value.", call. = FALSE)
-  }
-
-  if (!is.logical(across_variables) || length(across_variables) != 1) {
-    stop("Parameter 'across_variables' must be a single logical value ",
-         "(TRUE or FALSE).", call. = FALSE)
-  }
+  validate_logical_parameter(across_variables, "across_variables")
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
 
-  # If no sets provided, return data unchanged
-  if (length(column_sets) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
-    return(data)
-  }
-
   # Resolve all column sets to column names
   all_col_names <- resolve_all_column_sets(column_sets, data)
 
-  if (length(all_col_names) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 
   # Validate that all selected columns are categorical
-  is_categorical <- vapply(data[all_col_names], function(x) {
-    is.character(x) || is.factor(x)
-  }, logical(1))
-
-  non_categorical_cols <- all_col_names[!is_categorical]
-
-  # Error if non-categorical columns are selected
-  if (length(non_categorical_cols) > 0) {
-    stop(
-      "The following selected columns are not character or factor: ",
-      paste(non_categorical_cols, collapse = ", "),
-      ". Only character and factor columns can be masked.", call. = FALSE
-    )
-  }
-
-  categorical_cols <- all_col_names
+  validate_columns_categorical(data, all_col_names)
 
   # Apply masking
   result <- data
@@ -121,67 +91,44 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   if (across_variables) {
     # For across_variables masking, create shared mapping using mask_labels
     # First, collect all unique values across all selected categorical columns
-    all_values <- unique(unlist(lapply(result[categorical_cols], function(x) {
-      if (is.factor(x)) {
-        as.character(x)
-      } else {
-        x
-      }
-    }), use.names = FALSE))
+    all_values <- collect_unique_values(data, all_col_names)
 
-    # Remove NAs for mapping creation
-    all_values_no_na <- all_values[!is.na(all_values)]
+    # Create a shared mapping across all selected columns
+    mapping <- create_mapping(all_values, prefix = "masked_group_")
 
-    if (length(all_values_no_na) == 0) {
-      warning(
-        "All values in selected categorical columns are NA. ",
-        "Returning original data unchanged.", call. = FALSE
-      )
+    if (!validate_mapping_not_empty(mapping)) {
       return(data)
     }
 
-    # Use mask_labels to create the shared mapping
-    masked_values <- mask_labels(all_values_no_na, prefix = "masked_group_")
-    shared_mapping <- stats::setNames(masked_values, all_values_no_na)
-
     # Apply shared mapping to each column
-    result[categorical_cols] <- lapply(result[categorical_cols], function(x) {
-      if (all(is.na(x))) {
-        return(x)  # Return unchanged if all NA
-      }
-
-      # Apply mapping
-      masked <- shared_mapping[as.character(x)]
-
-      # Preserve factor structure if input was a factor
-      if (is.factor(x)) {
-        masked <- factor(masked, levels = unique(masked_values))
-      }
-
-      return(masked)
+    result[all_col_names] <- lapply(result[all_col_names], function(x) {
+      apply_mapping(x, mapping)
     })
 
   } else {
     # Independent masking for each column using column name as prefix
-    result[categorical_cols] <- lapply(categorical_cols, function(col_name) {
+    # First, check for all-NA columns to avoid multiple warnings
+    all_na_cols <- character(0)
+    
+    result[all_col_names] <- lapply(all_col_names, function(col_name) {
       x <- result[[col_name]]
+      
+      # Skip all-NA columns (they'll be returned unchanged)
       if (all(is.na(x))) {
-        return(x)  # Return unchanged if all NA
+        all_na_cols <<- c(all_na_cols, col_name)
+        return(x)
       }
-
-      # Use column name as prefix for independent masking
-      col_prefix <- paste0(col_name, "_group_")
-
-      # Apply mask_labels to each column independently with column-specific
-      # prefix
-      tryCatch({
-        mask_labels(x, prefix = col_prefix)
-      }, error = function(e) {
-        warning("Failed to mask column: ", conditionMessage(e),
-                call. = FALSE)
-        return(x)  # Return original column if masking fails
-      })
+      
+      mask_labels(x, prefix = paste0(col_name, "_group_"))
     })
+    
+    # Emit a single consolidated warning for all-NA columns
+    if (length(all_na_cols) > 0) {
+      warning(
+        "The following columns contain only NA values and were left unchanged: ",
+        paste(all_na_cols, collapse = ", "), ".", call. = FALSE
+      )
+    }
   }
 
   return(result)

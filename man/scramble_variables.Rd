@@ -18,7 +18,9 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
 }}
 
 \item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group.
-Supports the same tidyselect syntax as column selection.}
+Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
+the columns selected in \code{...}. If \code{data} is already a grouped \code{dplyr} data frame,
+existing grouping is ignored unless \code{.groups} is explicitly provided.}
 
 \item{together}{logical. If \code{TRUE}, variables are scrambled together as a unit per row.
 Values across different variables are kept intact but assigned to different rows.
@@ -70,7 +72,7 @@ williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together
 
 }
 \seealso{
-\code{\link{scramble_values}} for scrambling a single vector,
+\code{\link{scramble_values}} for scrambling a single vector, and
+\code{\link{scramble_variables_rowwise}} for rowwise scrambling.
 }
-\keyword{functions}
 \keyword{scramble}

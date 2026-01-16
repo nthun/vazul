@@ -272,9 +272,9 @@ The `scramble_variables()` function scrambles the values of specified columns in
 #### Parameters
 
 - `data`: A data frame
-- `cols`: Columns to scramble (supports tidyselect helpers)
+- `...`: Columns to scramble (supports tidyselect helpers)
 - `together`: If `TRUE`, variables are scrambled together as a unit per row; if `FALSE` (default), each variable is scrambled independently
-- `.groups`: Optional grouping columns for within-group scrambling
+- `.groups`: Optional grouping columns for within-group scrambling. Grouping columns must not overlap with the columns selected in `...`. If `data` is already grouped (a `dplyr` grouped data frame), existing grouping is ignored unless `.groups` is explicitly provided.
 
 #### Independent Scrambling (Default)
 
@@ -351,7 +351,9 @@ The `scramble_variables_rowwise()` function scrambles values within each row acr
 #### Parameters
 
 - `data`: A data frame
-- `...`: Column sets to scramble (supports tidyselect helpers)
+- `...`: Columns to scramble (supports tidyselect helpers). All selections are combined into a single set and scrambled together. If you want to scramble separate groups of columns independently, call the function multiple times.
+  
+Rowwise scrambling moves values between columns, so selected columns must be type-compatible. This function requires all selected columns to have the same class (or be an integer/double mix). For factors, the selected columns must also have identical levels.
 
 #### Example: Scrambling Item Responses
 
@@ -370,9 +372,9 @@ result
 
 Within each row, the values are shuffled among the item columns.
 
-#### Multiple Column Sets
+#### Combining Multiple Selectors (Single Combined Set)
 
-You can scramble multiple sets of columns independently:
+Multiple selectors are combined into one set, so values can move between all selected columns:
 
 ```{r}
 df2 <- data.frame(
@@ -385,13 +387,63 @@ df2 <- data.frame(
 )
 
 set.seed(1)
-result2 <- scramble_variables_rowwise(
-  df2,
-  starts_with("day_"),
-  c("score_a", "score_b")
-)
+result2 <- scramble_variables_rowwise(df2, starts_with("day_"), starts_with("score_"))
 result2
 ```
+
+#### Scrambling Separate Groups Independently (Call Multiple Times)
+
+To scramble different groups of columns independently, call the function multiple times:
+
+```{r}
+set.seed(1)
+result3 <- df2 |>
+  scramble_variables_rowwise(starts_with("day_")) |>
+  scramble_variables_rowwise(starts_with("score_"))
+result3
+```
+
+## Handling Special Values
+
+### Missing Values (NA)
+
+All masking functions preserve `NA` values in their original positions:
+
+```{r}
+# Vector with NA values
+x <- c("A", "B", NA, "A", NA, "C")
+
+set.seed(123)
+masked_x <- mask_labels(x)
+masked_x
+
+# NA positions are preserved
+which(is.na(masked_x))
+```
+
+If all values in a vector are `NA`, the function will issue a warning and return the vector unchanged:
+
+```{r}
+x_all_na <- c(NA_character_, NA_character_, NA_character_)
+mask_labels(x_all_na)
+```
+
+### Empty Strings
+
+Empty strings (`""`) are treated as valid categorical values and will be masked like any other value:
+
+```{r}
+x_with_empty <- c("A", "", "B", "", "C")
+
+set.seed(456)
+masked_with_empty <- mask_labels(x_with_empty)
+masked_with_empty
+
+# Empty strings get their own masked label
+unique(masked_with_empty)
+```
+
+This is different from `NA` values - empty strings are actual data values, not missing data.
 
 ## Choosing Between Masking and Scrambling
 
