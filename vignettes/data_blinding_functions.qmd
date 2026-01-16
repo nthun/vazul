@@ -309,7 +309,7 @@ Notice that the pairs (1, "a"), (2, "b"), etc., remain intact but are assigned t
 Use the `.groups` parameter to scramble within groups:
 
 ```{r}
-set.seed(1)
+set.seed(2)
 scramble_variables(df, "x", .groups = "group")
 ```
 
@@ -386,7 +386,7 @@ df2 <- data.frame(
   id = 1:3
 )
 
-set.seed(1)
+set.seed(2)
 result2 <- scramble_variables_rowwise(df2, starts_with("day_"), starts_with("score_"))
 result2
 ```
@@ -396,7 +396,7 @@ result2
 To scramble different groups of columns independently, call the function multiple times:
 
 ```{r}
-set.seed(1)
+set.seed(42)
 result3 <- df2 |>
   scramble_variables_rowwise(starts_with("day_")) |>
   scramble_variables_rowwise(starts_with("score_"))

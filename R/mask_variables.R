@@ -108,17 +108,17 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   } else {
     # Independent masking for each column using column name as prefix
     # First, check for all-NA columns to avoid multiple warnings
-    all_na_cols <- character(0)
-    
+    all_na_cols <- all_col_names[
+      vapply(result[all_col_names], function(x) all(is.na(x)), logical(1))
+    ]
+
     result[all_col_names] <- lapply(all_col_names, function(col_name) {
       x <- result[[col_name]]
-      
-      # Skip all-NA columns (they'll be returned unchanged)
-      if (all(is.na(x))) {
-        all_na_cols <<- c(all_na_cols, col_name)
+
+      if (col_name %in% all_na_cols) {
         return(x)
       }
-      
+
       mask_labels(x, prefix = paste0(col_name, "_group_"))
     })
     
