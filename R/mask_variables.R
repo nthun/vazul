@@ -4,10 +4,11 @@
 #' the \code{mask_labels()} function. Each variable gets independent random
 #' masked labels by default, or can optionally use the same masked labels
 #' across all selected variables.
-#' @keywords functions
+#' @keywords mask
 #' @param data a data frame
 #' @param ... <tidy-select> Columns to mask. Each can be:
 #'   \itemize{
+#'     \item Bare column names (e.g., \code{var1, var2})
 #'     \item A tidyselect expression (e.g., \code{starts_with("treat_")})
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'     \item Multiple sets can be provided as separate arguments
@@ -20,7 +21,11 @@
 #'
 #' @return A data frame with the specified categorical columns masked.
 #'   Only character and factor columns can be processed.
-#'
+#' 
+#' @seealso \code{\link{mask_labels}} for masking a single vector, 
+#' \code{\link{mask_variables_rowwise}} for rowwise masking, and 
+#' \code{\link{mask_names}} for masking variable names.
+#' 
 #' @examples
 #'
 #' # Create example data
@@ -33,6 +38,9 @@
 #' set.seed(123)
 #' # Independent masking for each variable (default - uses column names as
 #' # prefixes)
+#' # Using bare names
+#' mask_variables(df, treatment, outcome)
+#' # Or using character vector
 #' mask_variables(df, c("treatment", "outcome"))
 #'
 #' set.seed(456)
@@ -54,120 +62,28 @@
 #' # Example with williams dataset (multiple categorical columns)
 #' data(williams)
 #' set.seed(456)
-#' williams_masked <- mask_variables(williams, c("subject", "ecology"))
+#' # Using bare names (recommended for interactive use)
+#' williams_masked <- mask_variables(williams, subject, ecology)
 #' head(williams_masked[c("subject", "ecology")])
 #'
 #' @export
 mask_variables <- function(data, ..., across_variables = FALSE) {
-  if (!is.data.frame(data)) {
-    stop("Input 'data' must be a data frame. Received object of class: ",
-         paste(class(data), collapse = ", "), ".", call. = FALSE)
-  }
-
-  if (nrow(data) == 0) {
-    stop("Input 'data' cannot be an empty data frame.", call. = FALSE)
-  }
-
-  # Validate across_variables parameter
-  if (is.null(across_variables)) {
-    stop("Parameter 'across_variables' cannot be NULL. ",
-         "Please provide a logical value.", call. = FALSE)
-  }
-
-  if (!is.logical(across_variables) || length(across_variables) != 1) {
-    stop("Parameter 'across_variables' must be a single logical value ",
-         "(TRUE or FALSE).", call. = FALSE)
-  }
+  validate_data_frame(data)
+  validate_data_frame_not_empty(data)
+  validate_logical_parameter(across_variables, "across_variables")
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
 
-  # If no sets provided, return data unchanged
-  if (length(column_sets) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
-    return(data)
-  }
-
-  # Helper to resolve column names from one column set
-  resolve_column_set <- function(set_quo) {
-    # Try evaluating as character vector first
-    try_char <- tryCatch(
-      expr = {
-        set <- rlang::eval_tidy(set_quo, data = data)
-        if (is.character(set)) {
-          missing <- setdiff(set, names(data))
-          if (length(missing) > 0) {
-            stop("Error in column selection: Can't subset columns that ",
-                 "don't exist. Column `",
-                 paste(missing, collapse = "`, `"),
-                 "` doesn't exist.", call. = FALSE)
-          }
-          return(set)
-        } else {
-          NULL
-        }
-      },
-      error = function(e) {
-        if (grepl("Error in column selection", conditionMessage(e))) {
-          stop(conditionMessage(e), call. = FALSE)
-        }
-        NULL
-      }
-    )
-
-    if (!is.null(try_char)) {
-      return(try_char)
-    }
-
-    # If not character, treat as tidyselect expression
-    if (rlang::quo_is_symbol(set_quo) || rlang::quo_is_call(set_quo)) {
-      selected <- tryCatch(
-        tidyselect::eval_select(set_quo, data),
-        error = function(e) {
-          stop("Error in column selection: ", conditionMessage(e),
-               call. = FALSE)
-        }
-      )
-      if (length(selected) == 0) {
-        return(character(0))
-      }
-      return(names(data)[selected])
-    } else {
-      warning("Each column set must be a character vector or ",
-              "tidyselect expression.", call. = FALSE)
-      return(character(0))
-    }
-  }
-
   # Resolve all column sets to column names
-  all_col_names <- unlist(lapply(column_sets, resolve_column_set),
-                          use.names = FALSE)
-  all_col_names <- unique(all_col_names)
+  all_col_names <- resolve_all_column_sets(column_sets, data)
 
-  if (length(all_col_names) == 0) {
-    warning("No columns selected. Returning original data unchanged.",
-            call. = FALSE)
+  if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
   }
 
   # Validate that all selected columns are categorical
-  is_categorical <- vapply(data[all_col_names], function(x) {
-    is.character(x) || is.factor(x)
-  }, logical(1))
-
-  non_categorical_cols <- all_col_names[!is_categorical]
-
-  # Error if non-categorical columns are selected
-  if (length(non_categorical_cols) > 0) {
-    stop(
-      "The following selected columns are not character or factor: ",
-      paste(non_categorical_cols, collapse = ", "),
-      ". Only character and factor columns can be masked.", call. = FALSE
-    )
-  }
-
-  categorical_cols <- all_col_names
+  validate_columns_categorical(data, all_col_names)
 
   # Apply masking
   result <- data
@@ -175,67 +91,44 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   if (across_variables) {
     # For across_variables masking, create shared mapping using mask_labels
     # First, collect all unique values across all selected categorical columns
-    all_values <- unique(unlist(lapply(result[categorical_cols], function(x) {
-      if (is.factor(x)) {
-        as.character(x)
-      } else {
-        x
-      }
-    }), use.names = FALSE))
+    all_values <- collect_unique_values(data, all_col_names)
 
-    # Remove NAs for mapping creation
-    all_values_no_na <- all_values[!is.na(all_values)]
+    # Create a shared mapping across all selected columns
+    mapping <- create_mapping(all_values, prefix = "masked_group_")
 
-    if (length(all_values_no_na) == 0) {
-      warning(
-        "All values in selected categorical columns are NA. ",
-        "Returning original data unchanged.", call. = FALSE
-      )
+    if (!validate_mapping_not_empty(mapping)) {
       return(data)
     }
 
-    # Use mask_labels to create the shared mapping
-    masked_values <- mask_labels(all_values_no_na, prefix = "masked_group_")
-    shared_mapping <- stats::setNames(masked_values, all_values_no_na)
-
     # Apply shared mapping to each column
-    result[categorical_cols] <- lapply(result[categorical_cols], function(x) {
-      if (all(is.na(x))) {
-        return(x)  # Return unchanged if all NA
-      }
-
-      # Apply mapping
-      masked <- shared_mapping[as.character(x)]
-
-      # Preserve factor structure if input was a factor
-      if (is.factor(x)) {
-        masked <- factor(masked, levels = unique(masked_values))
-      }
-
-      return(masked)
+    result[all_col_names] <- lapply(result[all_col_names], function(x) {
+      apply_mapping(x, mapping)
     })
 
   } else {
     # Independent masking for each column using column name as prefix
-    result[categorical_cols] <- lapply(categorical_cols, function(col_name) {
+    # First, check for all-NA columns to avoid multiple warnings
+    all_na_cols <- all_col_names[
+      vapply(result[all_col_names], function(x) all(is.na(x)), logical(1))
+    ]
+
+    result[all_col_names] <- lapply(all_col_names, function(col_name) {
       x <- result[[col_name]]
-      if (all(is.na(x))) {
-        return(x)  # Return unchanged if all NA
+
+      if (col_name %in% all_na_cols) {
+        return(x)
       }
 
-      # Use column name as prefix for independent masking
-      col_prefix <- paste0(col_name, "_group_")
-
-      # Apply mask_labels to each column independently with column-specific
-      # prefix
-      tryCatch({
-        mask_labels(x, prefix = col_prefix)
-      }, error = function(e) {
-        warning("Failed to mask column: ", conditionMessage(e),
-                call. = FALSE)
-        return(x)  # Return original column if masking fails
-      })
+      mask_labels(x, prefix = paste0(col_name, "_group_"))
     })
+    
+    # Emit a single consolidated warning for all-NA columns
+    if (length(all_na_cols) > 0) {
+      warning(
+        "The following columns contain only NA values and were left unchanged: ",
+        paste(all_na_cols, collapse = ", "), ".", call. = FALSE
+      )
+    }
   }
 
   return(result)

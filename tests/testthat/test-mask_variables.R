@@ -217,6 +217,81 @@ test_that("mask_variables handles edge cases", {
   )
 })
 
+test_that("mask_variables handles empty strings correctly", {
+  # Test with empty strings in character columns - treated as valid values
+  df <- data.frame(
+    x = c("A", "", "B"),
+    y = c("X", "Y", ""),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_no_warning(
+    result <- mask_variables(df, c("x", "y"))
+  )
+  
+  # Empty strings should be masked (not converted to NA)
+  expect_false(is.na(result$x[2]))
+  expect_false(is.na(result$y[3]))
+  
+  # Non-empty values should still be masked
+  expect_true(grepl("^x_group_", result$x[1]))
+  expect_true(grepl("^x_group_", result$x[3]))
+  expect_true(grepl("^y_group_", result$y[1]))
+  expect_true(grepl("^y_group_", result$y[2]))
+  
+  # Empty strings should also be masked with the proper column prefixes
+  expect_true(grepl("^x_group_", result$x[2]))
+  expect_true(grepl("^y_group_", result$y[3]))
+  
+  # Test with factor containing empty strings
+  df_factor <- data.frame(
+    x = factor(c("A", "", "B")),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_no_warning(
+    result_factor <- mask_variables(df_factor, "x")
+  )
+  
+  # Empty strings should be masked (not converted to NA)
+  expect_s3_class(result_factor$x, "factor")
+  expect_false(is.na(result_factor$x[2]))
+  
+  # Test that NA values are allowed (not empty strings)
+  df_with_na <- data.frame(
+    x = c("A", NA, "B"),
+    y = c(NA, "Y", NA),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  result <- mask_variables(df_with_na, c("x", "y"))
+  expect_equal(nrow(result), 3)
+  expect_true(is.na(result$x[2]))
+  
+  # Test with across_variables = TRUE and empty strings
+  df_across <- data.frame(
+    x = c("A", "", "B"),
+    y = c("A", "B", ""),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_no_warning(
+    result_across <- mask_variables(df_across, c("x", "y"), across_variables = TRUE)
+  )
+  
+  # Empty strings should be masked (not converted to NA)
+  expect_false(is.na(result_across$x[2]))
+  expect_false(is.na(result_across$y[3]))
+  
+  # Same values should get same masked labels (across_variables = TRUE)
+  expect_equal(result_across$x[1], result_across$y[1])  # Both "A"
+  expect_equal(result_across$x[2], result_across$y[3])  # Both ""
+})
+
 test_that("mask_variables handles NA values correctly", {
   df <- data.frame(
     x = c("A", NA, "B"),
@@ -246,13 +321,36 @@ test_that("mask_variables handles all-NA columns", {
   )
   
   set.seed(123)
-  result <- mask_variables(df, c("x", "y"))
+  expect_warning(
+    result <- mask_variables(df, c("x", "y")),
+    "The following columns contain only NA values and were left unchanged: x.",
+    fixed = TRUE
+  )
   
   # All-NA column should remain unchanged
   expect_true(all(is.na(result$x)))
   
   # Non-NA column should be masked with column-specific prefix
   expect_true(all(grepl("^y_group_", result$y)))
+  
+  # Test with across_variables = TRUE and all-NA columns
+  df_across <- data.frame(
+    x = c(NA_character_, NA_character_),
+    y = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE
+  )
+  
+  set.seed(123)
+  expect_warning(
+    result_across <- mask_variables(df_across, c("x", "y"), across_variables = TRUE),
+    "All values in selected categorical columns are NA. Returning original data unchanged.",
+    fixed = TRUE
+  )
+  
+  # All columns should remain unchanged
+  expect_true(all(is.na(result_across$x)))
+  expect_true(all(is.na(result_across$y)))
+  expect_equal(result_across, df_across)
 })
 
 test_that("mask_variables handles single row data", {
@@ -347,4 +445,75 @@ test_that("mask_variables shared labels work with complex scenario", {
   
   # "A" and "B" should have different masked labels
   expect_false(unique(a_masked) == unique(b_masked))
+})
+# ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
+
+test_that("mask_variables works with bare variable names", {
+  df <- data.frame(
+    treatment = c("control", "intervention", "control"),
+    outcome = c("success", "failure", "success"),
+    score = c(1, 2, 3),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables(treatment, outcome)
+
+  # Both columns should be masked
+  expect_true(all(grepl("^treatment_group_", result$treatment)))
+  expect_true(all(grepl("^outcome_group_", result$outcome)))
+
+  # Numeric column should remain unchanged
+  expect_equal(result$score, df$score)
+})
+
+test_that("mask_variables works with multiple column sets", {
+  df <- data.frame(
+    a = c("X", "Y", "Z"),
+    b = c("X", "Y", "Z"),
+    c = c("P", "Q", "R"),
+    d = c("P", "Q", "R"),
+    e = c("keep", "keep", "keep"),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables(c("a", "b"), c("c", "d"))
+
+  # All four selected columns should be masked
+  expect_true(all(grepl("^a_group_", result$a)))
+  expect_true(all(grepl("^b_group_", result$b)))
+  expect_true(all(grepl("^c_group_", result$c)))
+  expect_true(all(grepl("^d_group_", result$d)))
+
+  # Unselected column should remain unchanged
+  expect_equal(result$e, df$e)
+})
+
+test_that("mask_variables works with multiple tidyselect helpers", {
+  skip_if_not_installed("dplyr")
+
+  df <- data.frame(
+    treat_a = c("X", "Y"),
+    treat_b = c("A", "B"),
+    cond_1 = c("P", "Q"),
+    cond_2 = c("R", "S"),
+    other = c("keep", "keep"),
+    stringsAsFactors = FALSE
+  )
+
+  set.seed(123)
+  result <- df |> mask_variables(
+    starts_with("treat_"),
+    starts_with("cond_")
+  )
+
+  # All matching columns should be masked
+  expect_true(all(grepl("^treat_a_group_", result$treat_a)))
+  expect_true(all(grepl("^treat_b_group_", result$treat_b)))
+  expect_true(all(grepl("^cond_1_group_", result$cond_1)))
+  expect_true(all(grepl("^cond_2_group_", result$cond_2)))
+
+  # Unselected column should remain unchanged
+  expect_equal(result$other, df$other)
 })

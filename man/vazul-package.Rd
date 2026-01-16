@@ -4,26 +4,27 @@
 \name{vazul-package}
 \alias{vazul}
 \alias{vazul-package}
-\title{vazul: Package for data blinding}
+\title{vazul: Analysis Blinding Tools}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-The vazul package provides functions for data blinding.
+Provides tools for analysis blinding in confirmatory research contexts by masking and scrambling test-relevant aspects of data. Vector-, data frame-, and row-wise operations support blinding for hierarchical and repeated-measures designs.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://nthun.github.io/vazul/}
+  \item Report bugs at \url{https://github.com/nthun/vazul/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Tamás Nagy \email{nagytamas.hungary@gmail.com}
+\strong{Maintainer}: Tamás Nagy \email{nagytamas.hungary@gmail.com} (\href{https://orcid.org/0000-0001-5244-0356}{ORCID})
 
 Authors:
 \itemize{
-  \item Alexandra Sarafoglou \email{alexandra.sarafoglou@gmail.com} [data contributor]
-  \item Márton Kovács \email{marton.balazs.kovacs@gmail.com}
+  \item Alexandra Sarafoglou \email{alexandra.sarafoglou@gmail.com} (\href{https://orcid.org/0000-0003-0031-685X}{ORCID}) [data contributor]
+  \item Márton Kovács \email{marton.balazs.kovacs@gmail.com} (\href{https://orcid.org/0000-0002-8142-8492}{ORCID})
 }
 
 }

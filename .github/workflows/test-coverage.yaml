@@ -2,11 +2,11 @@ name: test-coverage
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, devel]
   pull_request:
+  workflow_dispatch:
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -28,34 +28,7 @@ jobs:
 
       - name: Test coverage
         run: |
-          print("Getting package coverage...")
           cov <- covr::package_coverage(quiet = FALSE, clean = FALSE)
           print(cov)
-          if (is.null(cov) || length(cov) == 0) {
-            stop("Coverage object is NULL or empty.")
-          }
-          print("Writing cobertura.xml...")
-          covr::to_cobertura(cov, "cobertura.xml")
-          print("Done.")
+          covr::codecov(coverage = cov)
         shell: Rscript {0}
-
-      - name: Check coverage file
-        run: |
-          ls -la
-          head -n 10 cobertura.xml || true
-          wc -l cobertura.xml || true
-
-      - name: Upload cobertura.xml artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cobertura-report
-          path: cobertura.xml
-
-      - uses: codecov/codecov-action@v5
-        with:
-          files: ./cobertura.xml
-          flags: unittests
-          name: github-actions-ci
-          fail_ci_if_error: ${{ !github.event.pull_request }}
-          use_legacy_upload_endpoint: true

@@ -23,7 +23,7 @@ set.seed(123)
 x <- letters[1:10]
 scramble_values(x)
 
-#' # Example with numeric vector
+# Example with numeric vector
 nums <- 1:5
 scramble_values(nums)
 
@@ -36,4 +36,8 @@ williams$ecology_scrambled <- scramble_values(williams$ecology)
 head(williams[c("ecology", "ecology_scrambled")])
 
 }
-\keyword{functions}
+\seealso{
+\code{\link{scramble_variables}} for scrambling multiple variables in a data frame, and
+\code{\link{scramble_variables_rowwise}} for rowwise scrambling.
+}
+\keyword{scramble}

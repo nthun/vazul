@@ -137,6 +137,6 @@ if (requireNamespace("dplyr", quietly = TRUE)) {
 #> # ℹ 18 more variables: Impuls_2_r <dbl>, Impul_3_r <dbl>, Opport_1 <dbl>,
 #> #   Opport_2 <dbl>, Opport_3 <dbl>, Opport_4 <dbl>, Opport_5 <dbl>,
 #> #   Opport_6_r <dbl>, InvEdu_1_r <dbl>, InvEdu_2_r <dbl>, InvChild_1 <dbl>,
-#> #   InvChild_2_r <dbl>, age <dbl>, gender <dbl>, ecology <chr>,
+#> #   InvChild_2_r <dbl>, age <dbl>, gender <dbl>, ecology <dbl>,
 #> #   duration_in_seconds <dbl>, attention_1 <dbl>, attention_2 <dbl>
 ```

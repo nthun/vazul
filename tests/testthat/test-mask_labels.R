@@ -183,6 +183,13 @@ test_that("mask_labels validates prefix parameter correctly", {
     "Parameter 'prefix' must be a single character string.",
     fixed = TRUE
   )
+
+  # Test empty string prefix
+  expect_error(
+    mask_labels(x, prefix = ""),
+    "Parameter 'prefix' cannot be an empty string. Please provide a non-empty character string.",
+    fixed = TRUE
+  )
 })
 
 test_that("mask_labels preserves factor levels correctly", {
@@ -227,5 +234,58 @@ test_that("mask_labels handles NA values correctly", {
   expect_equal(length(result), 6)
   expect_equal(sum(is.na(result)), 2)  # Should preserve NA positions
   expect_equal(length(unique(result[!is.na(result)])), 2)  # 2 non-NA unique values
+  
+  # Test with all-NA vector - should warn and return unchanged
+  x_all_na <- c(NA_character_, NA_character_, NA_character_)
+  expect_warning(
+    result_all_na <- mask_labels(x_all_na),
+    "All values in input are NA. Returning unchanged.",
+    fixed = TRUE
+  )
+  expect_true(all(is.na(result_all_na)))
+  expect_equal(length(result_all_na), 3)
+})
+
+test_that("mask_labels handles empty strings correctly", {
+  # Test with empty strings - should be treated as regular categorical values
+  set.seed(123)
+  x <- c("A", "", "B", "")
+  
+  # Should not produce a warning
+  expect_no_warning(
+    result <- mask_labels(x)
+  )
+  
+  # Empty strings should be treated as a valid category and get their own masked label
+  expect_equal(length(result), 4)
+  expect_equal(sum(is.na(result)), 0)  # No NA values
+  expect_equal(length(unique(result)), 3)  # A, B, and "" all get different masked labels
+  
+  # Empty strings should all get the same masked label
+  empty_labels <- result[x == ""]
+  expect_true(all(empty_labels == empty_labels[1]))
+  expect_true(grepl("^masked_group_", empty_labels[1]))
+  
+  # Test with factor containing empty strings
+  set.seed(456)
+  x_factor <- factor(c("A", "", "B"))
+  
+  # Should not produce a warning
+  expect_no_warning(
+    result_factor <- mask_labels(x_factor)
+  )
+  
+  # Empty strings should be treated as a valid category
+  expect_equal(sum(is.na(result_factor)), 0)  # No NA values
+  expect_s3_class(result_factor, "factor")
+  expect_equal(length(levels(result_factor)), 3)  # Three masked labels
+  
+  # Test that NA values remain as NA (different from empty strings)
+  x_with_na <- c("A", NA, "B")
+  set.seed(789)
+  result <- mask_labels(x_with_na)
+  expect_equal(length(result), 3)
+  expect_equal(sum(is.na(result)), 1)  # NA stays as NA
+  expect_equal(length(unique(result[!is.na(result)])), 2)  # A and B get masked
 })
 

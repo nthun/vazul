@@ -4,32 +4,32 @@
 \alias{mask_names}
 \title{Mask variable names with anonymous labels}
 \usage{
-mask_names(data, ..., prefix = "variable_set_", set_id = NULL)
+mask_names(data, ..., prefix)
 }
 \arguments{
-\item{data}{a data frame}
+\item{data}{A data frame.}
 
-\item{...}{\if{html}{\out{<tidy-select>}} One or more variable sets. Each can be:
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. All arguments are combined into
+a single set. Each can be:
 \itemize{
+\item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treatment_")})
 \item A character vector of column names (e.g., \code{c("var1", "var2")})
-\item Multiple sets can be provided as separate arguments
 }}
 
-\item{prefix}{character string to use as base prefix for masked names.
-Default is "variable_set_"}
-
-\item{set_id}{character string to append to prefix for each variable set.
-If NULL (default), uses letters A, B, C, etc. for each set.}
+\item{prefix}{character string to use as prefix for masked names.
+This becomes the base prefix, with numeric suffixes appended (e.g.,
+\code{prefix = "treatment_"} produces "treatment_01", "treatment_02", etc.).
+The prefix is used as-is, so include a separator (e.g., underscore) if desired.}
 }
 \value{
 A data frame with the specified variables renamed to masked names.
 }
 \description{
-Assigns new masked names to groups of variables in a data frame.
-Each group of variables gets its own prefix for the masked names,
-such as "variable_set_A_01", "variable_set_B_01", etc.
-The function ensures no name collisions occur with existing column names.
+Assigns new masked names to selected variables in a data frame.
+All selected variables are combined into a single set and renamed with
+a common prefix. To mask different variable groups with different prefixes,
+call the function separately for each group.
 }
 \examples{
 df <- data.frame(
@@ -40,39 +40,34 @@ df <- data.frame(
   id = 1:3
 )
 
-# Mask two variable sets with default prefixes
-mask_names(df,
-  starts_with("treat_"),
-  starts_with("outcome_")
-)
+# Mask one set of variables
+library(dplyr)
+mask_names(df, starts_with("treat_"), prefix = "A_")
 
 # Using character vectors
-mask_names(df,
-  c("treat_1", "treat_2"),
-  c("outcome_a", "outcome_b")
-)
+mask_names(df, c("treat_1", "treat_2"), prefix = "A_")
 
-# Custom set_id
-mask_names(df,
-  starts_with("treat_"),
-  starts_with("outcome_"),
-  set_id = c("treatment", "outcome")
-)
+# Mask multiple sets separately
+# Note that the order of masking matters
+# Try to mix up the order of prefixes
+# for different sets to ensure proper masking.
+df |>
+  mask_names(starts_with("treat_"), prefix = "B_") |>
+  mask_names(starts_with("outcome_"), prefix = "A_")
 
 # Example with the 'williams' dataset
-library(dplyr)
-
+data(williams)
 set.seed(42)
 
 williams |>
-mask_names(starts_with("SexUnres"),
-           starts_with("Impul"),
-           starts_with("Opport"),
-           starts_with("InvEdu"),
-           starts_with("InvChild"),
-           ) |>
- glimpse()
-
+  mask_names(starts_with("SexUnres"), prefix = "A_") |>
+  mask_names(starts_with("Impul"), prefix = "B_") |>
+  colnames()
 
 }
-\keyword{functions}
+\seealso{
+\code{\link{mask_labels}} for masking values in a vector,
+\code{\link{mask_variables}} for masking values in multiple variables, and
+\code{\link{mask_variables_rowwise}} for rowwise value masking.
+}
+\keyword{mask}

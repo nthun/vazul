@@ -1,7 +1,11 @@
 #' Scramble a vector of values
-#' @keywords functions
+#' @keywords scramble
 #' @param x a vector `x`
 #' @return the scrambled vector
+#'
+#' @seealso \code{\link{scramble_variables}} for scrambling multiple variables in a data frame, and
+#' \code{\link{scramble_variables_rowwise}} for rowwise scrambling.
+#'
 #' @examples
 #'
 #' # Example with character vector
@@ -10,7 +14,7 @@
 #' x <- letters[1:10]
 #' scramble_values(x)
 #'
-#'#' # Example with numeric vector
+#' # Example with numeric vector
 #' nums <- 1:5
 #' scramble_values(nums)
 #'
@@ -24,30 +28,13 @@
 #'
 #' @export
 scramble_values <- function(x) {
-    # Input validation - check if x is a vector
-    if (is.null(x)) {
-        stop("Input 'x' cannot be NULL. Please provide a vector.", call. = FALSE)
-    }
+  validate_vector(x)
 
-    if (!is.atomic(x) && !is.list(x)) {
-        stop("Input 'x' must be an atomic vector or list. Received object of class: ",
-             paste(class(x), collapse = ", "), ".", call. = FALSE)
-    }
-    if (is.matrix(x) || is.data.frame(x)) {
-        stop("Input 'x' must be a 1-dimensional vector. Received object of class: ",
-             paste(class(x), collapse = ", "), ".", call. = FALSE)
-    }
+  # Handle the special case where length(x) == 1
+  # This prevents R's sample() from treating a single integer as 1:x
+  if (length(x) == 1) {
+    return(x)
+  }
 
-    if (length(x) == 0) {
-        stop("Input 'x' cannot be an empty vector. Please provide a vector with at least one element.", call. = FALSE)
-    }
-
-    # Handle the special case where length(x) == 1
-    # This prevents R's sample() from treating a single integer as 1:x
-    if (length(x) == 1) {
-        return(x)
-    }
-
-    sample(x, length(x), replace = FALSE)
-
+  sample(x, length(x), replace = FALSE)
 }

@@ -9,9 +9,15 @@ home:
     Alexandra Sarafoglou: https://github.com/ASarafoglou
     Márton Kovács: https://github.com/marton-balazs-kovacs
 reference:
-  - title: Functions
+  - title: Masking functions
+    desc: "Functions for masking categorical values and variable names"
     contents:
-      - has_keyword("functions")
+      - has_keyword("mask")
+
+  - title: Scrambling functions
+    desc: "Functions for scrambling values"
+    contents:
+      - has_keyword("scramble")
 
   - title: Datasets
     desc: "Available datasets"
