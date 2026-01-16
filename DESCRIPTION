@@ -1,6 +1,6 @@
 Package: vazul
 Title: Analysis Blinding Tools
-Version: 0.4.0
+Version: 1.0.0
 Authors@R: c(
     person(given = "Tamás", 
            family = "Nagy", 
