@@ -42,15 +42,18 @@ df <- data.frame(
 
 # Mask one set of variables
 library(dplyr)
-mask_names(df, starts_with("treat_"), prefix = "treatment_")
+mask_names(df, starts_with("treat_"), prefix = "A_")
 
 # Using character vectors
-mask_names(df, c("treat_1", "treat_2"), prefix = "treatment_")
+mask_names(df, c("treat_1", "treat_2"), prefix = "A_")
 
 # Mask multiple sets separately
+# Note that the order of masking matters
+# Try to mix up the order of prefixes
+# for different sets to ensure proper masking.
 df |>
-  mask_names(starts_with("treat_"), prefix = "treatment_") |>
-  mask_names(starts_with("outcome_"), prefix = "outcome_")
+  mask_names(starts_with("treat_"), prefix = "B_") |>
+  mask_names(starts_with("outcome_"), prefix = "A_")
 
 # Example with the 'williams' dataset
 data(williams)
