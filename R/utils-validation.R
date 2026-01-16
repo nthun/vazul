@@ -85,30 +85,6 @@ validate_vector_categorical <- function(x) {
   invisible(NULL)
 }
 
-#' Validate that categorical vector does not contain empty strings
-#'
-#' Internal helper function for validating that a categorical vector does not
-#' contain empty strings. Empty strings in categorical data may indicate
-#' missing data that should be represented as NA instead. Must be called after
-#' validate_vector_categorical().
-#'
-#' @param x The categorical vector to validate.
-#' @return NULL (invisibly). Throws an error if validation fails.
-#' @keywords internal
-#' @noRd
-validate_vector_no_empty_strings <- function(x) {
-  # Check for empty strings (excluding NA values)
-  has_empty_strings <- any(x == "" & !is.na(x))
-  
-  if (has_empty_strings) {
-    stop("Input 'x' contains empty strings (\"\"). Empty strings in categorical ",
-         "data may indicate missing data that should be represented as NA. ",
-         "Please convert empty strings to NA before masking.", call. = FALSE)
-  }
-  
-  invisible(NULL)
-}
-
 #' Validate prefix parameter
 #'
 #' Internal helper function for validating prefix parameter.
