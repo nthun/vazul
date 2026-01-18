@@ -3,20 +3,25 @@
 ## Authors
 
 - **Tamás Nagy**. Author, maintainer.
+  [](https://orcid.org/0000-0001-5244-0356)
 
 - **Alexandra Sarafoglou**. Author, data contributor.
+  [](https://orcid.org/0000-0003-0031-685X)
 
-- **Márton Kovács**. Author.
+- **Márton Kovács**. Author. [](https://orcid.org/0000-0002-8142-8492)
 
 ## Citation
 
-Nagy T, Sarafoglou A, Kovács M (2025). *vazul: Package for data
-blinding*. R package version 0.4.0, <https://nthun.github.io/vazul/>.
+Source:
+[`DESCRIPTION`](https://github.com/nthun/vazul/blob/HEAD/DESCRIPTION)
+
+Nagy T, Sarafoglou A, Kovács M (2026). *vazul: Analysis Blinding Tools*.
+R package version 1.0.0, <https://nthun.github.io/vazul/>.
 
     @Manual{,
-      title = {vazul: Package for data blinding},
+      title = {vazul: Analysis Blinding Tools},
       author = {Tamás Nagy and Alexandra Sarafoglou and Márton Kovács},
-      year = {2025},
-      note = {R package version 0.4.0},
+      year = {2026},
+      note = {R package version 1.0.0},
       url = {https://nthun.github.io/vazul/},
     }

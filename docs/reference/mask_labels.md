@@ -27,6 +27,15 @@ mask_labels(x, prefix = "masked_group_")
 
 a vector of the same type as input with masked labels
 
+## See also
+
+[`mask_variables`](https://nthun.github.io/vazul/reference/mask_variables.md)
+for masking multiple variables in a data frame,
+[`mask_variables_rowwise`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
+for rowwise masking, and
+[`mask_names`](https://nthun.github.io/vazul/reference/mask_names.md)
+for masking variable names.
+
 ## Examples
 
 ``` r
@@ -34,22 +43,19 @@ a vector of the same type as input with masked labels
 set.seed(123)
 treatment <- c("control", "treatment", "control", "treatment")
 mask_labels(treatment)
-#>           control         treatment           control         treatment 
-#> "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02" 
+#> [1] "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"
 
 # Example with custom prefix
 set.seed(456)
 condition <- c("A", "B", "C", "A", "B", "C")
 mask_labels(condition, prefix = "group_")
-#>          A          B          C          A          B          C 
-#> "group_01" "group_03" "group_02" "group_01" "group_03" "group_02" 
+#> [1] "group_01" "group_03" "group_02" "group_01" "group_03" "group_02"
 
 # Example with factor vector
 set.seed(789)
 ecology <- factor(c("Desperate", "Hopeful", "Desperate", "Hopeful"))
 mask_labels(ecology)
-#>       Desperate         Hopeful       Desperate         Hopeful 
-#> masked_group_01 masked_group_02 masked_group_01 masked_group_02 
+#> [1] masked_group_01 masked_group_02 masked_group_01 masked_group_02
 #> Levels: masked_group_01 masked_group_02
 
 # Using with dataset column

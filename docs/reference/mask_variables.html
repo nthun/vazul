@@ -13,7 +13,7 @@ across all selected variables."><meta property="og:image" content="https://nthun
 
     <a class="navbar-brand me-2" href="../index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,7 @@ across all selected variables."><meta property="og:image" content="https://nthun
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/nthun/vazul/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -38,7 +39,7 @@ across all selected variables."><meta property="og:image" content="https://nthun
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Mask categorical variables with random labels in a data frame</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/nthun/vazul/blob/HEAD/R/mask_variables.R" class="external-link"><code>R/mask_variables.R</code></a></small>
       <div class="d-none name"><code>mask_variables.Rd</code></div>
     </div>
 
@@ -63,7 +64,8 @@ across all selected variables.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p><tidy-select> Columns to mask. Each can be:</tidy-select></p><ul><li><p>A tidyselect expression (e.g., <code>starts_with("treat_")</code>)</p></li>
+<dd><p><tidy-select> Columns to mask. Each can be:</tidy-select></p><ul><li><p>Bare column names (e.g., <code>var1, var2</code>)</p></li>
+<li><p>A tidyselect expression (e.g., <code>starts_with("treat_")</code>)</p></li>
 <li><p>A character vector of column names (e.g., <code>c("var1", "var2")</code>)</p></li>
 <li><p>Multiple sets can be provided as separate arguments</p></li>
 </ul><p>Only character and factor columns will be processed.</p></dd>
@@ -81,6 +83,12 @@ prefix.</p></dd>
     <p>A data frame with the specified categorical columns masked.
 Only character and factor columns can be processed.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="mask_labels.html">mask_labels</a></code> for masking a single vector,
+<code><a href="mask_variables_rowwise.html">mask_variables_rowwise</a></code> for rowwise masking, and
+<code><a href="mask_names.html">mask_names</a></code> for masking variable names.</p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -95,11 +103,18 @@ Only character and factor columns can be processed.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Independent masking for each variable (default - uses column names as</span></span></span>
 <span class="r-in"><span><span class="co"># prefixes)</span></span></span>
-<span class="r-in"><span><span class="fu">mask_variables</span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment"</span>, <span class="st">"outcome"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Using bare names</span></span></span>
+<span class="r-in"><span><span class="fu">mask_variables</span><span class="op">(</span><span class="va">df</span>, <span class="va">treatment</span>, <span class="va">outcome</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            treatment          outcome score</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 treatment_group_01 outcome_group_01     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 treatment_group_02 outcome_group_02     2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 treatment_group_01 outcome_group_01     3</span>
+<span class="r-in"><span><span class="co"># Or using character vector</span></span></span>
+<span class="r-in"><span><span class="fu">mask_variables</span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment"</span>, <span class="st">"outcome"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            treatment          outcome score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 treatment_group_01 outcome_group_02     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 treatment_group_02 outcome_group_01     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 treatment_group_01 outcome_group_02     3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Shared masking across variables</span></span></span>
@@ -133,7 +148,8 @@ Only character and factor columns can be processed.</p>
 <span class="r-in"><span><span class="co"># Example with williams dataset (multiple categorical columns)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">williams_masked</span> <span class="op">&lt;-</span> <span class="fu">mask_variables</span><span class="op">(</span><span class="va">williams</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"ecology"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Using bare names (recommended for interactive use)</span></span></span>
+<span class="r-in"><span><span class="va">williams_masked</span> <span class="op">&lt;-</span> <span class="fu">mask_variables</span><span class="op">(</span><span class="va">williams</span>, <span class="va">subject</span>, <span class="va">ecology</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">williams_masked</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"ecology"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   subject           ecology         </span>

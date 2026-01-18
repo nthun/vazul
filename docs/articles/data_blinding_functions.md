@@ -374,10 +374,13 @@ function scrambles the values of specified columns in a data frame.
 #### Parameters
 
 - `data`: A data frame
-- `cols`: Columns to scramble (supports tidyselect helpers)
+- `...`: Columns to scramble (supports tidyselect helpers)
 - `together`: If `TRUE`, variables are scrambled together as a unit per
   row; if `FALSE` (default), each variable is scrambled independently
-- `.groups`: Optional grouping columns for within-group scrambling
+- `.groups`: Optional grouping columns for within-group scrambling.
+  Grouping columns must not overlap with the columns selected in `...`.
+  If `data` is already grouped (a `dplyr` grouped data frame), existing
+  grouping is ignored unless `.groups` is explicitly provided.
 
 #### Independent Scrambling (Default)
 
@@ -428,17 +431,17 @@ assigned to different rows.
 Use the `.groups` parameter to scramble within groups:
 
 ``` r
-set.seed(1)
+set.seed(2)
 scramble_variables(df, "x", .groups = "group")
 #> # A tibble: 6 × 3
 #>       x y     group
 #>   <int> <chr> <chr>
 #> 1     1 a     A    
-#> 2     2 b     A    
-#> 3     3 c     A    
-#> 4     4 d     B    
-#> 5     5 e     B    
-#> 6     6 f     B
+#> 2     3 b     A    
+#> 3     2 c     A    
+#> 4     5 d     B    
+#> 5     6 e     B    
+#> 6     4 f     B
 ```
 
 Values of `x` are only swapped within their original group (A or B).
@@ -501,7 +504,15 @@ is useful for scrambling repeated measures or item responses.
 #### Parameters
 
 - `data`: A data frame
-- `...`: Column sets to scramble (supports tidyselect helpers)
+- `...`: Columns to scramble (supports tidyselect helpers). All
+  selections are combined into a single set and scrambled together. If
+  you want to scramble separate groups of columns independently, call
+  the function multiple times.
+
+Rowwise scrambling moves values between columns, so selected columns
+must be type-compatible. This function requires all selected columns to
+have the same class (or be an integer/double mix). For factors, the
+selected columns must also have identical levels.
 
 #### Example: Scrambling Item Responses
 
@@ -524,9 +535,10 @@ result
 
 Within each row, the values are shuffled among the item columns.
 
-#### Multiple Column Sets
+#### Combining Multiple Selectors (Single Combined Set)
 
-You can scramble multiple sets of columns independently:
+Multiple selectors are combined into one set, so values can move between
+all selected columns:
 
 ``` r
 df2 <- data.frame(
@@ -538,18 +550,89 @@ df2 <- data.frame(
   id = 1:3
 )
 
-set.seed(1)
-result2 <- scramble_variables_rowwise(
-  df2,
-  starts_with("day_"),
-  c("score_a", "score_b")
-)
+set.seed(2)
+result2 <- scramble_variables_rowwise(df2, starts_with("day_"), starts_with("score_"))
 result2
 #>   day_1 day_2 day_3 score_a score_b id
-#> 1     1     2     3      20      10  1
-#> 2     4     5     6      40      50  2
-#> 3     9     7     8      70      80  3
+#> 1     1     3     2      20      10  1
+#> 2     5     6     4      40      50  2
+#> 3     7     9     8      70      80  3
 ```
+
+#### Scrambling Separate Groups Independently (Call Multiple Times)
+
+To scramble different groups of columns independently, call the function
+multiple times:
+
+``` r
+set.seed(42)
+result3 <- df2 |>
+  scramble_variables_rowwise(starts_with("day_")) |>
+  scramble_variables_rowwise(starts_with("score_"))
+result3
+#>   day_1 day_2 day_3 score_a score_b id
+#> 1     1     3     2      20      10  1
+#> 2     4     5     6      50      40  2
+#> 3     8     9     7      80      70  3
+```
+
+## Handling Special Values
+
+### Missing Values (NA)
+
+All masking functions preserve `NA` values in their original positions:
+
+``` r
+# Vector with NA values
+x <- c("A", "B", NA, "A", NA, "C")
+
+set.seed(123)
+masked_x <- mask_labels(x)
+masked_x
+#>                 A                 B              <NA>                 A 
+#> "masked_group_03" "masked_group_04"                NA "masked_group_03" 
+#>              <NA>                 C 
+#>                NA "masked_group_02"
+
+# NA positions are preserved
+which(is.na(masked_x))
+#> <NA> <NA> 
+#>    3    5
+```
+
+If all values in a vector are `NA`, the function will issue a warning
+and return the vector unchanged:
+
+``` r
+x_all_na <- c(NA_character_, NA_character_, NA_character_)
+mask_labels(x_all_na)
+#> <NA> <NA> <NA> 
+#>   NA   NA   NA
+```
+
+### Empty Strings
+
+Empty strings (`""`) are treated as valid categorical values and will be
+masked like any other value:
+
+``` r
+x_with_empty <- c("A", "", "B", "", "C")
+
+set.seed(456)
+masked_with_empty <- mask_labels(x_with_empty)
+masked_with_empty
+#>                 A              <NA>                 B              <NA> 
+#> "masked_group_01"                NA "masked_group_03"                NA 
+#>                 C 
+#> "masked_group_02"
+
+# Empty strings get their own masked label
+unique(masked_with_empty)
+#> [1] "masked_group_01" NA                "masked_group_03" "masked_group_02"
+```
+
+This is different from `NA` values - empty strings are actual data
+values, not missing data.
 
 ## Choosing Between Masking and Scrambling
 

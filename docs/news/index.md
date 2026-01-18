@@ -1,5 +1,15 @@
 # Changelog
 
+## vazul 1.0.0
+
+### 2026-01-16
+
+- Finalize functions
+- Streamline validation and generics
+- Unify the API interface for functions
+- Add tests, change vignettes to match functionality
+- Fix codecov
+
 ## vazul 0.4.0
 
 ### 2025-09-29
@@ -21,7 +31,7 @@
   [`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
   functions to mask factor levels and variable names.
 - Add unit tests for all new functions
-- Add lifcycle badge to README
+- Add lifecycle badge to README
 
 ## vazul 0.2.1
 

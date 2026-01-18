@@ -1,7 +1,9 @@
-# Mask categorical labels across multiple column sets rowwise in a data frame
+# Mask categorical labels across multiple columns rowwise in a data frame
 
-For each row, independently mask labels within each group of selected
-columns.
+For each row, independently mask labels within the selected columns. All
+selected columns are combined into a single set and processed together.
+To mask different variable groups separately, call the function multiple
+times.
 
 ## Usage
 
@@ -17,13 +19,14 @@ mask_variables_rowwise(data, ..., prefix = "masked_group_")
 
 - ...:
 
-  One or more column sets. Each can be:
+  Columns to mask. All arguments are combined into a single set. Each
+  can be:
+
+  - Bare column names (e.g., `var1, var2`)
 
   - A tidyselect expression (e.g., `starts_with("treat_")`)
 
-  - A character vector of column names (e.g., `c("treat_1", "treat_2")`)
-
-  - Multiple sets can be provided as separate arguments
+  - A character vector of column names (e.g., `c("var1", "var2")`)
 
 - prefix:
 
@@ -32,7 +35,16 @@ mask_variables_rowwise(data, ..., prefix = "masked_group_")
 
 ## Value
 
-A data frame with labels masked rowwise within each selected column set.
+A data frame with labels masked rowwise within the selected columns.
+
+## See also
+
+[`mask_labels`](https://nthun.github.io/vazul/reference/mask_labels.md)
+for masking a single vector,
+[`mask_variables`](https://nthun.github.io/vazul/reference/mask_variables.md)
+for masking multiple variables, and
+[`mask_names`](https://nthun.github.io/vazul/reference/mask_names.md)
+for masking variable names.
 
 ## Examples
 
@@ -46,27 +58,39 @@ df <- data.frame(
   id = 1:3
 )
 
-set.seed(123)
+set.seed(1037)
+# Mask one set of variables
+library(dplyr)
 df |> mask_variables_rowwise(starts_with("treat_"))
 #>           treat_1         treat_2         treat_3 condition_a condition_b id
-#> 1 masked_group_03 masked_group_01 masked_group_02           A           B  1
-#> 2 masked_group_01 masked_group_02 masked_group_03           B           A  2
-#> 3 masked_group_02 masked_group_03 masked_group_01           A           B  3
-df |> mask_variables_rowwise(c("treat_1", "treat_2"))
-#>           treat_1         treat_2   treat_3 condition_a condition_b id
-#> 1 masked_group_02 masked_group_01   placebo           A           B  1
-#> 2 masked_group_01 masked_group_03   control           B           A  2
-#> 3 masked_group_03 masked_group_02 treatment           A           B  3
-df |> mask_variables_rowwise(
-  starts_with("treat_"),
-  c("condition_a", "condition_b")
-)
+#> 1 masked_group_01 masked_group_02 masked_group_03           A           B  1
+#> 2 masked_group_02 masked_group_03 masked_group_01           B           A  2
+#> 3 masked_group_03 masked_group_01 masked_group_02           A           B  3
+
+# Using character vectors
+df |> mask_variables_rowwise(c("treat_1", "treat_2", "treat_3"))
+#>           treat_1         treat_2         treat_3 condition_a condition_b id
+#> 1 masked_group_01 masked_group_02 masked_group_03           A           B  1
+#> 2 masked_group_02 masked_group_03 masked_group_01           B           A  2
+#> 3 masked_group_03 masked_group_01 masked_group_02           A           B  3
+
+# Mask multiple sets separately
+df |>
+  mask_variables_rowwise(starts_with("treat_")) |>
+  mask_variables_rowwise(c("condition_a", "condition_b"))
 #>           treat_1         treat_2         treat_3     condition_a
-#> 1 masked_group_02 masked_group_03 masked_group_01 masked_group_01
-#> 2 masked_group_03 masked_group_01 masked_group_02 masked_group_02
-#> 3 masked_group_01 masked_group_02 masked_group_03 masked_group_01
+#> 1 masked_group_03 masked_group_01 masked_group_02 masked_group_01
+#> 2 masked_group_01 masked_group_02 masked_group_03 masked_group_02
+#> 3 masked_group_02 masked_group_03 masked_group_01 masked_group_01
 #>       condition_b id
 #> 1 masked_group_02  1
 #> 2 masked_group_01  2
 #> 3 masked_group_02  3
+
+# Example with custom prefix
+df |> mask_variables_rowwise(starts_with("treat_"), prefix = "group_")
+#>    treat_1  treat_2  treat_3 condition_a condition_b id
+#> 1 group_03 group_01 group_02           A           B  1
+#> 2 group_01 group_02 group_03           B           A  2
+#> 3 group_02 group_03 group_01           A           B  3
 ```

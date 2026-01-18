@@ -18,6 +18,13 @@ scramble_values(x)
 
 the scrambled vector
 
+## See also
+
+[`scramble_variables`](https://nthun.github.io/vazul/reference/scramble_variables.md)
+for scrambling multiple variables in a data frame, and
+[`scramble_variables_rowwise`](https://nthun.github.io/vazul/reference/scramble_variables_rowwise.md)
+for rowwise scrambling.
+
 ## Examples
 
 ``` r
@@ -28,7 +35,7 @@ x <- letters[1:10]
 scramble_values(x)
 #>  [1] "c" "j" "b" "h" "f" "i" "a" "g" "e" "d"
 
-#' # Example with numeric vector
+# Example with numeric vector
 nums <- 1:5
 scramble_values(nums)
 #> [1] 2 3 1 4 5

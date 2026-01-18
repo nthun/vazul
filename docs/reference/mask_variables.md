@@ -23,6 +23,8 @@ mask_variables(data, ..., across_variables = FALSE)
 
   Columns to mask. Each can be:
 
+  - Bare column names (e.g., `var1, var2`)
+
   - A tidyselect expression (e.g., `starts_with("treat_")`)
 
   - A character vector of column names (e.g., `c("var1", "var2")`)
@@ -42,6 +44,15 @@ mask_variables(data, ..., across_variables = FALSE)
 A data frame with the specified categorical columns masked. Only
 character and factor columns can be processed.
 
+## See also
+
+[`mask_labels`](https://nthun.github.io/vazul/reference/mask_labels.md)
+for masking a single vector,
+[`mask_variables_rowwise`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
+for rowwise masking, and
+[`mask_names`](https://nthun.github.io/vazul/reference/mask_names.md)
+for masking variable names.
+
 ## Examples
 
 ``` r
@@ -55,11 +66,18 @@ df <- data.frame(
 set.seed(123)
 # Independent masking for each variable (default - uses column names as
 # prefixes)
-mask_variables(df, c("treatment", "outcome"))
+# Using bare names
+mask_variables(df, treatment, outcome)
 #>            treatment          outcome score
 #> 1 treatment_group_01 outcome_group_01     1
 #> 2 treatment_group_02 outcome_group_02     2
 #> 3 treatment_group_01 outcome_group_01     3
+# Or using character vector
+mask_variables(df, c("treatment", "outcome"))
+#>            treatment          outcome score
+#> 1 treatment_group_01 outcome_group_02     1
+#> 2 treatment_group_02 outcome_group_01     2
+#> 3 treatment_group_01 outcome_group_02     3
 
 set.seed(456)
 # Shared masking across variables
@@ -93,7 +111,8 @@ print(result)
 # Example with williams dataset (multiple categorical columns)
 data(williams)
 set.seed(456)
-williams_masked <- mask_variables(williams, c("subject", "ecology"))
+# Using bare names (recommended for interactive use)
+williams_masked <- mask_variables(williams, subject, ecology)
 head(williams_masked[c("subject", "ecology")])
 #> # A tibble: 6 × 2
 #>   subject           ecology         

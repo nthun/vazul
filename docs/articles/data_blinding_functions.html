@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/nthun/vazul/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -64,7 +65,7 @@
 
 
 
-
+      <small class="dont-index">Source: <a href="https://github.com/nthun/vazul/blob/HEAD/vignettes/data_blinding_functions.qmd" class="external-link"><code>vignettes/data_blinding_functions.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -405,11 +406,11 @@
 <li>
 <code>data</code>: A data frame</li>
 <li>
-<code>cols</code>: Columns to scramble (supports tidyselect helpers)</li>
+<code>...</code>: Columns to scramble (supports tidyselect helpers)</li>
 <li>
 <code>together</code>: If <code>TRUE</code>, variables are scrambled together as a unit per row; if <code>FALSE</code> (default), each variable is scrambled independently</li>
 <li>
-<code>.groups</code>: Optional grouping columns for within-group scrambling</li>
+<code>.groups</code>: Optional grouping columns for within-group scrambling. Grouping columns must not overlap with the columns selected in <code>...</code>. If <code>data</code> is already grouped (a <code>dplyr</code> grouped data frame), existing grouping is ignored unless <code>.groups</code> is explicitly provided.</li>
 </ul></section><section class="level4"><h4 id="independent-scrambling-default">Independent Scrambling (Default)<a class="anchor" aria-label="anchor" href="#independent-scrambling-default"></a>
 </h4>
 <p>Each column is scrambled independently:</p>
@@ -453,17 +454,17 @@
 <p>Use the <code>.groups</code> parameter to scramble within groups:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"x"</span>, .groups <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
 <span><span class="co">#&gt;       x y     group</span></span>
 <span><span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;</span></span>
 <span><span class="co">#&gt; 1     1 a     A    </span></span>
-<span><span class="co">#&gt; 2     2 b     A    </span></span>
-<span><span class="co">#&gt; 3     3 c     A    </span></span>
-<span><span class="co">#&gt; 4     4 d     B    </span></span>
-<span><span class="co">#&gt; 5     5 e     B    </span></span>
-<span><span class="co">#&gt; 6     6 f     B</span></span></code></pre></div>
+<span><span class="co">#&gt; 2     3 b     A    </span></span>
+<span><span class="co">#&gt; 3     2 c     A    </span></span>
+<span><span class="co">#&gt; 4     5 d     B    </span></span>
+<span><span class="co">#&gt; 5     6 e     B    </span></span>
+<span><span class="co">#&gt; 6     4 f     B</span></span></code></pre></div>
 </div>
 <p>Values of <code>x</code> are only swapped within their original group (A or B).</p>
 </section><section class="level4"><h4 id="combining-grouping-and-together">Combining Grouping and Together<a class="anchor" aria-label="anchor" href="#combining-grouping-and-together"></a>
@@ -523,8 +524,10 @@
 <li>
 <code>data</code>: A data frame</li>
 <li>
-<code>...</code>: Column sets to scramble (supports tidyselect helpers)</li>
-</ul></section><section class="level4"><h4 id="example-scrambling-item-responses">Example: Scrambling Item Responses<a class="anchor" aria-label="anchor" href="#example-scrambling-item-responses"></a>
+<code>...</code>: Columns to scramble (supports tidyselect helpers). All selections are combined into a single set and scrambled together. If you want to scramble separate groups of columns independently, call the function multiple times.</li>
+</ul>
+<p>Rowwise scrambling moves values between columns, so selected columns must be type-compatible. This function requires all selected columns to have the same class (or be an integer/double mix). For factors, the selected columns must also have identical levels.</p>
+</section><section class="level4"><h4 id="example-scrambling-item-responses">Example: Scrambling Item Responses<a class="anchor" aria-label="anchor" href="#example-scrambling-item-responses"></a>
 </h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
@@ -544,9 +547,9 @@
 <span><span class="co">#&gt; 3     8     9     7  3</span></span></code></pre></div>
 </div>
 <p>Within each row, the values are shuffled among the item columns.</p>
-</section><section class="level4"><h4 id="multiple-column-sets">Multiple Column Sets<a class="anchor" aria-label="anchor" href="#multiple-column-sets"></a>
+</section><section class="level4"><h4 id="combining-multiple-selectors-single-combined-set">Combining Multiple Selectors (Single Combined Set)<a class="anchor" aria-label="anchor" href="#combining-multiple-selectors-single-combined-set"></a>
 </h4>
-<p>You can scramble multiple sets of columns independently:</p>
+<p>Multiple selectors are combined into one set, so values can move between all selected columns:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -558,19 +561,81 @@
 <span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span></span>
-<span>  <span class="va">df2</span>,</span>
-<span>  <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"score_a"</span>, <span class="st">"score_b"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="va">df2</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"score_"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">result2</span></span>
 <span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
-<span><span class="co">#&gt; 1     1     2     3      20      10  1</span></span>
-<span><span class="co">#&gt; 2     4     5     6      40      50  2</span></span>
-<span><span class="co">#&gt; 3     9     7     8      70      80  3</span></span></code></pre></div>
+<span><span class="co">#&gt; 1     1     3     2      20      10  1</span></span>
+<span><span class="co">#&gt; 2     5     6     4      40      50  2</span></span>
+<span><span class="co">#&gt; 3     7     9     8      70      80  3</span></span></code></pre></div>
 </div>
-</section></section></section><section class="level2"><h2 id="choosing-between-masking-and-scrambling">Choosing Between Masking and Scrambling<a class="anchor" aria-label="anchor" href="#choosing-between-masking-and-scrambling"></a>
+</section><section class="level4"><h4 id="scrambling-separate-groups-independently-call-multiple-times">Scrambling Separate Groups Independently (Call Multiple Times)<a class="anchor" aria-label="anchor" href="#scrambling-separate-groups-independently-call-multiple-times"></a>
+</h4>
+<p>To scramble different groups of columns independently, call the function multiple times:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="va">result3</span> <span class="op">&lt;-</span> <span class="va">df2</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"score_"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result3</span></span>
+<span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
+<span><span class="co">#&gt; 1     1     3     2      20      10  1</span></span>
+<span><span class="co">#&gt; 2     4     5     6      50      40  2</span></span>
+<span><span class="co">#&gt; 3     8     9     7      80      70  3</span></span></code></pre></div>
+</div>
+</section></section></section><section class="level2"><h2 id="handling-special-values">Handling Special Values<a class="anchor" aria-label="anchor" href="#handling-special-values"></a>
+</h2>
+<section class="level3"><h3 id="missing-values-na">Missing Values (NA)<a class="anchor" aria-label="anchor" href="#missing-values-na"></a>
+</h3>
+<p>All masking functions preserve <code>NA</code> values in their original positions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Vector with NA values</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="cn">NA</span>, <span class="st">"A"</span>, <span class="cn">NA</span>, <span class="st">"C"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">masked_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span><span class="va">masked_x</span></span>
+<span><span class="co">#&gt;                 A                 B              &lt;NA&gt;                 A </span></span>
+<span><span class="co">#&gt; "masked_group_03" "masked_group_04"                NA "masked_group_03" </span></span>
+<span><span class="co">#&gt;              &lt;NA&gt;                 C </span></span>
+<span><span class="co">#&gt;                NA "masked_group_02"</span></span>
+<span></span>
+<span><span class="co"># NA positions are preserved</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">masked_x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;NA&gt; &lt;NA&gt; </span></span>
+<span><span class="co">#&gt;    3    5</span></span></code></pre></div>
+</div>
+<p>If all values in a vector are <code>NA</code>, the function will issue a warning and return the vector unchanged:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x_all_na</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_character_</span>, <span class="cn">NA_character_</span>, <span class="cn">NA_character_</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">x_all_na</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; </span></span>
+<span><span class="co">#&gt;   NA   NA   NA</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="empty-strings">Empty Strings<a class="anchor" aria-label="anchor" href="#empty-strings"></a>
+</h3>
+<p>Empty strings (<code>""</code>) are treated as valid categorical values and will be masked like any other value:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x_with_empty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">""</span>, <span class="st">"B"</span>, <span class="st">""</span>, <span class="st">"C"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
+<span><span class="va">masked_with_empty</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">x_with_empty</span><span class="op">)</span></span>
+<span><span class="va">masked_with_empty</span></span>
+<span><span class="co">#&gt;                 A              &lt;NA&gt;                 B              &lt;NA&gt; </span></span>
+<span><span class="co">#&gt; "masked_group_01"                NA "masked_group_03"                NA </span></span>
+<span><span class="co">#&gt;                 C </span></span>
+<span><span class="co">#&gt; "masked_group_02"</span></span>
+<span></span>
+<span><span class="co"># Empty strings get their own masked label</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">masked_with_empty</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "masked_group_01" NA                "masked_group_03" "masked_group_02"</span></span></code></pre></div>
+</div>
+<p>This is different from <code>NA</code> values - empty strings are actual data values, not missing data.</p>
+</section></section><section class="level2"><h2 id="choosing-between-masking-and-scrambling">Choosing Between Masking and Scrambling<a class="anchor" aria-label="anchor" href="#choosing-between-masking-and-scrambling"></a>
 </h2>
 <table class="table caption-top">
 <thead><tr class="header">
@@ -625,7 +690,7 @@
 </h3>
 <p>The Many Analysts Religion Project (MARP) dataset contains 10,535 participants from 24 countries:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 10535    46</span></span>
@@ -651,7 +716,7 @@
 </h3>
 <p>The Williams study dataset contains 112 participants from a stereotyping study:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 112  25</span></span>

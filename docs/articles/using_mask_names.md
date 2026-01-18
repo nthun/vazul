@@ -65,46 +65,42 @@ glimpse(williams)
 
 We will apply masking to the variables related to life history strategy,
 which are prefixed with `SexUnres`, `Impuls`, `Opport`, `InvEdu`, and
-`InvChild`. The
-[`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
-function will rename these variables to generic names like
-`variable_set_A_01`, `variable_set_A_02`, etc., where “A” indicates the
-first set of variables being masked. This way, we can specify variables
-that should load to the same component without knowing their actual
-names. Note that the order of new names is randomized, so we don’t
-exactly know which original variable corresponds to which masked name..
-The
-[`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
-function will rename these variables to generic names like
-`variable_set_A_01`, `variable_set_A_02`, etc., where “A” indicates the
-first set of variables being masked. This way, we can specify variables
-that should load to the same component without knowing their actual
-names. Note that the order of new names is randomized, so we don’t
-exactly know which original variable corresponds to which masked name.
+`InvChild`. We’ll mask each variable group separately with randomized
+letter prefixes (e.g., `C_01`, `A_01`, `E_01`, etc.). This way,
+variables within the same original scale keep a common prefix for the
+analysis, but analysts won’t know which prefix corresponds to which
+original scale due to the randomization.
 
 ``` r
 set.seed(84)
 
+# Sample 5 random letters for the 5 variable groups
+random_prefixes <- paste0(sample(LETTERS, 5), "_")
+
 masked_williams <-
     williams |> 
-    mask_names(starts_with("SexUnres"),
-               starts_with("Impul"),
-               starts_with("Opport"),
-               starts_with("InvEdu"),
-               starts_with("InvChild"))
+    mask_names(starts_with("SexUnres"), prefix = random_prefixes[1]) |>
+    mask_names(starts_with("Impul"), prefix = random_prefixes[2]) |>
+    mask_names(starts_with("Opport"), prefix = random_prefixes[3]) |>
+    mask_names(starts_with("InvEdu"), prefix = random_prefixes[4]) |>
+    mask_names(starts_with("InvChild"), prefix = random_prefixes[5])
+
+# Show the randomized prefixes used (but not which corresponds to which)
+sort(unique(sub("_.*", "_", grep("^[A-Z]_", names(masked_williams), value = TRUE))))
+#> [1] "L_" "P_" "S_" "V_" "Y_"
 ```
 
 We can now perform an exploratory factor analysis (EFA) on the masked
-variables. Since the variable names are masked, we won’t know which
-original variables correspond to which factor, thus preventing bias in
-interpreting the results.
+variables. Since the variable names are masked with randomized prefixes,
+we won’t know which original variables correspond to which factor, thus
+preventing bias in interpreting the results.
 
 ``` r
 
 set.seed(123)
 efa_blind <-
     masked_williams |> 
-    select(starts_with("variable_set_")) |>
+    select(matches("^[A-Z]_")) |>
     factanal(factors = 5, rotation = "varimax")
     
 # Get the loadings of the EFA on the masked data
@@ -113,25 +109,25 @@ efa_blind |>
     print(cutoff = 0.3, sort = TRUE)
 #> 
 #> Loadings:
-#>                   Factor1 Factor2 Factor3 Factor4 Factor5
-#> variable_set_A_03  0.666           0.472                 
-#> variable_set_A_04  0.701                                 
-#> variable_set_A_02  0.749           0.331                 
-#> variable_set_B_02  0.762                                 
-#> variable_set_C_05  0.893                                 
-#> variable_set_C_06  0.834                                 
-#> variable_set_C_02  0.870                                 
-#> variable_set_C_01  0.758                                 
-#> variable_set_C_04  0.853                                 
-#> variable_set_E_01  0.766                                 
-#> variable_set_A_01          0.735   0.335                 
-#> variable_set_A_05          0.567           0.425         
-#> variable_set_B_03          0.867                         
-#> variable_set_B_01          0.746                         
-#> variable_set_C_03          0.715                         
-#> variable_set_D_01          0.699                         
-#> variable_set_D_02          0.839                         
-#> variable_set_E_02          0.852                         
+#>        Factor1 Factor2 Factor3 Factor4 Factor5
+#> S_A_05  0.666           0.472                 
+#> S_A_03  0.701                                 
+#> S_A_01  0.749           0.331                 
+#> V_A_01  0.762                                 
+#> P_A_03  0.893                                 
+#> P_A_06  0.834                                 
+#> P_A_01  0.870                                 
+#> P_A_04  0.758                                 
+#> P_A_05  0.853                                 
+#> L_A_01  0.766                                 
+#> S_A_04          0.735   0.335                 
+#> S_A_02          0.567           0.425         
+#> V_A_02          0.867                         
+#> V_A_03          0.746                         
+#> P_A_02          0.715                         
+#> Y_A_02          0.699                         
+#> Y_A_01          0.839                         
+#> L_A_02          0.852                         
 #> 
 #>                Factor1 Factor2 Factor3 Factor4 Factor5
 #> SS loadings      6.398   4.815   0.717   0.345   0.284
