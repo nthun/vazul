@@ -1,0 +1,327 @@
+---
+documentclass: jss
+author:
+  - name: Tamás Nagy
+    orcid: 00000-0001-5244-0356
+    address: |
+      | Institute of Psychology,
+      | ELTE Eötvös Loránd University,
+      | Budapest, Hungary
+    affiliation: |
+      | ELTE Eötvös Loránd University
+    email: \email{nagy.tamas@ppk.elte.hu} \AND
+  - name: Márton Kovács
+    orcid: 0000-0002-8142-8492
+    affiliation: |
+      | Independent researcher
+    email: \email{marton.balazs.kovacs@gmail.com} \AND    
+  - name: Alexandra Sarafoglou
+    orcid: 0000-0003-0031-685X
+    address: |
+      | Department of Psychology,
+      | University of Amsterdam,
+      | Amsterdam, The Netherlands
+    affiliation: |
+      | University of Amsterdam
+    email: \email{a.s.g.sarafoglou@uva.nl} 
+title:
+  # If you use tex in the formatted title, also supply version without
+  # For running headers, if needed
+  formatted: "\\pkg{vazul}: An R Package for Analysis Blinding"
+  plain:     "An R Package for Analysis Blinding"
+  short:     "\\pkg{vazul}: An R Package for Analysis Blinding"
+abstract: >
+  Analysis blinding is a methodological approach designed to protect the confirmatory status of an analysis by concealing crucial test-relevant aspects of the data from the analysts. This article introduces the vazul package for R, which provides a comprehensive suite of tools for implementing masking and scrambling techniques. We discuss the theoretical foundations of analysis blinding, particularly as a complement or alternative to preregistration. 
+  
+  The package allows researchers to maintain analytic flexibility while safeguarding against bias. By using vazul, data managers can easily generate blinded datasets that preserve essential distributional properties while obscuring associations or labels that could lead to biased decisions. We provide detailed examples of vector-level, data-frame-level, and row-wise blinding operations, and demonstrate how the package handles complex data structures such as hierarchical or repeated-measures designs.
+keywords:
+  # at least one keyword must be supplied
+  formatted: [analysis blinding, R package, bias control]
+  plain:     [analysis blinding, R package, bias control]
+preamble: >
+  \usepackage{amsmath}
+output: rticles::jss_article
+bibliography: ../inst/bibliography.bib
+csl: jss.csl  
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r defaults, include=FALSE}
+library(knitr)
+
+options(prompt = 'R> ', continue = '+ ')
+```
+
+# Introduction
+
+In data analysis, researchers face the challenge of maintaining objectivity and minimizing bias. A central concern is the considerable analytic flexibility present at various stages of the workflow, including data preprocessing, variable selection, model specification, and statistical testing. This flexibility has been described as the "garden of forking paths" [@gelman2013garden], meaning that possibly hundreds or thousands of plausible, non-redundant analytic strategies can be applied to the same dataset [@steegen2016increasing; @SimonsohnEtAl2020]. Crucially, different analytic paths can yield different results, and analysts may, intentionally or not, gravitate toward those that align with their expectations. 
+
+The result can be biased or even spurious findings [@ioannidis2005most; @simmons2011false; @gelman2016statistical], which have eroded trust in science and contributed to replication failures across medical sciences, psychology, economics, and computer science [@ioannidis2005contradicted; @open2015estimating; @baker2016scientists; @nosek2022replicability; @pashler2012editors; @camerer2016evaluating; @cockburn2020threats].^[But see @gilbert2016, @muradchanian2021best, @savitz2024responding, and @mcshane2024statistical for critiques of how replication failure is measured and of the design and validity of some replication attempts.] To ensure the reliability of empirical findings, it is therefore essential to prevent the idiosyncrasies of the data from feeding back into the formulation of the hypotheses being tested [HARKing, @kerr1998harking] or from prompting researchers to exploit their analytic freedom to accentuate desired outcomes [@simmons2011false]. In response, researchers have proposed methodologies to limit the influence of bias in data analysis. One such method is analysis blinding, which supplies analysts with an altered version of the real data that conceals biasing features until the analysis plan is finalized.
+
+Analysis blinding, or blind analysis [@maccoun2015hide], is a methodological approach designed to protect the confirmatory status of an analysis by concealing crucial test-relevant aspects of the data from the analysts—for example, by scrambling dependent variables or masking key labels. The procedure typically involves two independent parties: a data manager, who has full access to the raw data and is responsible for implementing the blinding steps, and an analyst, who is tasked with developing the analysis plan. After the data manager applies the blinding procedure, the analyst receives the resulting modified dataset: the blinded data.
+
+Working with the blinded data, the analyst can explore and preprocess the dataset and develop an analysis plan without being influenced by whether a particular analytic choice produces the desired result, as any patterns in the blinded data are, by design, only a product of chance. Importantly, although the test-relevant elements are concealed, other meaningful characteristics remain intact, including demographic information, secondary variables, and the distributional properties of both dependent and independent variables. As a result, the analyst retains all information necessary to tailor the analytic approach to the specific, and potentially unexpected, features of the data. Once the analysis plan has been finalized using the blinded data, the analyst is granted access to the raw, unblinded dataset, and the confirmatory analysis can then be carried out strictly according to the pre-established plan.
+
+Analysis blinding ties in with other methodologies to minimize bias in the research cycle, such as single-blind or double-blind experimental designs, where participants and/or experimenters are unaware of certain aspects of the study to prevent bias in data collection [@schulz2002blinding]. Here, the analysts is intentionally kept unaware of certain aspects of the data to prevent bias in data analysis, which is why the methodology is also referred to as triple-blind [@schulz2002blinding]. 
+
+Although many blinding techniques are conceptually straightforward, such as scrambling outcome variables or masking variable names and factor labels, their practical implementation can become technically challenging once real research designs and data structures are considered. For instance, in hierarchical models, researchers may need to scramble the outcome variable to destroy the effect of interest while still preserving information within grouping levels, such as country-level means in cross-cultural datasets [e.g., @sarafoglou2023comparing]. Similarly, in repeated-measures designs, condition labels may need to be masked so that each participant’s condition structure is preserved while permuting the mapping of conditions across participants to obscure the true experimental effect. These complexities make manual analysis blinding difficult to carry out consistently and correctly. To lower barriers for data managers and facilitate the broader adoption of analysis blinding in research labs, dedicated software tools, such as \proglang{R} packages, are needed to implement these procedures reliably.
+
+To meet this need, the \pkg{vazul} package in \proglang{R} \url{(https://CRAN.R-project.org/package=vazul)} offers flexible and reproducible tools for implementing analysis blinding. The package is named after Vazul, a Hungarian prince of the 11th century who was blinded on the orders of King Stephen I of Hungary to render him unfit for the throne. Analogously, analysis blinding temporarily renders data unfit for the (unintentional) exploitation of researcher degrees of freedom. The \proglang{R} package provides functionality for data scrambling as well as data and variable masking. In the remainder of this article, we introduce the methodology in more detail, describe the functionalities of the \pkg{vazul} package, and illustrate its application through practical examples. We conclude with a brief discussion and outline future directions.
+
+## Analysis Blinding: Safeguarding Against Bias Without Preregistration
+
+Originally, analysis blinding gained traction in astrophysics in the early 2000s [@maccoun2018psychological] as a means of safeguarding analysts against bias. Since then, the methodology has also been advocated in the social and behavioral sciences as an alternative or complement to preregistration [@dutilh2021blinding; @nagy2025bestiary; @maccoun2021removebiases; @maccoun2015hide; @maccoun2018psychological; @aczel2020transparency]. 
+<!-- However, the field has largely developed in a different direction: here, the predominant approach for limiting analytic flexibility is the preregistration of analysis plans, that is, requiring researchers to specify their planned analyses before data collection begins or before they view the data (e.g., existing estimates of preregistration rates in empirical psychology published in prominent journals range from about 14% @hardwicke2024prevalence2024 to about 40% @pfadt2025practicesPreprint). In the literature, analysis blinding has been proposed as an alternative or complementary method to preregistration [e.g., @dutilh2021blinding] as it addresses several of preregistration's major shortcomings.  -->
+This interest partly reflects the fact that analysis blinding addresses several of preregistration's major shortcomings. Preregistration can restrict analysts so rigidly that they are unable to adapt their analyses to unexpected peculiarities in the data. Although deviations from preregistered plans are both possible and accepted when transparently disclosed in the final manuscript, such deviations run counter to the spirit of preregistration, as they reintroduce data-dependent decisions that may bias the results. At the same time, text-based preregistrations, that is, the description of analysis plans in a preregistration template, often fail to be ``specific, precise, and exhaustive'' [@wicherts2016degrees, p.2], which leaves substantial degrees of freedom unaccounted for.
+
+In contrast to preregistration, analysis blinding allows researchers to maintain flexibility in their analysis plans, as they can explore the data without being constrained by a rigid preregistered protocol. This flexibility is especially important in analyses involving advanced statistical modeling or preprocessing, where not all decisions can be anticipated in advance and researchers must make data-dependent choices. For instance, many psychological constructs, such as well-being, are measured with multi-item scales whose factor structure must be examined before further analysis; whether the items load onto a single factor or multiple factors determines subsequent analytic steps, including whether composite scores can be computed or whether a more complex measurement model is required [see e.g., @MARP2022discussion]. The flexibility gained by analysis blinding enables researchers to develop analysis strategies that are appropriately tailored to the specific characteristics of the dataset without the need to anticipate and specify all eventualities in advance. Consequently, researchers who analyze their data with analysis blinding are less likely to deviate from their developed analysis plan compared to researchers who preregister their analytic strategy in a text-based format [@sarafoglou2023comparing].
+
+Moreover, similar in spirit to approaches proposed in code-based preregistration [@peikert2021reproducible;@vanlissa2021worcs], analysis blinding naturally produces analysis plans that are specific, precise, and exhaustive, because they are written directly in code rather than described verbally in preregistration templates. As with preregistration, analysis scripts based on the blinded data can be uploaded or attached to preregistration platforms (e.g., the Open Science Framework) to provide a transparent record of the planned analysis before the data are unblinded. In short, analysis blinding can serve as a valuable alternative or additional safeguard to preregistered analysis plans: it effectively protects against bias while providing analysts with the flexibility needed to develop an analysis strategy that is optimally suited to their data.
+
+# Overview of the main functions 
+
+The package provides functions for two main types of analysis blinding:
+
+1. **Masking**: Replaces original values with anonymous labels, completely hiding the original information.
+2. **Scrambling**: Randomizes the order of existing values while preserving all original data content.
+
+## Choosing between masking and scrambling
+
+When choosing between masking and scrambling for analysis blinding, the decision usually turns on what information must be concealed and what structure must be preserved for meaningful exploratory work. Masking is most appropriate when the core risk lies in revealing the identity or meaning of categorical variables—treatment groups, study arms, demographic categories, or experimental conditions. In these situations, replacing labels with arbitrary codes prevents analysts from inferring substantive content while still allowing them to run the full range of models that depend on category-level distinctions. Masking also accommodates cases where different variables require different relabeling schemes or prefixes, for example when several independent categorical factors need to remain distinguishable but substantively opaque. This approach is common in clinical trials, behavioral experiments, and preregistered confirmatory analyses where preserving the structure of factors is essential but knowledge of factor identity would bias analytic choices. Masking can be indispensable in situations where the variable names themselves carry substantive meaning. This occurs, for example, in network analysis, where variables become nodes with interpretable labels, or in factor-analytic work, where item names often hint at their psychological content. In such settings, simply scrambling values would not prevent analysts from inferring the underlying constructs, whereas masking removes this semantic cue entirely. The `vazul` package supports this use case directly by offering functionality for masking variable names alongside their values.
+
+Scrambling becomes the better choice when the goal is to preserve the marginal distributions of numeric variables while severing their hypothesized associations. It is particularly useful in settings where analysts need access to realistic distributions—variance, skew—to make decisions about transformations, model families, or robustness checks, yet must remain blind to the relationship between predictors and outcomes. By permuting values within variables, scrambling prevents recognition of treatment effects, correlations, or temporal patterns, making it harder to inadvertently tune an analysis toward the desired result. It is often the preferred option in longitudinal studies, high-dimensional observational datasets where categorical relabeling would either destroy important numeric structure or be easy to reverse-engineer. Scrambling is generally the more versatile option, because it can be applied across variable types and adapts well to a wide range of study designs and analytic workflows. Its ability to break associations while preserving distributions makes it suitable for almost everything from tightly controlled experiments to complex observational datasets, including high-dimensional or mixed-format data.
+
+| **Aspect**                               | **Masking**                                                                                        | **Scrambling**                                                                       |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Original values                      | Replaced with arbitrary codes                                                                      | Preserved but permuted                                                               |
+| Data distribution                    | Category counts preserved with different labels                             | Marginal distributions fully preserved                                               |
+| Associations between variables       | Preserved                                                                                          | Broken (correlations, treatment–outcome links removed)                               |
+| Risk addressed                       | Hiding the identity or meaning of categories or variable names                                     | Preventing recognition of true relationships or effects                              |
+| Best suited for                      | Categorical variables; variables whose names convey substantive meaning                            | Numeric or categorical variables; mixed-type data                        |
+| Typical use cases                    | Clinical trials, behavioral experiments, preregistered analyses, network analysis, factor analysis | Longitudinal data, observational datasets, robustness checks   |
+| When essential                       | When variable names or category labels carry substantive information                               | When analysts need realistic numeric structure but must remain blind to associations |
+| Flexibility across research settings | Limited by categorical/semantic constraints                                                        | Broadly applicable to most data types and study designs                              |
+:Comparison of masking and scrambling approaches for analysis blinding.
+
+
+In the `vazul` package, each approach is available at three levels:
+
+- **Vector level**: `mask_labels()` and `scramble_values()` - operate on single vectors
+- **Data frame level**: `mask_variables()` and `scramble_variables()` - operate on columns in a data frame
+- **Row-wise level**: `mask_variables_rowwise()` and `scramble_variables_rowwise()` - operate within rows across columns
+
+The design of these three levels reflects the common ways researchers interact with data in \proglang{R}. Vector-level functions are the primary building blocks, designed for simple pipelines where a researcher might want to blind a single outcome or a specific grouping factor. These functions are particularly useful when working with \pkg{dplyr}'s mutate() or within custom functions where a specific variable needs to be isolated and transformed without affecting the rest of the environment. By providing these atomic operations, \pkg{vazul} ensures that the core blinding logic remains accessible even for non-standard data structures.
+
+Moving to the data frame and row-wise levels, the package addresses more complex research designs. Data frame-level functions allow for bulk operations, which are essential for datasets with dozens of variables requiring consistent masking or independent scrambling. Perhaps most importantly, the row-wise operations solve a frequent headache in repeated-measures and longitudinal research. In these designs, the "unit" of analysis is often spread across multiple columns (e.g., independent varibles in factorial designs); the row-wise functions ensure that the relationship within a participant's data is handled correctly—either by scrambling values across those specific time points for each person or by applying a consistent mask that hides the identity of the measurement while preserving the participant-level structure.
+
+All of the functions require a data frame or vector as input and return a modified version with masked or scrambled values. The original data structure, including class attributes and metadata, is carefully preserved to ensure that the blinded data can be passed directly into existing analysis scripts or visualization packages without requiring additional type conversions.
+
+
+| Function | Level | Purpose |
+|----------|-------|---------|
+| `mask_labels()` | Vector | Replace categorical values with anonymous labels |
+| `mask_variables()` | Data frame | Mask multiple columns |
+| `mask_variables_rowwise()` | Row-wise | Consistent masking within rows |
+| `mask_names()` | Variable names | Mask column names |
+| `scramble_values()` | Vector | Randomize value order |
+| `scramble_variables()` | Data frame | Scramble multiple columns |
+| `scramble_variables_rowwise()` | Row-wise | Scramble values within rows |
+: Overview of vazul functions for masking and scrambling data
+
+```{r setup, message=FALSE}
+library(vazul)
+library(dplyr)
+
+set.seed(123)
+```
+
+## Included datasets
+
+The `vazul` package includes two research datasets for demonstration and practice. The `marp ` dataset contains cross-national survey data on religiosity, while the `williams` dataset contains experimental data from a stereotyping study.
+
+```{r data}
+data(marp)
+data(williams)
+```
+
+## Masking functions
+
+Masking functions replace categorical values with anonymous labels. This is useful when you want to hide the original information, such as treatment conditions or group assignments. Masking variables is useful when there are a limited number of unique values. The `mask_labels()` function takes a character or factor vector and replaces each unique value with a randomly assigned masked label. The function preserves factor structure when the input is a factor. After masking, each unique value receives a unique masked label, the same original value always maps to the same masked label, and the assignment of masked labels to original values is randomized.
+
+```{r mask_labels_example}
+# Create a simple treatment vector
+treatment <- c("control", "treatment", "control", "treatment", "control")
+
+# Mask the labels
+mask_labels(treatment)
+
+```
+
+It is possible to customize the prefix used for masked labels:
+
+```{r mask_labels_groups}
+mask_labels(treatment, prefix = "group_")
+```
+
+The `mask_variables()` function extends the masking functionality to multiple columns in a data frame simultaneously. It is possible to use tidyelect helpers to select columns.
+
+```{r}
+marp |> 
+    select(rel_1:rel_9, country, denomination) |> 
+    mask_variables(c("country", "denomination")) |> 
+    head()
+
+marp |> 
+    select(rel_1:rel_9, country, denomination) |> 
+    mask_variables(where(is.character)) |> 
+    head()
+
+```
+
+By default, each column gets its own set of masked labels with the column name as prefix. When `across_variables = TRUE`, all selected columns share the same mapping. This can be useful when the same conditions appear in multiple columns.
+
+```{r}
+df <- data.frame(
+  pre_condition = c("A", "B", "C", "D"),
+  post_condition = c("B", "D", "D", "C"),
+  id = c(1, 2, 3, 4)
+)
+
+mask_variables(df, c("pre_condition", "post_condition"),
+                                across_variables = TRUE)
+
+```
+
+The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful in case when of categrical data that is repeated across columns, such as treatment conditions or item responses. 
+
+```{r}
+df <- data.frame(
+  treat_1 = c("control", "treatment_1", "treatment_2"),
+  treat_2 = c("treatment_1", "treatment_2", "control"),
+  treat_3 = c("treatment_2", "control", "treatment_1"),
+  treat_4 = c("treatment_2", "control", "treatment_1"),
+  id = 1:3
+)
+
+mask_variables_rowwise(df, starts_with("treat_"))
+
+```
+
+### Masking variable names
+
+The `mask_names()` function allows users to rename variables in a dataset to anonymous, generic labels. This is especially useful in analyses where variable names carry substantive meaning (e.g., questionnaire items, network nodes, test-items), and one wants to prevent analysts from recognizing which item is which during preprocessing or exploratory phases.
+
+The `mask_names()` function takes a data frame and one or more variable sets, which can be specified either with tidyselect expressions (e.g., `starts_with("Q")`) or as character vectors of column names. The `prefix` argument sets the base for the masked names, while `set_id` allows customizing the identifier for each set; if left `NULL`, letters A, B, C… are used automatically.
+
+```{r}
+williams |> 
+    mask_names(starts_with("Impuls"), prefix = "masked_") |> 
+    names()
+```
+
+By applying `mask_names()`, the selected variables will be renamed to a pattern such as `variable_set_A_01`, `variable_set_A_02`, etc.—where the letter (e.g., “A”) denotes the first block of masked variables. Because the renaming order is randomized, an analyst cannot reliably guess which original variable corresponds to which masked label. Below is a minimal example illustrating how to use `mask_names()` in practice.
+
+```{r}
+names(williams)
+
+masked_williams <- 
+    williams |> 
+    mask_names(
+        starts_with("SexUnres"),
+        starts_with("Impuls"),
+        starts_with("Opport"),
+        starts_with("InvEdu"),
+        starts_with("InvChild"),
+        prefix = "masked_variable_"
+    )
+
+names(masked_williams)
+```
+
+Once masked, one can proceed with exploratory analyses (e.g. factor analysis, network analysis) on the masked variables, without knowing which original items correspond to which columns. For instance:
+
+```{r}
+masked_williams |> 
+  select(starts_with("masked_variable_")) |> 
+  factanal(factors = 5, rotation = "varimax") |> 
+  loadings() |> 
+  print(cutoff = 0.3, sort = TRUE)
+```
+
+Because the column names are anonymized, any decisions about factor inclusion or rotation are made blind to the substantive meaning of items, reducing the risk of interpretive bias.
+
+In short, `mask_names()` supports naming-based blinding by decoupling analysis from semantic content, while preserving the full data structure needed for legitimate exploratory workflows.
+
+## Scrambling functions
+
+Scrambling functions randomize the order of values while preserving all original data content. This approach maintains the data distribution while breaking the connection between observations and their original values. The `scramble_values()` function randomly reorders the elements of a vector. The vector can contain numeric, character, or factor data. Scrambling is useful when you want to preserve the original values but eliminate any correspondence between observations and their values.
+
+```{r}
+# Numeric data
+numbers <- 1:10
+scramble_values(numbers)
+```
+
+The `scramble_variables()` function extends the scrambling functionality to data frames. It allows scrambling multiple columns simultaneously, with options for independent scrambling, joint scrambling, and within-group scrambling. Columns can be selected using tidyselect helpers.
+
+```{r}
+
+df <-
+    williams |>
+    select(subject, age, ecology) |> 
+    head()
+
+scramble_variables(df, c("age", "ecology"))
+
+```
+
+By default, columns are scrambled independently of each other. When `together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
+
+```{r}
+df <- 
+    data.frame(x = 1:6,
+               y = letters[1:6],
+               group = c("A", "A", "A", "B", "B", "B")
+               )
+df 
+
+scramble_variables(df, c("x", "y"), together = TRUE)
+
+```
+
+Scrambling can be done in groups using the `.groups` parameter. This ensures that values are only scrambled within their original groups.
+
+```{r}
+df |> 
+    scramble_variables(c("x", "y"), .groups = "group")
+
+```
+
+The `scramble_variables_rowwise()` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses. Within each row, the values are shuffled among the item columns. You can scramble multiple sets of columns independently. The function can use tidyselect helpers. 
+
+```{r}
+df2 <- data.frame(
+  day_1 = c(1, 4, 7),
+  day_2 = c(2, 5, 8),
+  day_3 = c(3, 6, 9),
+  score_a = c(10, 40, 70),
+  score_b = c(20, 50, 80),
+  id = 1:3
+)
+
+scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
+```
+
+# Summary 
+
+The introduction of \pkg{vazul} fills a notable gap in the \proglang{R} ecosystem, as no dedicated package currently exists to specifically address the diverse requirements of analysis blinding. While some basic blinding tasks—such as simple vector permutations—can be achieved using base \proglang{R} or \pkg{tidyverse} functions like sample() or mutate(), these manual approaches quickly become error-prone as study designs grow in complexity. When dealing with multiple independent variables, hierarchical data structures, or the need for consistent masking across several columns, the risk of "breaking" the data structure or accidentally unblinding the analyst increases significantly. By providing a unified and tested framework, \pkg{vazul} abstracts these technical intricacies, allowing researchers to focus on the conceptual rigor of their analysis plans rather than the underlying data manipulation logic.
+
+Furthermore, \pkg{vazul} lowers the barrier to entry for researchers who may not have extensive programming experience, effectively making robust bias-control techniques accessible to "newbies" and seasoned analysts alike. Beyond standalone use in \proglang{R} scripts, the package's modular design makes it an ideal candidate for integration into other statistical software platforms. For instance, the inclusion of \pkg{vazul} as a backend for the \proglang{JASP} graphical interface could provide a point-and-click solution for analysis blinding, further facilitating the adoption of these best practices across the social and behavioral sciences. 
+
+# Acknowledgements
+
+Tamás Nagy was supported by the University Excellence Fund of Eötvös Loránd University, Budapest, Hungary (ELTE), and the János Bolyai research fellowship of the Hungarian Academy of Sciences. Alexandra Sarafoglou was supported by an 2024 Ammodo Science Award.
+
+
+# References
