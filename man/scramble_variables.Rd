@@ -9,7 +9,7 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
 \arguments{
 \item{data}{a data frame}
 
-\item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble using tidyselect semantics. Each can be:
+\item{...}{Columns to scramble using tidyselect semantics. Each can be:
 \itemize{
 \item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treat_")})
@@ -17,7 +17,7 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
 \item Multiple sets can be provided as separate arguments
 }}
 
-\item{.groups}{\if{html}{\out{<tidy-select>}} Optional grouping columns. Scrambling will be done within each group.
+\item{.groups}{Optional grouping columns. Scrambling will be done within each group.
 Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
 the columns selected in \code{...}. If \code{data} is already a grouped \code{dplyr} data frame,
 existing grouping is ignored unless \code{.groups} is explicitly provided.}

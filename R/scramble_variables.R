@@ -4,7 +4,7 @@
 #'   Supports independent scrambling, joint scrambling, and within-group scrambling.
 #' @keywords scramble
 #' @param data a data frame
-#' @param ... <tidy-select> Columns to scramble using tidyselect semantics. Each can be:
+#' @param ... Columns to scramble using tidyselect semantics. Each can be:
 #'   \itemize{
 #'     \item Bare column names (e.g., \code{var1, var2})
 #'     \item A tidyselect expression (e.g., \code{starts_with("treat_")})
@@ -14,7 +14,7 @@
 #' @param together logical. If `TRUE`, variables are scrambled together as a unit per row.
 #'   Values across different variables are kept intact but assigned to different rows.
 #'   If `FALSE` (default), each variable is scrambled independently.
-#' @param .groups <tidy-select> Optional grouping columns. Scrambling will be done within each group.
+#' @param .groups Optional grouping columns. Scrambling will be done within each group.
 #'   Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
 #'   the columns selected in \code{...}. If \code{data} is already a grouped \code{dplyr} data frame,
 #'   existing grouping is ignored unless \code{.groups} is explicitly provided.
