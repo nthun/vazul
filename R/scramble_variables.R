@@ -1,10 +1,10 @@
 #' Scrambling the content of several variables in a data frame
 #'
-#' Scramble the values of several selected variables in a data frame simultaneously. 
+#' Scramble the values of several selected variables in a data frame simultaneously.
 #'   Supports independent scrambling, joint scrambling, and within-group scrambling.
 #' @keywords scramble
 #' @param data a data frame
-#' @param ... <tidy-select> Columns to scramble. Each can be:
+#' @param ... <tidy-select> Columns to scramble using tidyselect semantics. Each can be:
 #'   \itemize{
 #'     \item Bare column names (e.g., \code{var1, var2})
 #'     \item A tidyselect expression (e.g., \code{starts_with("treat_")})
@@ -20,8 +20,8 @@
 #'   existing grouping is ignored unless \code{.groups} is explicitly provided.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
-#' 
-#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and 
+#'
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and
 #' \code{\link{scramble_variables_rowwise}} for rowwise scrambling.
 #'
 #' @examples
@@ -60,7 +60,7 @@
 #' williams |> scramble_variables(c(1, 2), .groups = 3)
 #' williams |> scramble_variables(c("ecology", "age"), together = TRUE)
 #' williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
-#' 
+#'
 #' @export
 scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
   validate_data_frame(data)

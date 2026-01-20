@@ -9,7 +9,7 @@ mask_names(data, ..., prefix)
 \arguments{
 \item{data}{A data frame.}
 
-\item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. All arguments are combined into
+\item{...}{Columns to mask using tidyselect semantics. All arguments are combined into
 a single set. Each can be:
 \itemize{
 \item Bare column names (e.g., \code{var1, var2})

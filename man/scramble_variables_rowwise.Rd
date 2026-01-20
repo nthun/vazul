@@ -9,7 +9,7 @@ scramble_variables_rowwise(data, ...)
 \arguments{
 \item{data}{A data frame.}
 
-\item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble. All arguments are combined into
+\item{...}{Columns to scramble using tidyselect semantics. All arguments are combined into
 a single set. Each can be:
 \itemize{
 \item Bare column names (e.g., \code{var1, var2})

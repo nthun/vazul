@@ -66,10 +66,8 @@ treatment <- c("control", "treatment", "control", "treatment", "control")
 set.seed(123)
 masked_treatment <- mask_labels(treatment)
 masked_treatment
-#>           control         treatment           control         treatment 
-#> "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02" 
-#>           control 
-#> "masked_group_01"
+#> [1] "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"
+#> [5] "masked_group_01"
 ```
 
 Notice that:
@@ -85,15 +83,13 @@ You can customize the prefix used for masked labels:
 ``` r
 set.seed(456)
 mask_labels(treatment, prefix = "group_")
-#>    control  treatment    control  treatment    control 
-#> "group_01" "group_02" "group_01" "group_02" "group_01"
+#> [1] "group_01" "group_02" "group_01" "group_02" "group_01"
 ```
 
 ``` r
 set.seed(789)
 mask_labels(treatment, prefix = "condition_")
-#>        control      treatment        control      treatment        control 
-#> "condition_01" "condition_02" "condition_01" "condition_02" "condition_01"
+#> [1] "condition_01" "condition_02" "condition_01" "condition_02" "condition_01"
 ```
 
 #### Working with Factors
@@ -107,8 +103,7 @@ ecology <- factor(c("Desperate", "Hopeful", "Desperate", "Hopeful"))
 set.seed(123)
 masked_ecology <- mask_labels(ecology)
 masked_ecology
-#>       Desperate         Hopeful       Desperate         Hopeful 
-#> masked_group_01 masked_group_02 masked_group_01 masked_group_02 
+#> [1] masked_group_01 masked_group_02 masked_group_01 masked_group_02
 #> Levels: masked_group_01 masked_group_02
 class(masked_ecology)
 #> [1] "factor"
@@ -554,9 +549,9 @@ set.seed(2)
 result2 <- scramble_variables_rowwise(df2, starts_with("day_"), starts_with("score_"))
 result2
 #>   day_1 day_2 day_3 score_a score_b id
-#> 1     1     3     2      20      10  1
-#> 2     5     6     4      40      50  2
-#> 3     7     9     8      70      80  3
+#> 1    20     3     2      10       1  1
+#> 2     4    50    40       5       6  2
+#> 3     7     8     9      80      70  3
 ```
 
 #### Scrambling Separate Groups Independently (Call Multiple Times)
@@ -589,15 +584,12 @@ x <- c("A", "B", NA, "A", NA, "C")
 set.seed(123)
 masked_x <- mask_labels(x)
 masked_x
-#>                 A                 B              <NA>                 A 
-#> "masked_group_03" "masked_group_04"                NA "masked_group_03" 
-#>              <NA>                 C 
-#>                NA "masked_group_02"
+#> [1] "masked_group_03" "masked_group_01" NA                "masked_group_03"
+#> [5] NA                "masked_group_02"
 
 # NA positions are preserved
 which(is.na(masked_x))
-#> <NA> <NA> 
-#>    3    5
+#> [1] 3 5
 ```
 
 If all values in a vector are `NA`, the function will issue a warning
@@ -606,8 +598,8 @@ and return the vector unchanged:
 ``` r
 x_all_na <- c(NA_character_, NA_character_, NA_character_)
 mask_labels(x_all_na)
-#> <NA> <NA> <NA> 
-#>   NA   NA   NA
+#> Warning: All values in input are NA. Returning unchanged.
+#> [1] NA NA NA
 ```
 
 ### Empty Strings
@@ -621,14 +613,12 @@ x_with_empty <- c("A", "", "B", "", "C")
 set.seed(456)
 masked_with_empty <- mask_labels(x_with_empty)
 masked_with_empty
-#>                 A              <NA>                 B              <NA> 
-#> "masked_group_01"                NA "masked_group_03"                NA 
-#>                 C 
-#> "masked_group_02"
+#> [1] "masked_group_01" "masked_group_04" "masked_group_03" "masked_group_04"
+#> [5] "masked_group_02"
 
 # Empty strings get their own masked label
 unique(masked_with_empty)
-#> [1] "masked_group_01" NA                "masked_group_03" "masked_group_02"
+#> [1] "masked_group_01" "masked_group_04" "masked_group_03" "masked_group_02"
 ```
 
 This is different from `NA` values - empty strings are actual data
@@ -688,7 +678,7 @@ scrambled_means <- marp_blinded |>
   summarise(rel_1_mean = mean(rel_1, na.rm = TRUE), .groups = "drop")
 
 all.equal(original_means$rel_1_mean, scrambled_means$rel_1_mean)
-#> [1] "Mean relative difference: 0.2219757"
+#> [1] TRUE
 ```
 
 ### Williams Dataset

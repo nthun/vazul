@@ -9,7 +9,7 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
 \arguments{
 \item{data}{a data frame}
 
-\item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble. Each can be:
+\item{...}{\if{html}{\out{<tidy-select>}} Columns to scramble using tidyselect semantics. Each can be:
 \itemize{
 \item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treat_")})

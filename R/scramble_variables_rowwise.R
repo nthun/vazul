@@ -10,7 +10,7 @@
 #' also have identical levels.
 #' @keywords scramble
 #' @param data A data frame.
-#' @param ... <tidy-select> Columns to scramble. All arguments are combined into
+#' @param ... Columns to scramble using tidyselect semantics. All arguments are combined into
 #'   a single set. Each can be:
 #'   \itemize{
 #'     \item Bare column names (e.g., \code{var1, var2})
@@ -20,10 +20,10 @@
 #'   If \code{data} is already a grouped \code{dplyr} data frame, existing grouping
 #'   is ignored.
 #' @return A data frame with values scrambled rowwise within the selected columns.
-#' 
-#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and 
+#'
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and
 #' \code{\link{scramble_variables}} for scrambling multiple variables.
-#' 
+#'
 #' @examples
 #' df <- data.frame(
 #'   day_1 = c(1, 4, 7),
@@ -38,18 +38,18 @@
 #' # Scramble one set of variables
 #' library(dplyr)
 #' df |> scramble_variables_rowwise(starts_with("day_"))
-#' 
+#'
 #' # Using character vectors
 #' df |> scramble_variables_rowwise(c("day_1", "day_2", "day_3"))
-#' 
+#'
 #' # Scramble multiple sets separately
 #' df |>
 #'   scramble_variables_rowwise(starts_with("day_")) |>
 #'   scramble_variables_rowwise(c("score_a", "score_b"))
-#' 
+#'
 #' # Multiple selectors are combined into one set (values can move between day_* and score_*)
 #' df |> scramble_variables_rowwise(starts_with("day_"), starts_with("score_"))
-#' 
+#'
 #' @export
 scramble_variables_rowwise <- function(data, ...) {
   validate_data_frame(data)

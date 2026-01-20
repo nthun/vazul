@@ -6,7 +6,7 @@
 #' across all selected variables.
 #' @keywords mask
 #' @param data a data frame
-#' @param ... <tidy-select> Columns to mask. Each can be:
+#' @param ... Columns to mask using tidyselect semantics. Each can be:
 #'   \itemize{
 #'     \item Bare column names (e.g., \code{var1, var2})
 #'     \item A tidyselect expression (e.g., \code{starts_with("treat_")})
@@ -21,11 +21,11 @@
 #'
 #' @return A data frame with the specified categorical columns masked.
 #'   Only character and factor columns can be processed.
-#' 
-#' @seealso \code{\link{mask_labels}} for masking a single vector, 
-#' \code{\link{mask_variables_rowwise}} for rowwise masking, and 
+#'
+#' @seealso \code{\link{mask_labels}} for masking a single vector,
+#' \code{\link{mask_variables_rowwise}} for rowwise masking, and
 #' \code{\link{mask_names}} for masking variable names.
-#' 
+#'
 #' @examples
 #'
 #' # Create example data
@@ -121,7 +121,7 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
 
       mask_labels(x, prefix = paste0(col_name, "_group_"))
     })
-    
+
     # Emit a single consolidated warning for all-NA columns
     if (length(all_na_cols) > 0) {
       warning(

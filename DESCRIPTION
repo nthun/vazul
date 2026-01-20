@@ -2,7 +2,7 @@ Package: vazul
 Title: Analysis Blinding Tools
 Version: 1.0.0
 Authors@R: c(
-    person(given = "Tamás", 
+    person(given = "Tamás",   
            family = "Nagy", 
            email = "nagytamas.hungary@gmail.com", 
            role = c("aut", "cre"),

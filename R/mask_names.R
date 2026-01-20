@@ -6,7 +6,7 @@
 #' call the function separately for each group.
 #' @keywords mask
 #' @param data A data frame.
-#' @param ... <tidy-select> Columns to mask. All arguments are combined into
+#' @param ... Columns to mask using tidyselect semantics. All arguments are combined into
 #'   a single set. Each can be:
 #'   \itemize{
 #'     \item Bare column names (e.g., \code{var1, var2})
@@ -14,16 +14,16 @@
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'   }
 #' @param prefix character string to use as prefix for masked names.
-#'   This becomes the base prefix, with numeric suffixes appended (e.g., 
+#'   This becomes the base prefix, with numeric suffixes appended (e.g.,
 #'   \code{prefix = "treatment_"} produces "treatment_01", "treatment_02", etc.).
 #'   The prefix is used as-is, so include a separator (e.g., underscore) if desired.
 #'
 #' @return A data frame with the specified variables renamed to masked names.
-#' 
-#' @seealso \code{\link{mask_labels}} for masking values in a vector, 
-#' \code{\link{mask_variables}} for masking values in multiple variables, and 
+#'
+#' @seealso \code{\link{mask_labels}} for masking values in a vector,
+#' \code{\link{mask_variables}} for masking values in multiple variables, and
 #' \code{\link{mask_variables_rowwise}} for rowwise value masking.
-#' 
+#'
 #' @examples
 #' df <- data.frame(
 #'   treat_1 = c(1, 2, 3),

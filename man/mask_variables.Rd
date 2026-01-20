@@ -9,7 +9,7 @@ mask_variables(data, ..., across_variables = FALSE)
 \arguments{
 \item{data}{a data frame}
 
-\item{...}{\if{html}{\out{<tidy-select>}} Columns to mask. Each can be:
+\item{...}{Columns to mask using tidyselect semantics. Each can be:
 \itemize{
 \item Bare column names (e.g., \code{var1, var2})
 \item A tidyselect expression (e.g., \code{starts_with("treat_")})
