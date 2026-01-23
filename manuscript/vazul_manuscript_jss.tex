@@ -189,8 +189,8 @@ To meet this need, the \pkg{vazul}\footnote{Vazul was an 11th-century
   (c.~975--1038). Around 1031, Vazul was blinded---according to
   contemporary chronicles-to make him unfit for succession to the
   throne. In the same spirit, the \pkg{vazul} package helps create
-  blinded data that are unfit for p-hacking.} package in \proglang{R}
-\url{(https://CRAN.R-project.org/package=vazul)} offers flexible and
+  blinded data that are unfit for p-hacking.} package
+\citep{Nagy2026-gb} in \proglang{R} \citep{R2025} offers flexible and
 reproducible tools for implementing analysis blinding. The \proglang{R}
 package provides functionality for data scrambling as well as data and
 variable masking. In the remainder of this article, we introduce the
@@ -331,7 +331,7 @@ labels, or in factor-analytic work, where item names often hint at their
 latent content \citep{Hoekstra2025-ub}. In such settings, simply
 scrambling values would not prevent analysts from inferring the
 underlying constructs, whereas masking removes this semantic cue
-entirely. The \texttt{vazul} package supports this use case directly by
+entirely. The \pkg{vazul} package supports this use case directly by
 offering functionality for masking variable names alongside their
 values.
 
@@ -407,8 +407,7 @@ Flexibility across research settings & Limited by categorical/semantic
 constraints & Broadly applicable to most data types and study designs \\
 \end{longtable}
 
-In the \texttt{vazul} package, each approach is available at three
-levels:
+In the \pkg{vazul} package, each approach is available at three levels:
 
 \begin{itemize}
 \tightlist
@@ -495,6 +494,10 @@ columns \\
 within rows \\
 \end{longtable}
 
+The \pkg{vazul} package is open source and distributed via CRAN and
+GitHub (\url{https://github.com/nthun/vazul}). All analyses reported
+here were conducted using version 1.0.0.
+
 In the following sections, we provide detailed descriptions and examples
 for each of these functions, illustrating their use cases and practical
 applications in research workflows. We starts with setting up the
@@ -514,11 +517,11 @@ R> data(williams)
 
 \subsection{Included datasets}\label{included-datasets}
 
-The \texttt{vazul} package includes two research datasets for
-demonstration and practice. The \texttt{marp} dataset contains
-cross-national survey data on religiosity \citep{MARP2022discussion},
-while the \texttt{williams} dataset contains experimental data from a
-stereotyping study \citep{Sarafoglou2025-fr}.
+The \pkg{vazul} package includes two research datasets for demonstration
+and practice. The \texttt{marp} dataset contains cross-national survey
+data on religiosity \citep{MARP2022discussion}, while the
+\texttt{williams} dataset contains experimental data from a stereotyping
+study \citep{Sarafoglou2025-fr}.
 
 \subsection{Masking functions}\label{masking-functions}
 
