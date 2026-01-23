@@ -56,7 +56,12 @@ ELTE Eötvös Loránd University,\\
 Budapest, Hungary\\
   E-mail: \email{nagy.tamas@ppk.elte.hu}\\
   
-        Alexandra Sarafoglou\\
+      Márton Kovács\\
+    Independent researcher\\
+    Budapest, Hungary\\
+  E-mail: \email{marton.balazs.kovacs@gmail.com}\\
+  
+      Alexandra Sarafoglou\\
     University of Amsterdam\\
     Department of Psychology,\\
 University of Amsterdam,\\
@@ -125,16 +130,17 @@ One such method is analysis blinding, which supplies analysts with an
 altered version of the real data that conceals biasing features until
 the analysis plan is finalized.
 
-Analysis blinding, or blind analysis \citep{maccoun2015hide}, is a
-methodological approach designed to protect the confirmatory status of
-an analysis by concealing crucial test-relevant aspects of the data from
-the analysts---for example, by scrambling dependent variables or masking
-key labels. The procedure typically involves two independent parties: a
-data manager, who has full access to the raw data and is responsible for
-implementing the blinding steps, and an analyst, who is tasked with
-developing the analysis plan. After the data manager applies the
-blinding procedure, the analyst receives the resulting modified dataset:
-the blinded data.
+Analysis blinding, or blind analysis
+\citep{maccoun2015hide, maccoun2018psychological}, is a methodological
+approach designed to protect the confirmatory status of an analysis by
+concealing crucial test-relevant aspects of the data from the
+analysts---for example, by scrambling dependent variables or masking
+condition labels. The procedure typically involves two independent
+parties: a data manager, who has full access to the raw data and is
+responsible for implementing the blinding steps, and an analyst, who is
+tasked with developing the analysis plan. After the data manager applies
+the blinding procedure, the analyst receives the resulting modified
+dataset: the blinded data.
 
 Working with the blinded data, the analyst can explore and preprocess
 the dataset and develop an analysis plan without being influenced by
@@ -155,7 +161,7 @@ Analysis blinding ties in with other methodologies to minimize bias in
 the research cycle, such as single-blind or double-blind experimental
 designs, where participants and/or experimenters are unaware of certain
 aspects of the study to prevent bias in data collection
-\citep{schulz2002blinding}. Here, the analysts is intentionally kept
+\citep{schulz2002blinding}. Here, the analysts are intentionally kept
 unaware of certain aspects of the data to prevent bias in data analysis,
 which is why the methodology is also referred to as triple-blind
 \citep{schulz2002blinding}.
@@ -178,19 +184,20 @@ data managers and facilitate the broader adoption of analysis blinding
 in research labs, dedicated software tools, such as \proglang{R}
 packages, are needed to implement these procedures reliably.
 
-To meet this need, the \pkg{vazul} package in \proglang{R}
+To meet this need, the \pkg{vazul}\footnote{Vazul was an 11th-century
+  Hungarian prince of the Árpád dynasty, a cousin of King Stephen I
+  (c.~975--1038). Around 1031, Vazul was blinded---according to
+  contemporary chronicles-to make him unfit for succession to the
+  throne. In the same spirit, the \pkg{vazul} package helps create
+  blinded data that are unfit for p-hacking.} package in \proglang{R}
 \url{(https://CRAN.R-project.org/package=vazul)} offers flexible and
-reproducible tools for implementing analysis blinding. The package is
-named after Vazul, a Hungarian prince of the 11th century who was
-blinded on the orders of King Stephen I of Hungary to render him unfit
-for the throne. Analogously, analysis blinding temporarily renders data
-unfit for the (unintentional) exploitation of researcher degrees of
-freedom. The \proglang{R} package provides functionality for data
-scrambling as well as data and variable masking. In the remainder of
-this article, we introduce the methodology in more detail, describe the
-functionalities of the \pkg{vazul} package, and illustrate its
-application through practical examples. We conclude with a brief
-discussion and outline future directions.
+reproducible tools for implementing analysis blinding. The \proglang{R}
+package provides functionality for data scrambling as well as data and
+variable masking. In the remainder of this article, we introduce the
+methodology in more detail, describe the functionalities of the
+\pkg{vazul} package, and illustrate its application through practical
+examples. We conclude with a brief discussion and outline future
+directions.
 
 \subsection{Analysis Blinding: Safeguarding Against Bias Without
 Preregistration}\label{analysis-blinding-safeguarding-against-bias-without-preregistration}
@@ -201,18 +208,26 @@ analysts against bias. Since then, the methodology has also been
 advocated in the social and behavioral sciences as an alternative or
 complement to preregistration
 \citep{dutilh2021blinding, nagy2025bestiary, maccoun2021removebiases, maccoun2015hide, maccoun2018psychological, aczel2020transparency}.
+
 This interest partly reflects the fact that analysis blinding addresses
-several of preregistration's major shortcomings. Preregistration can
-restrict analysts so rigidly that they are unable to adapt their
-analyses to unexpected peculiarities in the data. Although deviations
-from preregistered plans are both possible and accepted when
-transparently disclosed in the final manuscript, such deviations run
-counter to the spirit of preregistration, as they reintroduce
-data-dependent decisions that may bias the results. At the same time,
-text-based preregistrations, that is, the description of analysis plans
-in a preregistration template, often fail to be ``specific, precise, and
-exhaustive'\,' \citep[p.2]{wicherts2016degrees}, which leaves
-substantial degrees of freedom unaccounted for.
+practical limitations of preregistration when analytic flexibility is
+required. While preregistration provides a valuable framework for
+increasing transparency, analysts may nonetheless encounter unexpected
+features of the data that necessitate deviations from the preregistered
+plan. Such deviations are common and often unavoidable, and when
+transparently reported and justified, they can enhance the credibility
+and validity of research findings
+\citep[e.g.,][]{vandenakker2024potential, Lakens2024-tj, Schneider2022-oq, Song2022-em}.
+
+At the same time, preregistration offers limited guidance on how
+analytic decisions should be adapted in response to unforeseen data
+characteristics, and how such deviations should be interpreted with
+respect to confirmatory status. As a result, researchers may face a
+tension between adhering strictly to a preregistered plan and making
+principled, data-informed adjustments. Analysis blinding alleviates this
+tension by allowing analysts to flexibly develop and refine analysis
+plans using blinded data, before any test-relevant information is
+revealed.
 
 In contrast to preregistration, analysis blinding allows researchers to
 maintain flexibility in their analysis plans, as they can explore the
@@ -247,7 +262,23 @@ analysis before the data are unblinded. In short, analysis blinding can
 serve as a valuable alternative or additional safeguard to preregistered
 analysis plans: it effectively protects against bias while providing
 analysts with the flexibility needed to develop an analysis strategy
-that is optimally suited to their data.
+that is optimally suited to their data. Notably, even when the blinding
+code itself is shared, the original data cannot be recovered from the
+blinded dataset without access to the raw data, making analysis blinding
+compatible with transparent and open workflows.
+
+Analysis blinding can be particularly valuable for secondary data
+analysis, where the confirmatory power of preregistration is often
+compromised by prior exposure to the data \citep{Thibault2023-of}. In
+archival datasets, large-scale surveys, or shared repositories,
+researchers may already possess unavoidable knowledge of variable
+distributions or previously reported associations. By developing and
+finalizing analysis plans on a blinded version of the existing data,
+researchers can maintain analytic flexibility while providing a
+verifiable safeguard against post-hoc bias. This approach effectively
+protects the confirmatory status of the study in contexts where
+traditional preregistration might otherwise be perceived as impractical
+or insufficient.
 
 \section{Overview of the main
 functions}\label{overview-of-the-main-functions}
@@ -270,24 +301,34 @@ scrambling}\label{choosing-between-masking-and-scrambling}
 
 When choosing between masking and scrambling for analysis blinding, the
 decision usually turns on what information must be concealed and what
-structure must be preserved for meaningful exploratory work. Masking is
-most appropriate when the core risk lies in revealing the identity or
-meaning of categorical variables---treatment groups, study arms,
-demographic categories, or experimental conditions. In these situations,
-replacing labels with arbitrary codes prevents analysts from inferring
-substantive content while still allowing them to run the full range of
-models that depend on category-level distinctions. Masking also
-accommodates cases where different variables require different
-relabeling schemes or prefixes, for example when several independent
-categorical factors need to remain distinguishable but substantively
-opaque. This approach is common in clinical trials, behavioral
-experiments, and preregistered confirmatory analyses where preserving
-the structure of factors is essential but knowledge of factor identity
-would bias analytic choices. Masking can be indispensable in situations
-where the variable names themselves carry substantive meaning. This
-occurs, for example, in network analysis, where variables become nodes
-with interpretable labels, or in factor-analytic work, where item names
-often hint at their psychological content. In such settings, simply
+structure must be preserved to allow for the development of a suitable
+analysis pipeline. Masking is most appropriate when the risk lies in the
+labels of categories rather than their relationships. By replacing group
+names (e.g., `Treatment' and `Control') with arbitrary codes (e.g.,
+`Group A' and `Group B'), the group allocation is preserved. This allows
+analysts to perform group-level operations---such as ANOVA or
+regression---while remaining blinded to the substantive identity of
+those groups. Note, that since group-level distinctions remain intact,
+masking is best suited for workflows where knowing the direction of a
+difference would not inadvertently reveal the underlying category
+meaning. Masking also accommodates cases where different variables
+require different relabeling schemes or prefixes, for example when
+several independent categorical factors need to remain distinguishable
+but substantively opaque. This approach is common in clinical trials,
+behavioral experiments, and preregistered confirmatory analyses where
+preserving the structure of factors is essential but knowledge of factor
+identity would bias analytic choices. For instance, an analyst can check
+for data consistency across four masked study sites (e.g., ``Site A''
+through ``Site D'') to ensure uniform data quality without knowing the
+specific geographic locations. This preserves the site-level grouping
+for variance testing while preventing biased assumptions about data from
+specific regions.
+
+Masking can be indispensable in situations where the variable names
+themselves carry substantive meaning. This occurs, for example, in
+network analysis, where variables become nodes with interpretable
+labels, or in factor-analytic work, where item names often hint at their
+latent content \citep{Hoekstra2025-ub}. In such settings, simply
 scrambling values would not prevent analysts from inferring the
 underlying constructs, whereas masking removes this semantic cue
 entirely. The \texttt{vazul} package supports this use case directly by
@@ -301,17 +342,20 @@ analysts need access to realistic distributions---variance, skew---to
 make decisions about transformations, model families, or robustness
 checks, yet must remain blind to the relationship between predictors and
 outcomes. By permuting values within variables, scrambling prevents
-recognition of treatment effects, correlations, or temporal patterns,
-making it harder to inadvertently tune an analysis toward the desired
-result. It is often the preferred option in longitudinal studies,
-high-dimensional observational datasets where categorical relabeling
-would either destroy important numeric structure or be easy to
-reverse-engineer. Scrambling is generally the more versatile option,
-because it can be applied across variable types and adapts well to a
-wide range of study designs and analytic workflows. Its ability to break
-associations while preserving distributions makes it suitable for almost
-everything from tightly controlled experiments to complex observational
-datasets, including high-dimensional or mixed-format data.
+recognition of treatment or experimental effects, correlations, or
+temporal patterns, making it harder to inadvertently tune an analysis
+toward the desired result. It is often the preferred option in
+longitudinal studies, high-dimensional observational datasets where
+categorical relabeling would either destroy important numeric structure
+or be easy to reverse-engineer (e.g., in case of three experimental
+conditions, the researcher may guess which one is which based on the
+means). Scrambling is generally the more versatile option, because it
+can be applied across variable types and adapts well to a wide range of
+study designs and analytic workflows. Its ability to break associations
+while preserving distributions makes it suitable for almost everything
+from tightly controlled experiments to complex observational datasets,
+including high-dimensional or mixed-format data
+\citep{Sarafoglou2025-fr, Sarafoglou2023-rf}.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1802}}
@@ -345,17 +389,17 @@ Original values & Replaced with arbitrary codes & Preserved but
 permuted \\
 Data distribution & Category counts preserved with different labels &
 Marginal distributions fully preserved \\
-Associations between variables & Preserved & Broken (correlations,
+Associations with blinded variables & Preserved & Broken (correlations,
 treatment--outcome links removed) \\
 Risk addressed & Hiding the identity or meaning of categories or
 variable names & Preventing recognition of true relationships or
 effects \\
-Best suited for & Categorical variables; variables whose names convey
-substantive meaning & Numeric or categorical variables; mixed-type
-data \\
-Typical use cases & Clinical trials, behavioral experiments,
-preregistered analyses, network analysis, factor analysis & Longitudinal
-data, observational datasets, robustness checks \\
+Best suited for & Categorical variables with many different labels;
+variables whose names convey substantive meaning & Numeric or
+categorical variables; mixed-type data \\
+Typical use cases & Clinical trials, behavioral experiments, network
+analysis, factor analysis & Longitudinal data, observational datasets,
+robustness checks \\
 When essential & When variable names or category labels carry
 substantive information & When analysts need realistic numeric structure
 but must remain blind to associations \\
@@ -385,25 +429,24 @@ interact with data in \proglang{R}. Vector-level functions are the
 primary building blocks, designed for simple pipelines where a
 researcher might want to blind a single outcome or a specific grouping
 factor. These functions are particularly useful when working with
-\pkg{dplyr}'s mutate() or within custom functions where a specific
-variable needs to be isolated and transformed without affecting the rest
-of the environment. By providing these atomic operations, \pkg{vazul}
-ensures that the core blinding logic remains accessible even for
-non-standard data structures.
+\pkg{dplyr}'s \texttt{mutate()} or within custom functions where a
+specific variable needs to be isolated and transformed without affecting
+the rest of the environment \citep{Wickham2025-eh}. By providing these
+atomic operations, \pkg{vazul} ensures that the core blinding logic
+remains accessible even for non-standard data structures.
 
 Moving to the data frame and row-wise levels, the package addresses more
 complex research designs. Data frame-level functions allow for bulk
 operations, which are essential for datasets with dozens of variables
-requiring consistent masking or independent scrambling. Perhaps most
-importantly, the row-wise operations solve a frequent headache in
-repeated-measures and longitudinal research. In these designs, the
-``unit'' of analysis is often spread across multiple columns (e.g.,
-independent varibles in factorial designs); the row-wise functions
-ensure that the relationship within a participant's data is handled
-correctly---either by scrambling values across those specific time
-points for each person or by applying a consistent mask that hides the
-identity of the measurement while preserving the participant-level
-structure.
+requiring consistent masking or independent scrambling. The row-wise
+operations solve a frequent headache in repeated-measures and
+longitudinal research. In these designs, the ``unit'' of analysis is
+often spread across multiple columns (e.g., independent varibles in
+factorial designs); the row-wise functions ensure that the relationship
+within a participant's data is handled correctly---either by scrambling
+values across those specific time points for each person or by applying
+a consistent mask that hides the identity of the measurement while
+preserving the participant-level structure.
 
 All of the functions require a data frame or vector as input and return
 a modified version with masked or scrambled values. The original data
@@ -443,8 +486,7 @@ Purpose
 \texttt{mask\_labels()} & Vector & Replace categorical values with
 anonymous labels \\
 \texttt{mask\_variables()} & Data frame & Mask multiple columns \\
-\texttt{mask\_variables\_rowwise()} & Row-wise & Consistent masking
-within rows \\
+\texttt{mask\_variables\_rowwise()} & Row-wise & Masking within rows \\
 \texttt{mask\_names()} & Variable names & Mask column names \\
 \texttt{scramble\_values()} & Vector & Randomize value order \\
 \texttt{scramble\_variables()} & Data frame & Scramble multiple
@@ -453,12 +495,20 @@ columns \\
 within rows \\
 \end{longtable}
 
+In the following sections, we provide detailed descriptions and examples
+for each of these functions, illustrating their use cases and practical
+applications in research workflows. We starts with setting up the
+environment and loading the included datasets.
+
 \begin{CodeChunk}
 \begin{CodeInput}
 R> library(vazul)
 R> library(dplyr)
 R> 
-R> set.seed(123)
+R> set.seed(1037)
+R> 
+R> data(marp)
+R> data(williams)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -466,40 +516,34 @@ R> set.seed(123)
 
 The \texttt{vazul} package includes two research datasets for
 demonstration and practice. The \texttt{marp} dataset contains
-cross-national survey data on religiosity, while the \texttt{williams}
-dataset contains experimental data from a stereotyping study.
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> data(marp)
-R> data(williams)
-\end{CodeInput}
-\end{CodeChunk}
+cross-national survey data on religiosity \citep{MARP2022discussion},
+while the \texttt{williams} dataset contains experimental data from a
+stereotyping study \citep{Sarafoglou2025-fr}.
 
 \subsection{Masking functions}\label{masking-functions}
 
 Masking functions replace categorical values with anonymous labels. This
 is useful when you want to hide the original information, such as
-treatment conditions or group assignments. Masking variables is useful
-when there are a limited number of unique values. The
-\texttt{mask\_labels()} function takes a character or factor vector and
-replaces each unique value with a randomly assigned masked label. The
-function preserves factor structure when the input is a factor. After
-masking, each unique value receives a unique masked label, the same
-original value always maps to the same masked label, and the assignment
-of masked labels to original values is randomized.
+treatment conditions or group assignments, and there are a limited
+number of unique values. The \texttt{mask\_labels()} function takes a
+character or factor type vector and replaces each unique value with a
+randomly assigned masked label. The function preserves factor structure
+when the input is a factor. After masking, each unique value receives a
+unique masked label, the same original value always maps to the same
+masked label, and the assignment of masked labels to original values is
+randomized. Missing values are preserved during masking.
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # Create a simple treatment vector
-R> treatment <- c("control", "treatment", "control", "treatment", "control")
+R> treatment <- c("control", "treatment_1", "treatment_2", "control", "treatment_1", "treatment_2")
 R> 
 R> # Mask the labels
 R> mask_labels(treatment)
 \end{CodeInput}
 \begin{CodeOutput}
-[1] "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"
-[5] "masked_group_01"
+[1] "masked_group_01" "masked_group_02" "masked_group_03" "masked_group_01"
+[5] "masked_group_02" "masked_group_03"
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -510,58 +554,65 @@ It is possible to customize the prefix used for masked labels:
 R> mask_labels(treatment, prefix = "group_")
 \end{CodeInput}
 \begin{CodeOutput}
-[1] "group_01" "group_02" "group_01" "group_02" "group_01"
+[1] "group_01" "group_02" "group_03" "group_01" "group_02" "group_03"
 \end{CodeOutput}
 \end{CodeChunk}
 
 The \texttt{mask\_variables()} function extends the masking
 functionality to multiple columns in a data frame simultaneously. It is
-possible to use tidyelect helpers to select columns.
+possible to use tidyelect helpers to select columns. for instance, in
+the MARP dataset, we want to simultaneously mask labels within the
+columns ``country'' and ``denomination''. To make the example
+manageable, we first create a smaller example dataset with 10 random
+rows. Then we demonstrate how to use \texttt{mask\_variables()} to mask
+the selected columns. It is possible to use tidyselect helpers (such as
+\texttt{starts\_with()}, \texttt{any\_of()}, etc.) to select columns. In
+the next example, we apply masking to all character columns in the
+example dataset.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> marp |> 
-+     select(rel_1:rel_9, country, denomination) |> 
-+     mask_variables(c("country", "denomination")) |> 
-+     head()
+R> marp_example <-
++     marp |>
++     select(subject, country, denomination) |> 
++     sample_n(6)
+R> 
+R> marp_example
 \end{CodeInput}
 \begin{CodeOutput}
-      rel_1     rel_2 rel_3 rel_4     rel_5     rel_6     rel_7 rel_8 rel_9
-1 0.0000000 0.0000000   0.5     0 0.1666667 0.5000000 0.5000000  0.00  0.50
-2 0.8333333 0.7142857   1.0     1 0.5000000 0.5000000 0.3333333  0.50  0.25
-3 0.0000000 0.0000000   0.5     0 0.1666667 0.0000000 0.1666667  0.00  0.00
-4 0.0000000 0.0000000   0.0     0 0.5000000 0.6666667 0.3333333  0.25  0.00
-5 0.0000000 0.0000000   0.0     0 0.1666667 0.0000000 0.3333333  0.00  0.00
-6 0.5000000 0.0000000   0.5     1 0.6666667 0.0000000 1.0000000  0.25  0.00
-           country          denomination
-1 country_group_03                  <NA>
-2 country_group_03 denomination_group_10
-3 country_group_03                  <NA>
-4 country_group_03                  <NA>
-5 country_group_03                  <NA>
-6 country_group_03 denomination_group_13
+  subject country               denomination
+1    5011   India Christian (Roman Catholic)
+2    4015 Germany Christian (Roman Catholic)
+3    4271 Germany                Evangelical
+4    4591 Germany                       <NA>
+5   10225      US Christian (Roman Catholic)
+6    9060   Spain                       <NA>
 \end{CodeOutput}
 \begin{CodeInput}
-R> marp |> 
-+     select(rel_1:rel_9, country, denomination) |> 
-+     mask_variables(where(is.character)) |> 
-+     head()
+R> marp_example |> 
++     mask_variables(c("country", "denomination"))
 \end{CodeInput}
 \begin{CodeOutput}
-      rel_1     rel_2 rel_3 rel_4     rel_5     rel_6     rel_7 rel_8 rel_9
-1 0.0000000 0.0000000   0.5     0 0.1666667 0.5000000 0.5000000  0.00  0.50
-2 0.8333333 0.7142857   1.0     1 0.5000000 0.5000000 0.3333333  0.50  0.25
-3 0.0000000 0.0000000   0.5     0 0.1666667 0.0000000 0.1666667  0.00  0.00
-4 0.0000000 0.0000000   0.0     0 0.5000000 0.6666667 0.3333333  0.25  0.00
-5 0.0000000 0.0000000   0.0     0 0.1666667 0.0000000 0.3333333  0.00  0.00
-6 0.5000000 0.0000000   0.5     1 0.6666667 0.0000000 1.0000000  0.25  0.00
-           country          denomination
-1 country_group_13                  <NA>
-2 country_group_13 denomination_group_05
-3 country_group_13                  <NA>
-4 country_group_13                  <NA>
-5 country_group_13                  <NA>
-6 country_group_13 denomination_group_19
+  subject          country          denomination
+1    5011 country_group_01 denomination_group_01
+2    4015 country_group_03 denomination_group_01
+3    4271 country_group_03 denomination_group_02
+4    4591 country_group_03                  <NA>
+5   10225 country_group_04 denomination_group_01
+6    9060 country_group_02                  <NA>
+\end{CodeOutput}
+\begin{CodeInput}
+R> marp_example |> 
++     mask_variables(where(is.character))
+\end{CodeInput}
+\begin{CodeOutput}
+  subject          country          denomination
+1    5011 country_group_04 denomination_group_01
+2    4015 country_group_02 denomination_group_01
+3    4271 country_group_02 denomination_group_02
+4    4591 country_group_02                  <NA>
+5   10225 country_group_03 denomination_group_01
+6    9060 country_group_01                  <NA>
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -572,46 +623,66 @@ same conditions appear in multiple columns.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> df <- data.frame(
-+   pre_condition = c("A", "B", "C", "D"),
-+   post_condition = c("B", "D", "D", "C"),
-+   id = c(1, 2, 3, 4)
-+ )
-R> 
-R> mask_variables(df, c("pre_condition", "post_condition"),
-+                                 across_variables = TRUE)
+R> df <- data.frame(pre_condition = c("A", "B", "C", "D"),
++                  post_condition = c("B", "D", "D", "C"),
++                  id = c(1, 2, 3, 4)
++                  )
+R> df
+\end{CodeInput}
+\begin{CodeOutput}
+  pre_condition post_condition id
+1             A              B  1
+2             B              D  2
+3             C              D  3
+4             D              C  4
+\end{CodeOutput}
+\begin{CodeInput}
+R> mask_variables(df, 
++                c("pre_condition", "post_condition"),
++                across_variables = TRUE)
 \end{CodeInput}
 \begin{CodeOutput}
     pre_condition  post_condition id
-1 masked_group_02 masked_group_04  1
-2 masked_group_04 masked_group_01  2
-3 masked_group_03 masked_group_01  3
-4 masked_group_01 masked_group_03  4
+1 masked_group_02 masked_group_01  1
+2 masked_group_01 masked_group_04  2
+3 masked_group_03 masked_group_04  3
+4 masked_group_04 masked_group_03  4
 \end{CodeOutput}
 \end{CodeChunk}
 
 The \texttt{mask\_variables\_rowwise()} function applies consistent
-masking within each row across multiple columns. This is useful in case
-when of categrical data that is repeated across columns, such as
-treatment conditions or item responses.
+masking within each row across multiple columns. This is useful for
+example in factorial designs or repeated measures designs, where
+multiple independent variables require concealment. Within each row, the
+original values are consistently mapped to masked labels, but the
+mapping is independent across rows. The function can use tidyselect
+helpers. In the next example, we show how to mask treatment conditions
+across multiple waves of a longitudinal study.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> df <- data.frame(
-+   treat_1 = c("control", "treatment_1", "treatment_2"),
-+   treat_2 = c("treatment_1", "treatment_2", "control"),
-+   treat_3 = c("treatment_2", "control", "treatment_1"),
-+   treat_4 = c("treatment_2", "control", "treatment_1"),
-+   id = 1:3
-+ )
-R> 
-R> mask_variables_rowwise(df, starts_with("treat_"))
+R> df <- data.frame(id = 1:3,
++                  wave_1 = c("control", "treatment_1", "treatment_2"),
++                  wave_2 = c("treatment_1", "treatment_2", "control"),
++                  wave_3 = c("treatment_2", "control", "treatment_1"),
++                  wave_4 = c("treatment_2", "control", "treatment_1")
++                  )
+R> df
 \end{CodeInput}
 \begin{CodeOutput}
-          treat_1         treat_2         treat_3         treat_4 id
-1 masked_group_03 masked_group_02 masked_group_01 masked_group_01  1
-2 masked_group_02 masked_group_01 masked_group_03 masked_group_03  2
-3 masked_group_01 masked_group_03 masked_group_02 masked_group_02  3
+  id      wave_1      wave_2      wave_3      wave_4
+1  1     control treatment_1 treatment_2 treatment_2
+2  2 treatment_1 treatment_2     control     control
+3  3 treatment_2     control treatment_1 treatment_1
+\end{CodeOutput}
+\begin{CodeInput}
+R> mask_variables_rowwise(df, starts_with("wave_"))
+\end{CodeInput}
+\begin{CodeOutput}
+  id          wave_1          wave_2          wave_3          wave_4
+1  1 masked_group_02 masked_group_01 masked_group_03 masked_group_03
+2  2 masked_group_01 masked_group_03 masked_group_02 masked_group_02
+3  3 masked_group_03 masked_group_02 masked_group_01 masked_group_01
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -627,36 +698,9 @@ preprocessing or exploratory phases.
 The \texttt{mask\_names()} function takes a data frame and one or more
 variable sets, which can be specified either with tidyselect expressions
 (e.g., \texttt{starts\_with("Q")}) or as character vectors of column
-names. The \texttt{prefix} argument sets the base for the masked names,
-while \texttt{set\_id} allows customizing the identifier for each set;
-if left \texttt{NULL}, letters A, B, C\ldots{} are used automatically.
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> williams |> 
-+     mask_names(starts_with("Impuls"), prefix = "masked_") |> 
-+     names()
-\end{CodeInput}
-\begin{CodeOutput}
- [1] "subject"             "SexUnres_1"          "SexUnres_2"         
- [4] "SexUnres_3"          "SexUnres_4_r"        "SexUnres_5_r"       
- [7] "masked_02"           "masked_01"           "Impul_3_r"          
-[10] "Opport_1"            "Opport_2"            "Opport_3"           
-[13] "Opport_4"            "Opport_5"            "Opport_6_r"         
-[16] "InvEdu_1_r"          "InvEdu_2_r"          "InvChild_1"         
-[19] "InvChild_2_r"        "age"                 "gender"             
-[22] "ecology"             "duration_in_seconds" "attention_1"        
-[25] "attention_2"        
-\end{CodeOutput}
-\end{CodeChunk}
-
-By applying \texttt{mask\_names()}, the selected variables will be
-renamed to a pattern such as \texttt{variable\_set\_A\_01},
-\texttt{variable\_set\_A\_02}, etc.---where the letter (e.g., ``A'')
-denotes the first block of masked variables. Because the renaming order
-is randomized, an analyst cannot reliably guess which original variable
-corresponds to which masked label. Below is a minimal example
-illustrating how to use \texttt{mask\_names()} in practice.
+names. The \texttt{prefix} argument sets the base for the masked names.
+For instance, in the \texttt{williams} data we can blind all variables
+that are related to the impulsivity scale.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -674,70 +718,97 @@ R> names(williams)
 [25] "attention_2"        
 \end{CodeOutput}
 \begin{CodeInput}
-R> masked_williams <- 
-+     williams |> 
-+     mask_names(
-+         starts_with("SexUnres"),
-+         starts_with("Impuls"),
-+         starts_with("Opport"),
-+         starts_with("InvEdu"),
-+         starts_with("InvChild"),
-+         prefix = "masked_variable_"
-+     )
-R> 
-R> names(masked_williams)
+R> williams |> 
++     mask_names(starts_with("Impul"), prefix = "masked_") |> 
++     names()
 \end{CodeInput}
 \begin{CodeOutput}
- [1] "subject"             "masked_variable_14"  "masked_variable_06" 
- [4] "masked_variable_03"  "masked_variable_08"  "masked_variable_15" 
- [7] "masked_variable_17"  "masked_variable_01"  "Impul_3_r"          
-[10] "masked_variable_07"  "masked_variable_10"  "masked_variable_05" 
-[13] "masked_variable_09"  "masked_variable_02"  "masked_variable_13" 
-[16] "masked_variable_16"  "masked_variable_11"  "masked_variable_04" 
-[19] "masked_variable_12"  "age"                 "gender"             
+ [1] "subject"             "SexUnres_1"          "SexUnres_2"         
+ [4] "SexUnres_3"          "SexUnres_4_r"        "SexUnres_5_r"       
+ [7] "masked_03"           "masked_02"           "masked_01"          
+[10] "Opport_1"            "Opport_2"            "Opport_3"           
+[13] "Opport_4"            "Opport_5"            "Opport_6_r"         
+[16] "InvEdu_1_r"          "InvEdu_2_r"          "InvChild_1"         
+[19] "InvChild_2_r"        "age"                 "gender"             
 [22] "ecology"             "duration_in_seconds" "attention_1"        
 [25] "attention_2"        
 \end{CodeOutput}
 \end{CodeChunk}
 
-Once masked, one can proceed with exploratory analyses (e.g.~factor
-analysis, network analysis) on the masked variables, without knowing
-which original items correspond to which columns. For instance:
+Use multiple \texttt{mask\_names()} calls to blind different sets of
+variables independently. Assigning distinct prefixes allows variables to
+be anonymized while preserving information about their original
+clusters. For example, an analyst can recognize that a set of variables
+belongs to the same construct---enabling procedures such as factor
+analysis or reliability estimation---without knowing which specific
+items are being evaluated. The example below demonstrates this clustered
+masking approach in a pipe-based workflow.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> masked_williams <- 
++     williams |> 
++     mask_names(starts_with("SexUnres"), prefix = "masked_set_A_") |>  
++     mask_names(starts_with("Impul"), prefix = "masked_set_B_") |> 
++     mask_names(starts_with("Opport"), prefix = "masked_set_C_") |> 
++     mask_names(starts_with("InvEdu"), prefix = "masked_set_D_") |> 
++     mask_names(starts_with("InvChild"), prefix = "masked_set_E_")
+R> 
+R> names(masked_williams)
+\end{CodeInput}
+\begin{CodeOutput}
+ [1] "subject"             "masked_set_A_05"     "masked_set_A_01"    
+ [4] "masked_set_A_02"     "masked_set_A_04"     "masked_set_A_03"    
+ [7] "masked_set_B_02"     "masked_set_B_03"     "masked_set_B_01"    
+[10] "masked_set_C_01"     "masked_set_C_02"     "masked_set_C_03"    
+[13] "masked_set_C_04"     "masked_set_C_06"     "masked_set_C_05"    
+[16] "masked_set_D_02"     "masked_set_D_01"     "masked_set_E_01"    
+[19] "masked_set_E_02"     "age"                 "gender"             
+[22] "ecology"             "duration_in_seconds" "attention_1"        
+[25] "attention_2"        
+\end{CodeOutput}
+\end{CodeChunk}
+
+Once masked, one can proceed with analyses (e.g.~factor analysis,
+network analysis) on the masked variables, without knowing which
+original items correspond to which columns. For example, we can run a
+factor analysis on the masked items:
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> masked_williams |> 
-+   select(starts_with("masked_variable_")) |> 
-+   factanal(factors = 5, rotation = "varimax") |> 
++   select(starts_with("masked_set")) |> 
++   factanal(factors = 3, rotation = "varimax") |> 
 +   loadings() |> 
 +   print(cutoff = 0.3, sort = TRUE)
 \end{CodeInput}
 \begin{CodeOutput}
 
 Loadings:
-                   Factor1 Factor2 Factor3 Factor4 Factor5
-masked_variable_14  0.606           0.516                 
-masked_variable_06  0.686                                 
-masked_variable_03  0.700           0.493                 
-masked_variable_17  0.761                                 
-masked_variable_07  0.900                                 
-masked_variable_10  0.828                                 
-masked_variable_05  0.842                                 
-masked_variable_09  0.737                                 
-masked_variable_02  0.871                                 
-masked_variable_04  0.778                                 
-masked_variable_08          0.739   0.303                 
-masked_variable_15          0.569                   0.394 
-masked_variable_01          0.864                         
-masked_variable_13          0.687           0.591         
-masked_variable_16          0.675                         
-masked_variable_11          0.838                         
-masked_variable_12          0.882                         
+                Factor1 Factor2 Factor3
+masked_set_A_05  0.648           0.504 
+masked_set_A_01  0.705                 
+masked_set_A_02  0.730           0.340 
+masked_set_B_02  0.751                 
+masked_set_C_01  0.873                 
+masked_set_C_02  0.833                 
+masked_set_C_03  0.866                 
+masked_set_C_04  0.761                 
+masked_set_C_06  0.863                 
+masked_set_E_01  0.770                 
+masked_set_A_04          0.745   0.306 
+masked_set_A_03          0.568         
+masked_set_B_03          0.861         
+masked_set_B_01          0.740         
+masked_set_C_05          0.696         
+masked_set_D_02          0.695         
+masked_set_D_01          0.841         
+masked_set_E_02          0.865         
 
-               Factor1 Factor2 Factor3 Factor4 Factor5
-SS loadings      6.166   4.248   0.813   0.489   0.334
-Proportion Var   0.363   0.250   0.048   0.029   0.020
-Cumulative Var   0.363   0.613   0.660   0.689   0.709
+               Factor1 Factor2 Factor3
+SS loadings      6.314   4.842   0.731
+Proportion Var   0.351   0.269   0.041
+Cumulative Var   0.351   0.620   0.660
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -756,9 +827,9 @@ original data content. This approach maintains the data distribution
 while breaking the connection between observations and their original
 values. The \texttt{scramble\_values()} function randomly reorders the
 elements of a vector. The vector can contain numeric, character, or
-factor data. Scrambling is useful when you want to preserve the original
-values but eliminate any correspondence between observations and their
-values.
+factor type data. Scrambling is useful when we want to preserve the
+original values but eliminate any correspondence between observations
+and their values.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -767,7 +838,7 @@ R> numbers <- 1:10
 R> scramble_values(numbers)
 \end{CodeInput}
 \begin{CodeOutput}
- [1]  8  5  7  3  4  6  2  1 10  9
+ [1]  7  1 10  2  3  5  4  8  9  6
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -775,41 +846,80 @@ The \texttt{scramble\_variables()} function extends the scrambling
 functionality to data frames. It allows scrambling multiple columns
 simultaneously, with options for independent scrambling, joint
 scrambling, and within-group scrambling. Columns can be selected using
-tidyselect helpers.
+tidyselect helpers. For instance, in the williams data we could choose
+to scramble the columns age (a demographic variable) and ecology (the
+identifier of the experimental condition) as follows:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> df <-
+R> williams_example <-
 +     williams |>
 +     select(subject, age, ecology) |> 
 +     head()
 R> 
-R> scramble_variables(df, c("age", "ecology"))
+R> williams_example
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 6 x 3
   subject          age ecology  
   <chr>          <dbl> <chr>    
-1 A30MP4LXV4MIFD    33 Desperate
+1 A30MP4LXV4MIFD    34 Hopeful  
 2 A16X5FB3HAFCKN    30 Desperate
-3 A1E9D1OT9VJYDZ    34 Hopeful  
-4 A16FPOYD7566WI    40 Desperate
-5 A11NOTVHWST7Y3    26 Hopeful  
-6 A3TDR6MXS6UO5Z    35 Desperate
+3 A1E9D1OT9VJYDZ    40 Desperate
+4 A16FPOYD7566WI    35 Hopeful  
+5 A11NOTVHWST7Y3    26 Desperate
+6 A3TDR6MXS6UO5Z    33 Desperate
+\end{CodeOutput}
+\begin{CodeInput}
+R> scramble_variables(williams_example, c("age", "ecology"))
+\end{CodeInput}
+\begin{CodeOutput}
+# A tibble: 6 x 3
+  subject          age ecology  
+  <chr>          <dbl> <chr>    
+1 A30MP4LXV4MIFD    35 Hopeful  
+2 A16X5FB3HAFCKN    33 Desperate
+3 A1E9D1OT9VJYDZ    40 Hopeful  
+4 A16FPOYD7566WI    34 Desperate
+5 A11NOTVHWST7Y3    30 Desperate
+6 A3TDR6MXS6UO5Z    26 Desperate
 \end{CodeOutput}
 \end{CodeChunk}
 
-By default, columns are scrambled independently of each other. When
-\texttt{together\ =\ TRUE}, the selected columns are scrambled as a
-unit, preserving row-level relationships:
+By default, columns are scrambled independently. Setting
+\texttt{together\ =\ TRUE} causes the selected columns to be scrambled
+jointly, preserving their row-wise associations. Adding this argument to
+the previous example therefore maintains the relationship between the
+two scrambled variables.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> df <- 
-+     data.frame(x = 1:6,
-+                y = letters[1:6],
-+                group = c("A", "A", "A", "B", "B", "B")
-+                )
+R> scramble_variables(williams_example, c("age", "ecology"), together = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+# A tibble: 6 x 3
+  subject          age ecology  
+  <chr>          <dbl> <chr>    
+1 A30MP4LXV4MIFD    30 Desperate
+2 A16X5FB3HAFCKN    35 Hopeful  
+3 A1E9D1OT9VJYDZ    34 Hopeful  
+4 A16FPOYD7566WI    33 Desperate
+5 A11NOTVHWST7Y3    40 Desperate
+6 A3TDR6MXS6UO5Z    26 Desperate
+\end{CodeOutput}
+\end{CodeChunk}
+
+Scrambling can be done in groups using the \texttt{.groups} parameter.
+This ensures that values are only scrambled within their original
+groups. In the following example, we scramble the columns x and y within
+each group defined by the group column:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> df <- data.frame(x = 1:6,
++                  y = letters[1:6],
++                  group = c("A", "A", "A", "B", "B", "B")
++                  )
 R> df 
 \end{CodeInput}
 \begin{CodeOutput}
@@ -822,38 +932,18 @@ R> df
 6 6 f     B
 \end{CodeOutput}
 \begin{CodeInput}
-R> scramble_variables(df, c("x", "y"), together = TRUE)
-\end{CodeInput}
-\begin{CodeOutput}
-  x y group
-1 1 a     A
-2 4 d     A
-3 6 f     A
-4 2 b     B
-5 5 e     B
-6 3 c     B
-\end{CodeOutput}
-\end{CodeChunk}
-
-Scrambling can be done in groups using the \texttt{.groups} parameter.
-This ensures that values are only scrambled within their original
-groups.
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> df |> 
-+     scramble_variables(c("x", "y"), .groups = "group")
+R> scramble_variables(df, c("x", "y"), .groups = "group")
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 6 x 3
       x y     group
   <int> <chr> <chr>
-1     3 c     A    
-2     1 b     A    
-3     2 a     A    
-4     5 d     B    
-5     4 f     B    
-6     6 e     B    
+1     2 c     A    
+2     3 b     A    
+3     1 a     A    
+4     5 e     B    
+5     6 f     B    
+6     4 d     B    
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -861,11 +951,13 @@ The \texttt{scramble\_variables\_rowwise()} function scrambles values
 within each row across specified columns. This is useful for scrambling
 repeated measures or item responses. Within each row, the values are
 shuffled among the item columns. You can scramble multiple sets of
-columns independently. The function can use tidyselect helpers.
+columns independently. The function can use tidyselect helpers. In the
+next example, we scramble values across three day variables for each
+participant in a hypothetical dataset:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> df2 <- data.frame(
+R> df_wide <- data.frame(
 +   day_1 = c(1, 4, 7),
 +   day_2 = c(2, 5, 8),
 +   day_3 = c(3, 6, 9),
@@ -874,13 +966,22 @@ R> df2 <- data.frame(
 +   id = 1:3
 + )
 R> 
-R> scramble_variables_rowwise(df2, starts_with("day_"), c("score_a", "score_b"))
+R> df_wide
 \end{CodeInput}
 \begin{CodeOutput}
   day_1 day_2 day_3 score_a score_b id
-1    20     1     2      10       3  1
-2     4    40     5       6      50  2
-3    80     8     7      70       9  3
+1     1     2     3      10      20  1
+2     4     5     6      40      50  2
+3     7     8     9      70      80  3
+\end{CodeOutput}
+\begin{CodeInput}
+R> scramble_variables_rowwise(df_wide, starts_with("day_"), c("score_a", "score_b"))
+\end{CodeInput}
+\begin{CodeOutput}
+  day_1 day_2 day_3 score_a score_b id
+1     1    10    20       3       2  1
+2    40    50     6       4       5  2
+3     7     8    80      70       9  3
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -897,20 +998,26 @@ variables, hierarchical data structures, or the need for consistent
 masking across several columns, the risk of ``breaking'' the data
 structure or accidentally unblinding the analyst increases
 significantly. By providing a unified and tested framework, \pkg{vazul}
-abstracts these technical intricacies, allowing researchers to focus on
+abstracts these technical intricacies, and allow researchers to focus on
 the conceptual rigor of their analysis plans rather than the underlying
 data manipulation logic.
 
-Furthermore, \pkg{vazul} lowers the barrier to entry for researchers who
-may not have extensive programming experience, effectively making robust
-bias-control techniques accessible to ``newbies'' and seasoned analysts
-alike. Beyond standalone use in \proglang{R} scripts, the package's
-modular design makes it an ideal candidate for integration into other
+The functions implemented in \pkg{vazul} are applicable to a wide range
+of paradigms and data structures and simplify the blinding process,
+which in turn facilitates the assignment of data-blinding roles within
+research teams. Specifically, since data blinding no longer requires
+implementing custom code the data-manager role need not be filled by an
+expert in the analytic method or data domain. Instead, junior lab
+members or external collaborators can manage data blinding, while domain
+experts develop the analytic strategy.
+
+Beyond standalone use in \proglang{R} scripts, the package's modular
+design makes it an ideal candidate for integration into other
 statistical software platforms. For instance, the inclusion of
-\pkg{vazul} as a backend for the \proglang{JASP} graphical interface
-could provide a point-and-click solution for analysis blinding, further
-facilitating the adoption of these best practices across the social and
-behavioral sciences.
+\pkg{vazul} as a back-end for the \proglang{JASP} \citep{JASP2025}
+graphical interface could provide a point-and-click solution for
+analysis blinding, further facilitating the adoption of these best
+practices across the social and behavioral sciences.
 
 \section{Acknowledgements}\label{acknowledgements}
 
