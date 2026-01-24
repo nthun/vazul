@@ -55,19 +55,23 @@
 #' table(williams$ecology)
 #'
 #' # Compute composite scores (example)
-#' library(dplyr)
-#' williams_composites <- williams |>
-#'   rowwise() |>
-#'   mutate(
-#'     sexual_unrestrictedness = mean(c(SexUnres_1, SexUnres_2, SexUnres_3,
-#'                                      8 - SexUnres_4_r, 8 - SexUnres_5_r), na.rm = TRUE),
-#'     impulsivity = mean(c(Impuls_1, 8 - Impuls_2_r, 8 - Impul_3_r), na.rm = TRUE),
-#'     opportunity = mean(c(Opport_1, Opport_2, Opport_3, Opport_4, Opport_5,
-#'                          8 - Opport_6_r), na.rm = TRUE),
-#'     investment = mean(c(8 - InvEdu_1_r, 8 - InvEdu_2_r, InvChild_1,
-#'                         8 - InvChild_2_r), na.rm = TRUE)
-#'   ) |>
-#'   ungroup()
+#' if (requireNamespace("dplyr", quietly = TRUE)) {
+#'   library(dplyr)
 #'
-#' summary(select(williams_composites, sexual_unrestrictedness, impulsivity, opportunity, investment))
+#'   williams_composites <- williams |>
+#'     rowwise() |>
+#'     mutate(
+#'       sexual_unrestrictedness = mean(c(SexUnres_1, SexUnres_2, SexUnres_3,
+#'                                      8 - SexUnres_4_r, 8 - SexUnres_5_r), na.rm = TRUE),
+#'       impulsivity = mean(c(Impuls_1, 8 - Impuls_2_r, 8 - Impul_3_r), na.rm = TRUE),
+#'       opportunity = mean(c(Opport_1, Opport_2, Opport_3, Opport_4, Opport_5,
+#'                            8 - Opport_6_r), na.rm = TRUE),
+#'       investment = mean(c(8 - InvEdu_1_r, 8 - InvEdu_2_r, InvChild_1,
+#'                           8 - InvChild_2_r), na.rm = TRUE)
+#'     ) |>
+#'     ungroup()
+#'
+#'   summary(williams_composites[ , c("sexual_unrestrictedness", "impulsivity")])
+#' }
+#' }
 "williams"

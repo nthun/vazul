@@ -74,15 +74,16 @@ data(marp)
 # Dimensions
 dim(marp)
 # Quick overview
-dplyr::glimpse(marp)
-# Mean religiosity by country
-marp |>
-  dplyr::select(country, starts_with("rel_")) |>
-  dplyr::group_by(country) |>
-  dplyr::summarise(
-    across(starts_with("rel_"), ~ mean(.x, na.rm = TRUE)),
-    .groups = "drop"
-  )
+if (requireNamespace("dplyr", quietly = TRUE)) {
+  library(dplyr)
+
+  marp |>
+    group_by(country) |>
+    summarise(
+      mean_wb = mean(wb_overall_mean, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
 }
 \keyword{cross-cultural}
 \keyword{datasets}
