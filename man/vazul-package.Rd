@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Provides tools for analysis blinding in confirmatory research contexts by masking and scrambling test-relevant aspects of data. Vector-, data frame-, and row-wise operations support blinding for hierarchical and repeated-measures designs.
+Provides tools for analysis blinding in confirmatory research contexts by masking and scrambling test-relevant aspects of data. Vector-, data frame-, and row-wise operations support blinding for hierarchical and repeated-measures designs. For more details see MacCoun and Perlmutter (2015) \doi{10.1038/526187a} and Dutilh, Sarafoglou, and Wagenmakers (2019) \doi{10.1007/s11229-019-02456-7}.
 }
 \seealso{
 Useful links:

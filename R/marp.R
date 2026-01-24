@@ -62,7 +62,6 @@
 #' @usage data(marp)
 #' @keywords datasets religion well-being cross-cultural reproducibility
 #' @examples
-#' \dontrun{
 #' library(dplyr)
 #' data(marp)
 #' # Dimensions
@@ -77,5 +76,4 @@
 #'     across(starts_with("rel_"), ~ mean(.x, na.rm = TRUE)),
 #'     .groups = "drop"
 #'   )
-#' }
 "marp"

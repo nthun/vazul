@@ -69,7 +69,6 @@ which investigated the relationship between religiosity and well-being
 across 24 countries and diverse religious traditions.
 }
 \examples{
-\dontrun{
 library(dplyr)
 data(marp)
 # Dimensions
@@ -84,7 +83,6 @@ marp |>
     across(starts_with("rel_"), ~ mean(.x, na.rm = TRUE)),
     .groups = "drop"
   )
-}
 }
 \keyword{cross-cultural}
 \keyword{datasets}
