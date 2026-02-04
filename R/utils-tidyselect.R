@@ -10,68 +10,20 @@
 #' @keywords internal
 #' @noRd
 resolve_column_set <- function(set_quo, data) {
-  # Helper to validate and return character column selection
-  validate_char_columns <- function(set) {
-    missing <- setdiff(set, names(data))
-    if (length(missing) > 0) {
-      stop("Error in column selection: Can't subset columns that ",
-           "don't exist. Column `",
-           paste(missing, collapse = "`, `"),
-           "` doesn't exist.", call. = FALSE)
-    }
-    set
-  }
-
   # Helper to use tidyselect and return column names
   select_with_tidyselect <- function(quo) {
     selected <- tryCatch(
       tidyselect::eval_select(quo, data),
       error = function(e) {
-        stop("Error in column selection: ", conditionMessage(e),
-             call. = FALSE)
+        # Rethrow error with a clean message
+        stop("Error in column selection: ", conditionMessage(e), call. = FALSE)
       }
     )
     if (length(selected) == 0) return(character(0))
     names(data)[selected]
   }
 
-  # If quosure is a bare symbol (column name), use tidyselect directly
-  # This prevents evaluating the symbol to its column values
-  if (rlang::quo_is_symbol(set_quo)) {
-    return(select_with_tidyselect(set_quo))
-  }
-
-  # If it's a call (like starts_with() or c()), try evaluating first
-  # to handle character vectors and numeric indices
-  result <- tryCatch(
-    expr = {
-      set <- rlang::eval_tidy(set_quo, data = data)
-      if (is.character(set)) {
-        validate_char_columns(set)
-      } else if (is.numeric(set)) {
-        select_with_tidyselect(set_quo)
-      } else {
-        NULL
-      }
-    },
-    error = function(e) {
-      if (grepl("Error in column selection", conditionMessage(e))) {
-        stop(conditionMessage(e), call. = FALSE)
-      }
-      NULL
-    }
-  )
-
-  if (!is.null(result)) return(result)
-
-  # If evaluation failed, treat as tidyselect expression
-  if (rlang::quo_is_call(set_quo)) {
-    return(select_with_tidyselect(set_quo))
-  }
-
-  warning("Each column set must be a character vector or ",
-          "tidyselect expression.", call. = FALSE)
-  character(0)
+  return(select_with_tidyselect(set_quo))
 }
 
 #' Resolve all column sets from ... arguments

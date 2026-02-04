@@ -54,6 +54,18 @@ test_that("mask_names works with tidyselect helpers", {
   expect_equal(sum(grepl("^treatment_", masked_names)), 2)
 })
 
+test_that("mask_names supports tidyselect range without warnings", {
+  set.seed(123)
+  expect_warning(
+    result <- mask_names(iris, Sepal.Length:Petal.Width, prefix = "a"),
+    NA
+  )
+
+  masked_names <- names(result)
+  expect_equal(sum(startsWith(masked_names, "a")), 4)
+  expect_true("Species" %in% masked_names)
+})
+
 test_that("mask_names custom prefix works", {
   df <- data.frame(
     var1 = c(1, 2, 3),
