@@ -25,7 +25,7 @@ Each approach is available at three levels:
 
 - **Vector level**: `mask_labels()` and `scramble_values()` - operate on single vectors
 - **Data frame level**: `mask_variables()` and `scramble_variables()` - operate on columns in a data frame
-- **Row-wise level**: `mask_variables_rowwise()` and `scramble_variables_rowwise()` - operate within rows across columns
+- **Row-wise level**: `mask_variables_rowwise()` and `scramble_variables(..., .byrow = TRUE)` - operate within rows across columns
 
 ```{r}
 #| label: setup
@@ -273,7 +273,7 @@ The `scramble_variables()` function scrambles the values of specified columns in
 
 - `data`: A data frame
 - `...`: Columns to scramble (supports tidyselect helpers)
-- `together`: If `TRUE`, variables are scrambled together as a unit per row; if `FALSE` (default), each variable is scrambled independently
+- `.together`: If `TRUE`, variables are scrambled together as a unit per row; if `FALSE` (default), each variable is scrambled independently
 - `.groups`: Optional grouping columns for within-group scrambling. Grouping columns must not overlap with the columns selected in `...`. If `data` is already grouped (a `dplyr` grouped data frame), existing grouping is ignored unless `.groups` is explicitly provided.
 
 #### Independent Scrambling (Default)
@@ -295,11 +295,11 @@ Notice that `x` and `y` are scrambled independently of each other.
 
 #### Scrambling Together
 
-When `together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
+When `.together = TRUE`, the selected columns are scrambled as a unit, preserving row-level relationships:
 
 ```{r}
 set.seed(456)
-scramble_variables(df, c("x", "y"), together = TRUE)
+scramble_variables(df, c("x", "y"), .together = TRUE)
 ```
 
 Notice that the pairs (1, "a"), (2, "b"), etc., remain intact but are assigned to different rows.
@@ -321,7 +321,7 @@ You can combine both parameters:
 
 ```{r}
 set.seed(100)
-scramble_variables(df, c("x", "y"), .groups = "group", together = TRUE)
+scramble_variables(df, c("x", "y"), .groups = "group", .together = TRUE)
 ```
 
 #### Practical Example with Dataset
@@ -344,14 +344,15 @@ williams_scrambled |>
   summarise(mean_age = mean(age, na.rm = TRUE))
 ```
 
-### `scramble_variables_rowwise()` - Row-Level Scrambling
+### `scramble_variables(..., .byrow = TRUE)` - Row-Level Scrambling
 
-The `scramble_variables_rowwise()` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.
+The `scramble_variables(..., .byrow = TRUE)` function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.
 
 #### Parameters
 
 - `data`: A data frame
 - `...`: Columns to scramble (supports tidyselect helpers). All selections are combined into a single set and scrambled together. If you want to scramble separate groups of columns independently, call the function multiple times.
+- `.byrow`: Must be set to `TRUE` for row-wise scrambling.
   
 Rowwise scrambling moves values between columns, so selected columns must be type-compatible. This function requires all selected columns to have the same class (or be an integer/double mix). For factors, the selected columns must also have identical levels.
 
@@ -366,7 +367,7 @@ df <- data.frame(
 )
 
 set.seed(123)
-result <- scramble_variables_rowwise(df, c("item1", "item2", "item3"))
+result <- scramble_variables(df, c("item1", "item2", "item3"), .byrow = TRUE)
 result
 ```
 
@@ -387,7 +388,7 @@ df2 <- data.frame(
 )
 
 set.seed(2)
-result2 <- scramble_variables_rowwise(df2, starts_with("day_"), starts_with("score_"))
+result2 <- scramble_variables(df2, starts_with("day_"), starts_with("score_"), .byrow = TRUE)
 result2
 ```
 
@@ -398,8 +399,8 @@ To scramble different groups of columns independently, call the function multipl
 ```{r}
 set.seed(42)
 result3 <- df2 |>
-  scramble_variables_rowwise(starts_with("day_")) |>
-  scramble_variables_rowwise(starts_with("score_"))
+  scramble_variables(starts_with("day_"), .byrow = TRUE) |>
+  scramble_variables(starts_with("score_"), .byrow = TRUE)
 result3
 ```
 
@@ -530,6 +531,6 @@ The `vazul` package provides a comprehensive toolkit for data blinding:
 | `mask_variables_rowwise()` | Row-wise | Consistent masking within rows |
 | `scramble_values()` | Vector | Randomize value order |
 | `scramble_variables()` | Data frame | Scramble multiple columns |
-| `scramble_variables_rowwise()` | Row-wise | Scramble values within rows |
+| `scramble_variables(..., .byrow = TRUE)` | Row-wise | Scramble values within rows |
 
 These functions help researchers conduct unbiased analyses by separating the analyst from knowledge about treatment conditions, group assignments, or individual data points.

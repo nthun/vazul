@@ -3,8 +3,7 @@
 #' @param x a vector `x`
 #' @return the scrambled vector
 #'
-#' @seealso \code{\link{scramble_variables}} for scrambling multiple variables in a data frame, and
-#' \code{\link{scramble_variables_rowwise}} for rowwise scrambling.
+#' @seealso \code{\link{scramble_variables}} for scrambling multiple variables in a data frame.
 #'
 #' @examples
 #'

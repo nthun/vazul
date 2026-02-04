@@ -11,9 +11,13 @@
 #'     \item A character vector of column names (e.g., \code{c("var1", "var2")})
 #'     \item Multiple sets can be provided as separate arguments
 #'   }
-#' @param together logical. If `TRUE`, variables are scrambled together as a unit per row.
+#' @param .together logical. If `TRUE`, variables are scrambled together as a unit per row.
 #'   Values across different variables are kept intact but assigned to different rows.
 #'   If `FALSE` (default), each variable is scrambled independently.
+#' @param .byrow logical. If `TRUE`, values are scrambled rowwise across the selected columns.
+#'   For each row, the values in the selected columns are shuffled among themselves.
+#'   This requires selected columns to have compatible types.
+#'   Cannot be combined with `.together = TRUE` or `.groups`.
 #' @param .groups Optional grouping columns. Scrambling will be done within each group.
 #'   Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
 #'   the columns selected in \code{...}. If \code{data} is already a grouped \code{dplyr} data frame,
@@ -21,8 +25,7 @@
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
-#' @seealso \code{\link{scramble_values}} for scrambling a single vector, and
-#' \code{\link{scramble_variables_rowwise}} for rowwise scrambling.
+#' @seealso \code{\link{scramble_values}} for scrambling a single vector.
 #'
 #' @examples
 #' df <- data.frame(
@@ -38,14 +41,14 @@
 #' # Or using character vector
 #' df |> scramble_variables(c("x", "y"))
 #'
-#' # Example with together = TRUE. Variables scrambled together as a unit per row.
-#' df |> scramble_variables(c("x", "y"), together = TRUE)
+#' # Example with .together = TRUE. Variables scrambled together as a unit per row.
+#' df |> scramble_variables(c("x", "y"), .together = TRUE)
 #'
 #' # Example with grouping. Variable only scrambled within groups.
 #' df |> scramble_variables("y", .groups = "group")
 #'
 #' # Example combining grouping and together parameters
-#' df |> scramble_variables(c("x", "y"), .groups = "group", together = TRUE)
+#' df |> scramble_variables(c("x", "y"), .groups = "group", .together = TRUE)
 #'
 #' # Example with tidyselect helpers
 #' library(dplyr)
@@ -58,18 +61,22 @@
 #' williams |> scramble_variables(1:5)
 #' williams |> scramble_variables(c("ecology", "age"), .groups = "gender")
 #' williams |> scramble_variables(c(1, 2), .groups = 3)
-#' williams |> scramble_variables(c("ecology", "age"), together = TRUE)
-#' williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
+#' williams |> scramble_variables(c("ecology", "age"), .together = TRUE)
+#' williams |> scramble_variables(c("ecology", "age"), .groups = "gender", .together = TRUE)
+#'
+#' # Rowwise scrambling
+#' df_row <- data.frame(a = 1:3, b = 4:6, c = 7:9)
+#' df_row |> scramble_variables(a, b, c, .byrow = TRUE)
 #'
 #' @export
-scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
+scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .byrow = FALSE) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
-  validate_logical_parameter(together, "together")
+  validate_logical_parameter(.together, ".together")
+  validate_logical_parameter(.byrow, ".byrow")
 
-  # Strip any existing grouping to avoid conflicts
-  if (dplyr::is_grouped_df(data)) {
-    data <- dplyr::ungroup(data)
+  if (.together && .byrow) {
+    stop("Cannot use both `.together = TRUE` and `.byrow = TRUE`.", call. = FALSE)
   }
 
   # Capture all ... arguments as quosures
@@ -80,6 +87,22 @@ scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
 
   if (!validate_column_selection_not_empty(all_col_names)) {
     return(data)
+  }
+
+  # Validation for .byrow with .groups
+  has_groups <- !rlang::quo_is_null(rlang::enquo(.groups))
+  if (.byrow && has_groups) {
+    stop("Cannot use `.byrow = TRUE` with `.groups`.", call. = FALSE)
+  }
+
+  # Dispatch to rowwise scrambling if requested
+  if (.byrow) {
+    return(scramble_variables_rowwise(data, all_col_names))
+  }
+
+  # Strip any existing grouping to avoid conflicts
+  if (dplyr::is_grouped_df(data)) {
+    data <- dplyr::ungroup(data)
   }
 
   # Get column indices from resolved names
@@ -97,7 +120,7 @@ scramble_variables <- function(data, ..., .groups = NULL, together = FALSE) {
     data <- dplyr::group_by(data, !!!rlang::syms(group_cols))
   }
 
-  if (together) {
+  if (.together) {
     # Scramble row order (within groups if grouped)
     data <- data |>
       dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>

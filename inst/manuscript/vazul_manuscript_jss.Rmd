@@ -288,10 +288,10 @@ scramble_variables(williams_example, c("age", "ecology"))
 
 ```
 
-By default, columns are scrambled independently. Setting `together = TRUE` causes the selected columns to be scrambled jointly, preserving their row-wise associations. Adding this argument to the previous example therefore maintains the relationship between the two scrambled variables.
+By default, columns are scrambled independently. Setting `.together = TRUE` causes the selected columns to be scrambled jointly, preserving their row-wise associations. Adding this argument to the previous example therefore maintains the relationship between the two scrambled variables.
 
 ```{r}
-scramble_variables(williams_example, c("age", "ecology"), together = TRUE)
+scramble_variables(williams_example, c("age", "ecology"), .together = TRUE)
 ```
 
 Scrambling can be done in groups using the `.groups` parameter. This ensures that values are only scrambled within their original groups. In the following example, we scramble the columns x and y within each group defined by the group column:

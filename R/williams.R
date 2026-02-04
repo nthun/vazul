@@ -73,5 +73,4 @@
 #'
 #'   summary(williams_composites[ , c("sexual_unrestrictedness", "impulsivity")])
 #' }
-#' }
 "williams"

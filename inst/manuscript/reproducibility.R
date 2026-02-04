@@ -166,7 +166,7 @@ scramble_variables(williams_example, c("age", "ecology"))
 scramble_variables(
     williams_example,
     c("age", "ecology"),
-    together = TRUE
+    .together = TRUE
 )
 
 

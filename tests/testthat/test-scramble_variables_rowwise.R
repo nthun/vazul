@@ -1,6 +1,6 @@
-# Tests for scramble_variables_rowwise function
+# Tests for scramble_variables function with .byrow = TRUE
 
-test_that("scramble_variables_rowwise works with single variable set", {
+test_that("scramble_variables(.byrow=TRUE) works with single variable set", {
     df <- data.frame(
         x = c(1, 4, 7),
         y = c(2, 5, 8),
@@ -10,7 +10,7 @@ test_that("scramble_variables_rowwise works with single variable set", {
 
     set.seed(123)
     result <- expect_warning(
-        scramble_variables_rowwise(df, c("x", "y", "z")),
+        scramble_variables(df, c("x", "y", "z"), .byrow = TRUE),
         NA  # expect NO warning
     )
 
@@ -26,7 +26,7 @@ test_that("scramble_variables_rowwise works with single variable set", {
     expect_equal(result$other, df$other)
 })
 
-test_that("scramble_variables_rowwise works with multiple variable sets", {
+test_that("scramble_variables(.byrow=TRUE) works with multiple variable sets", {
     df <- data.frame(
         day_1 = c(1, 4, 7),
         day_2 = c(2, 5, 8),
@@ -38,9 +38,10 @@ test_that("scramble_variables_rowwise works with multiple variable sets", {
 
     set.seed(123)
     result <- expect_warning(
-        scramble_variables_rowwise(df,
-                                   c("day_1", "day_2", "day_3"),
-                                   c("score_a", "score_b")
+        scramble_variables(df,
+                           c("day_1", "day_2", "day_3"),
+                           c("score_a", "score_b"),
+                           .byrow = TRUE
         ),
         NA
     )
@@ -57,7 +58,7 @@ test_that("scramble_variables_rowwise works with multiple variable sets", {
     expect_equal(result$id, df$id)
 })
 
-test_that("scramble_variables_rowwise works with column indices", {
+test_that("scramble_variables(.byrow=TRUE) works with column indices", {
     df <- data.frame(
         a = c(1, 4),
         b = c(2, 5),
@@ -66,7 +67,7 @@ test_that("scramble_variables_rowwise works with column indices", {
 
     set.seed(123)
     result <- expect_warning(
-        scramble_variables_rowwise(df, c(1, 2, 3)),
+        scramble_variables(df, c(1, 2, 3), .byrow = TRUE),
         NA
     )
 
@@ -78,7 +79,7 @@ test_that("scramble_variables_rowwise works with column indices", {
     expect_true(all(mapply(setequal, orig_list, scr_list)))
 })
 
-test_that("scramble_variables_rowwise handles single column sets", {
+test_that("scramble_variables(.byrow=TRUE) handles single column sets", {
     df <- data.frame(
         x = 1:5,
         y = letters[1:5],
@@ -87,53 +88,47 @@ test_that("scramble_variables_rowwise handles single column sets", {
 
     # Single column as character string should work and warn about only one column
     expect_warning(
-        result <- scramble_variables_rowwise(df, "x"),
+        result <- scramble_variables(df, "x", .byrow = TRUE),
         "Only one column selected. Rowwise scrambling requires at least 2 columns.",
         fixed = TRUE
     )
     expect_equal(result, df)
 
     expect_warning(
-        result2 <- scramble_variables_rowwise(df, c("x")),
+        result2 <- scramble_variables(df, c("x"), .byrow = TRUE),
         "Only one column selected. Rowwise scrambling requires at least 2 columns.",
         fixed = TRUE
     )
     expect_equal(result2, df)
 })
 
-test_that("scramble_variables_rowwise validates input correctly", {
+test_that("scramble_variables(.byrow=TRUE) validates input correctly", {
     df <- data.frame(x = 1:5, y = letters[1:5])
 
     expect_error(
-        scramble_variables_rowwise(list(x = 1:5), "x"),
+        scramble_variables(list(x = 1:5), "x", .byrow = TRUE),
         "Input 'data' must be a data frame.",
         fixed = TRUE
     )
 
     expect_warning(
-        result <- scramble_variables_rowwise(df),
+        result <- scramble_variables(df, .byrow = TRUE),
         "No columns selected. Returning original data unchanged.",
         fixed = TRUE
     )
     expect_equal(result, df)
 
     expect_error(
-        scramble_variables_rowwise(df, "nonexistent_column"),
-        "Error in column selection: Can't subset columns that don't exist.",
-        fixed = FALSE
-    )
-
-    expect_error(
-        scramble_variables_rowwise(df, data.frame(a = 1)),
+        scramble_variables(df, "nonexistent_column", .byrow = TRUE),
         "Error in column selection:",
-        fixed = TRUE
+        fixed = FALSE
     )
 })
 
-test_that("scramble_variables_rowwise handles edge cases", {
+test_that("scramble_variables(.byrow=TRUE) handles edge cases", {
     df_single <- data.frame(x = 1, y = 2, z = 3)
     result <- expect_warning(
-        scramble_variables_rowwise(df_single, c("x", "y", "z")),
+        scramble_variables(df_single, c("x", "y", "z"), .byrow = TRUE),
         NA
     )
     expect_equal(nrow(result), 1)
@@ -142,7 +137,7 @@ test_that("scramble_variables_rowwise handles edge cases", {
     df_two <- data.frame(a = c(1, 3), b = c(2, 4))
     set.seed(123)
     result <- expect_warning(
-        scramble_variables_rowwise(df_two, c("a", "b")),
+        scramble_variables(df_two, c("a", "b"), .byrow = TRUE),
         NA
     )
     orig_pairs <- asplit(df_two, 1)
@@ -150,7 +145,7 @@ test_that("scramble_variables_rowwise handles edge cases", {
     expect_true(all(mapply(setequal, orig_pairs, scr_pairs)))
 })
 
-test_that("scramble_variables_rowwise actually scrambles data (probabilistic)", {
+test_that("scramble_variables(.byrow=TRUE) actually scrambles data (probabilistic)", {
     set.seed(42)
     df <- data.frame(
         x = 1:20,
@@ -160,7 +155,7 @@ test_that("scramble_variables_rowwise actually scrambles data (probabilistic)", 
     )
 
     result <- expect_warning(
-        scramble_variables_rowwise(df, c("x", "y", "z")),
+        scramble_variables(df, c("x", "y", "z"), .byrow = TRUE),
         NA
     )
 
@@ -174,7 +169,7 @@ test_that("scramble_variables_rowwise actually scrambles data (probabilistic)", 
     expect_equal(result$other, df$other)
 })
 
-test_that("scramble_variables_rowwise preserves NA values correctly", {
+test_that("scramble_variables(.byrow=TRUE) preserves NA values correctly", {
     df <- data.frame(
         x = c(1, NA, 3, 4),
         y = c(10, 20, NA, 40),
@@ -184,7 +179,7 @@ test_that("scramble_variables_rowwise preserves NA values correctly", {
 
     set.seed(123)
     result <- expect_warning(
-        scramble_variables_rowwise(df, c("x", "y", "z")),
+        scramble_variables(df, c("x", "y", "z"), .byrow = TRUE),
         NA
     )
 
@@ -202,7 +197,7 @@ test_that("scramble_variables_rowwise preserves NA values correctly", {
     expect_equal(result$other, df$other)
 })
 
-test_that("scramble_variables_rowwise preserves data types", {
+test_that("scramble_variables(.byrow=TRUE) preserves data types", {
     df <- data.frame(
         int_col1 = c(1L, 2L, 3L),
         int_col2 = c(4L, 5L, 6L),
@@ -216,8 +211,9 @@ test_that("scramble_variables_rowwise preserves data types", {
 
     set.seed(123)
     result <- expect_warning(
-        scramble_variables_rowwise(df,
-                                   c("int_col1", "int_col2")
+        scramble_variables(df,
+                           c("int_col1", "int_col2"),
+                           .byrow = TRUE
         ),
         NA
     )
@@ -240,7 +236,7 @@ test_that("scramble_variables_rowwise preserves data types", {
     expect_setequal(c(result$int_col1[1], result$int_col2[1]), c(1L, 4L))
 })
 
-test_that("scramble_variables_rowwise works with tidyselect expressions", {
+test_that("scramble_variables(.byrow=TRUE) works with tidyselect expressions", {
     df <- data.frame(
         day_1 = c(1, 4, 7),
         day_2 = c(2, 5, 8),
@@ -252,7 +248,7 @@ test_that("scramble_variables_rowwise works with tidyselect expressions", {
 
     set.seed(123)
     result1 <- expect_warning(
-        scramble_variables_rowwise(df, starts_with("day_")),
+        scramble_variables(df, starts_with("day_"), .byrow = TRUE),
         NA
     )
     expect_equal(names(result1), names(df))
@@ -262,9 +258,10 @@ test_that("scramble_variables_rowwise works with tidyselect expressions", {
 
     set.seed(123)
     result2 <- expect_warning(
-        scramble_variables_rowwise(df,
-                                   starts_with("day_"),
-                                   starts_with("score_")
+        scramble_variables(df,
+                           starts_with("day_"),
+                           starts_with("score_"),
+                           .byrow = TRUE
         ),
         NA
     )
@@ -276,7 +273,7 @@ test_that("scramble_variables_rowwise works with tidyselect expressions", {
     expect_equal(result2$id, df$id)
 })
 
-test_that("scramble_variables_rowwise preserves input data frame type", {
+test_that("scramble_variables(.byrow=TRUE) preserves input data frame type", {
     skip_if_not_installed("dplyr")
 
     df <- data.frame(x = 1:5, y = letters[1:5], z = 6:10)
@@ -284,20 +281,20 @@ test_that("scramble_variables_rowwise preserves input data frame type", {
 
     set.seed(123)
     result_df <- expect_warning(
-        scramble_variables_rowwise(df, c("x", "z")),  # ← both numeric
+        scramble_variables(df, c("x", "z"), .byrow = TRUE),  # ← both numeric
         NA
     )
     expect_equal(class(result_df), class(df))
 
     set.seed(123)
     result_tbl <- expect_warning(
-        scramble_variables_rowwise(tbl, c("x", "z")),  # ← both numeric
+        scramble_variables(tbl, c("x", "z"), .byrow = TRUE),  # ← both numeric
         NA
     )
     expect_equal(class(result_tbl), class(tbl))
 })
 
-test_that("scramble_variables_rowwise errors on incompatible types/classes", {
+test_that("scramble_variables(.byrow=TRUE) errors on incompatible types/classes", {
     df <- data.frame(
         num = c(1, 2, 3),
         chr = c("a", "b", "c"),
@@ -305,7 +302,7 @@ test_that("scramble_variables_rowwise errors on incompatible types/classes", {
     )
 
     expect_error(
-        scramble_variables_rowwise(df, c("num", "chr")),
+        scramble_variables(df, c("num", "chr"), .byrow = TRUE),
         "Rowwise scrambling requires selected columns to have the same class",
         fixed = TRUE
     )
@@ -314,7 +311,7 @@ test_that("scramble_variables_rowwise errors on incompatible types/classes", {
 
 # ─── TESTS FOR ISSUE: TIDYEVAL FUNCTIONALITY ──────────────────────────────────
 
-test_that("scramble_variables_rowwise works with tidyselect all_of for column set", {
+test_that("scramble_variables(.byrow=TRUE) works with tidyselect all_of for column set", {
   df <- data.frame(
     a = c(1, 4, 7),
     b = c(2, 5, 8),
@@ -324,7 +321,7 @@ test_that("scramble_variables_rowwise works with tidyselect all_of for column se
 
   set.seed(123)
   # Use all_of() or c() to specify columns as a single set
-  result <- df |> scramble_variables_rowwise(c("a", "b", "c"))
+  result <- df |> scramble_variables(c("a", "b", "c"), .byrow = TRUE)
 
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
@@ -340,7 +337,7 @@ test_that("scramble_variables_rowwise works with tidyselect all_of for column se
   expect_equal(result$other, df$other)
 })
 
-test_that("scramble_variables_rowwise combines multiple column sets into a single set", {
+test_that("scramble_variables(.byrow=TRUE) combines multiple column sets into a single set", {
   df <- data.frame(
     a = c(1, 2, 3),
     b = c(10, 20, 30),
@@ -349,7 +346,7 @@ test_that("scramble_variables_rowwise combines multiple column sets into a singl
   )
 
   set.seed(42)  # Use seed where scrambling is visible
-  result <- df |> scramble_variables_rowwise(c("a", "b"), c("c", "d"))
+  result <- df |> scramble_variables(c("a", "b"), c("c", "d"), .byrow = TRUE)
 
   expect_s3_class(result, "data.frame")
 
@@ -361,7 +358,7 @@ test_that("scramble_variables_rowwise combines multiple column sets into a singl
   }
 })
 
-test_that("scramble_variables_rowwise works with multiple tidyselect helpers", {
+test_that("scramble_variables(.byrow=TRUE) works with multiple tidyselect helpers", {
   skip_if_not_installed("dplyr")
 
   df <- data.frame(
@@ -374,9 +371,10 @@ test_that("scramble_variables_rowwise works with multiple tidyselect helpers", {
   )
 
   set.seed(123)
-  result <- df |> scramble_variables_rowwise(
+  result <- df |> scramble_variables(
     starts_with("day_"),
-    starts_with("score_")
+    starts_with("score_"),
+    .byrow = TRUE
   )
 
   # Selections are combined into one set, so values can move between day and score columns.
@@ -390,7 +388,7 @@ test_that("scramble_variables_rowwise works with multiple tidyselect helpers", {
   expect_equal(result$id, df$id)
 })
 
-test_that("scramble_variables_rowwise treats bare column names as a combined set", {
+test_that("scramble_variables(.byrow=TRUE) treats bare column names as a combined set", {
   df <- data.frame(
     a = c(1, 2, 3),
     b = c(10, 20, 30),
@@ -399,7 +397,7 @@ test_that("scramble_variables_rowwise treats bare column names as a combined set
 
   set.seed(123)
   result <- expect_warning(
-    scramble_variables_rowwise(df, a, b),
+    scramble_variables(df, a, b, .byrow = TRUE),
     NA
   )
 

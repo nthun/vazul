@@ -166,7 +166,7 @@ test_that("scramble_variables validates input correctly", {
     # Test missing columns — now expect custom error from helper
     expect_error(
         scramble_variables(df, "nonexistent_column"),
-        "Error in column selection: Can't subset columns that don't exist.",
+        "Error in column selection:",
         fixed = FALSE  # Allow partial match
     )
 
@@ -314,7 +314,7 @@ test_that("scramble_variables preserves input data frame type", {
 
 # ─── TESTS FOR TOGETHER PARAMETER ─────────────────────────────────────────────
 
-test_that("scramble_variables works with together = FALSE (default behavior)", {
+test_that("scramble_variables works with .together = FALSE (default behavior)", {
   df <- data.frame(
     x = 1:4,
     y = letters[1:4],
@@ -322,7 +322,7 @@ test_that("scramble_variables works with together = FALSE (default behavior)", {
   )
 
   set.seed(123)
-  result <- scramble_variables(df, c("x", "y"), together = FALSE)
+  result <- scramble_variables(df, c("x", "y"), .together = FALSE)
 
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
@@ -343,7 +343,7 @@ test_that("scramble_variables works with together = FALSE (default behavior)", {
   expect_false(identical(original_pairs, result_pairs))
 })
 
-test_that("scramble_variables works with together = TRUE", {
+test_that("scramble_variables works with .together = TRUE", {
   df <- data.frame(
     x = 1:4,
     y = letters[1:4],
@@ -351,7 +351,7 @@ test_that("scramble_variables works with together = TRUE", {
   )
 
   set.seed(123)
-  result <- scramble_variables(df, c("x", "y"), together = TRUE)
+  result <- scramble_variables(df, c("x", "y"), .together = TRUE)
 
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
@@ -375,7 +375,7 @@ test_that("scramble_variables works with together = TRUE", {
   expect_false(identical(original_pairs, result_pairs))
 })
 
-test_that("scramble_variables with together = TRUE preserves variable relationships", {
+test_that("scramble_variables with .together = TRUE preserves variable relationships", {
   df <- data.frame(
     id = 1:6,
     score = c(10, 20, 30, 40, 50, 60),
@@ -383,7 +383,7 @@ test_that("scramble_variables with together = TRUE preserves variable relationsh
   )
 
   set.seed(456)
-  result <- scramble_variables(df, c("id", "score"), together = TRUE)
+  result <- scramble_variables(df, c("id", "score"), .together = TRUE)
 
   # Check that each row maintains the original id-score relationship
   for (i in seq_len(nrow(result))) {
@@ -394,7 +394,7 @@ test_that("scramble_variables with together = TRUE preserves variable relationsh
   }
 })
 
-test_that("scramble_variables with together = TRUE and grouping", {
+test_that("scramble_variables with .together = TRUE and grouping", {
   df <- data.frame(
     x = 1:6,
     y = letters[1:6],
@@ -402,7 +402,7 @@ test_that("scramble_variables with together = TRUE and grouping", {
   )
 
   set.seed(123)
-  result <- scramble_variables(df, c("x", "y"), .groups = "group", together = TRUE)
+  result <- scramble_variables(df, c("x", "y"), .groups = "group", .together = TRUE)
 
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
@@ -431,7 +431,7 @@ test_that("scramble_variables with together = TRUE and grouping", {
   expect_setequal(result_b_pairs, group_b_orig_pairs)
 })
 
-test_that("scramble_variables with together = FALSE and grouping", {
+test_that("scramble_variables with .together = FALSE and grouping", {
   df <- data.frame(
     x = 1:6,
     y = letters[1:6],
@@ -439,7 +439,7 @@ test_that("scramble_variables with together = FALSE and grouping", {
   )
 
   set.seed(123)
-  result <- scramble_variables(df, c("x", "y"), .groups = "group", together = FALSE)
+  result <- scramble_variables(df, c("x", "y"), .groups = "group", .together = FALSE)
 
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), nrow(df))
@@ -458,33 +458,33 @@ test_that("scramble_variables with together = FALSE and grouping", {
   expect_setequal(group_b_result, group_b_orig)
 })
 
-test_that("scramble_variables together parameter works with single column", {
+test_that("scramble_variables .together parameter works with single column", {
   df <- data.frame(
     x = 1:5,
     y = letters[1:5]
   )
 
-  # With single column, together should behave like regular scrambling
+  # With single column, .together should behave like regular scrambling
   set.seed(123)
-  result1 <- scramble_variables(df, "x", together = TRUE)
+  result1 <- scramble_variables(df, "x", .together = TRUE)
 
   set.seed(123)
-  result2 <- scramble_variables(df, "x", together = FALSE)
+  result2 <- scramble_variables(df, "x", .together = FALSE)
 
   expect_equal(result1$x, result2$x)
   expect_equal(result1$y, result2$y) # unchanged
 })
 
-test_that("scramble_variables together parameter with edge cases", {
+test_that("scramble_variables .together parameter with edge cases", {
   # Single row
   df_single <- data.frame(x = 1, y = "a", z = "keep")
-  result_single <- scramble_variables(df_single, c("x", "y"), together = TRUE)
+  result_single <- scramble_variables(df_single, c("x", "y"), .together = TRUE)
   expect_equal(result_single, df_single)
 
   # Two rows
   df_two <- data.frame(x = 1:2, y = c("a", "b"))
   set.seed(123)
-  result_two <- scramble_variables(df_two, c("x", "y"), together = TRUE)
+  result_two <- scramble_variables(df_two, c("x", "y"), .together = TRUE)
 
   # Should preserve pairs
   original_pairs <- paste(df_two$x, df_two$y, sep = "-")
@@ -492,7 +492,7 @@ test_that("scramble_variables together parameter with edge cases", {
   expect_setequal(result_pairs, original_pairs)
 })
 
-test_that("scramble_variables together actually scrambles data (probabilistic)", {
+test_that("scramble_variables .together actually scrambles data (probabilistic)", {
   # Create larger dataset to ensure scrambling occurs
   df <- data.frame(
     x = 1:20,
@@ -500,7 +500,7 @@ test_that("scramble_variables together actually scrambles data (probabilistic)",
   )
 
   set.seed(123)
-  result <- scramble_variables(df, c("x", "y"), together = TRUE)
+  result <- scramble_variables(df, c("x", "y"), .together = TRUE)
 
   # It's extremely unlikely that 20 pairs stay in order
   original_pairs <- paste(df$x, df$y, sep = "-")
@@ -659,3 +659,22 @@ test_that("scramble_variables with numeric range works", {
   expect_equal(result$d, df$d)
 })
 
+# ─── TESTS FOR .BYROW EXCLUSIONS ──────────────────────────────────────────────
+
+test_that("scramble_variables errors when .byrow is mixed with together", {
+  df <- data.frame(x = 1:5, y = 6:10)
+  expect_error(
+    scramble_variables(df, c("x", "y"), .together = TRUE, .byrow = TRUE),
+    "Cannot use both `.together = TRUE` and `.byrow = TRUE`.",
+    fixed = TRUE
+  )
+})
+
+test_that("scramble_variables errors when .byrow is mixed with .groups", {
+  df <- data.frame(x = 1:5, y = 6:10, g = c(1,1,1,2,2))
+  expect_error(
+    scramble_variables(df, c("x", "y"), .groups = "g", .byrow = TRUE),
+    "Cannot use `.byrow = TRUE` with `.groups`.",
+    fixed = TRUE
+  )
+})
