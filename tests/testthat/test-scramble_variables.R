@@ -670,11 +670,15 @@ test_that("scramble_variables errors when .byrow is mixed with together", {
   )
 })
 
-test_that("scramble_variables errors when .byrow is mixed with .groups", {
+test_that("scramble_variables ignores .groups when .byrow is TRUE", {
   df <- data.frame(x = 1:5, y = 6:10, g = c(1,1,1,2,2))
-  expect_error(
-    scramble_variables(df, c("x", "y"), .groups = "g", .byrow = TRUE),
-    "Cannot use `.byrow = TRUE` with `.groups`.",
-    fixed = TRUE
+  
+  # Expect no error
+  expect_no_error(
+    result <- scramble_variables(df, c("x", "y"), .groups = "g", .byrow = TRUE)
   )
+  
+  # Check result structure
+  expect_s3_class(result, "data.frame")
+  expect_equal(names(result), names(df))
 })

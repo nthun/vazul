@@ -26,7 +26,8 @@ scramble_variables(
 \item{.groups}{Optional grouping columns. Scrambling will be done within each group.
 Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
 the columns selected in \code{...}. If \code{data} is already a grouped \code{dplyr} data frame,
-existing grouping is ignored unless \code{.groups} is explicitly provided.}
+existing grouping is ignored unless \code{.groups} is explicitly provided.
+Ignored if \code{.byrow = TRUE}.}
 
 \item{.together}{logical. If \code{TRUE}, variables are scrambled together as a unit per row.
 Values across different variables are kept intact but assigned to different rows.
@@ -35,7 +36,7 @@ If \code{FALSE} (default), each variable is scrambled independently.}
 \item{.byrow}{logical. If \code{TRUE}, values are scrambled rowwise across the selected columns.
 For each row, the values in the selected columns are shuffled among themselves.
 This requires selected columns to have compatible types.
-Cannot be combined with \code{.together = TRUE} or \code{.groups}.}
+Cannot be combined with \code{.together = TRUE}.}
 }
 \value{
 A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.

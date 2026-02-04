@@ -17,11 +17,12 @@
 #' @param .byrow logical. If `TRUE`, values are scrambled rowwise across the selected columns.
 #'   For each row, the values in the selected columns are shuffled among themselves.
 #'   This requires selected columns to have compatible types.
-#'   Cannot be combined with `.together = TRUE` or `.groups`.
+#'   Cannot be combined with `.together = TRUE`.
 #' @param .groups Optional grouping columns. Scrambling will be done within each group.
 #'   Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
 #'   the columns selected in \code{...}. If \code{data} is already a grouped \code{dplyr} data frame,
 #'   existing grouping is ignored unless \code{.groups} is explicitly provided.
+#'   Ignored if `.byrow = TRUE`.
 #'
 #' @return A data frame with the specified columns scrambled. If grouping is specified, scrambling is done within each group.
 #'
@@ -90,10 +91,7 @@ scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .by
   }
 
   # Validation for .byrow with .groups
-  has_groups <- !rlang::quo_is_null(rlang::enquo(.groups))
-  if (.byrow && has_groups) {
-    stop("Cannot use `.byrow = TRUE` with `.groups`.", call. = FALSE)
-  }
+
 
   # Dispatch to rowwise scrambling if requested
   if (.byrow) {
