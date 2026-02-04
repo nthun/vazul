@@ -90,9 +90,6 @@ scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .by
     return(data)
   }
 
-  # Validation for .byrow with .groups
-
-
   # Dispatch to rowwise scrambling if requested
   if (.byrow) {
     return(scramble_variables_rowwise(data, all_col_names))
