@@ -30,8 +30,7 @@ a vector of the same type as input with masked labels
 ## See also
 
 [`mask_variables`](https://nthun.github.io/vazul/reference/mask_variables.md)
-for masking multiple variables in a data frame,
-[`mask_variables_rowwise`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
+for masking multiple variables in a data frame, `mask_variables_rowwise`
 for rowwise masking, and
 [`mask_names`](https://nthun.github.io/vazul/reference/mask_names.md)
 for masking variable names.

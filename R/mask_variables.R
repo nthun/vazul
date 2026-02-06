@@ -14,7 +14,7 @@
 #'     \item Multiple sets can be provided as separate arguments
 #'   }
 #'   Only character and factor columns will be processed.
-#' @param across_variables logical. If \code{TRUE}, all selected variables will
+#' @param .across_variables logical. If \code{TRUE}, all selected variables will
 #'   use the same set of masked labels. If \code{FALSE} (default), each variable
 #'   gets its own independent set of masked labels using the column name as
 #'   prefix.
@@ -23,7 +23,6 @@
 #'   Only character and factor columns can be processed.
 #'
 #' @seealso \code{\link{mask_labels}} for masking a single vector,
-#' \code{\link{mask_variables_rowwise}} for rowwise masking, and
 #' \code{\link{mask_names}} for masking variable names.
 #'
 #' @examples
@@ -45,7 +44,7 @@
 #'
 #' set.seed(456)
 #' # Shared masking across variables
-#' mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
+#' mask_variables(df, c("treatment", "outcome"), .across_variables = TRUE)
 #'
 #' # Using tidyselect helpers
 #' mask_variables(df, where(is.character))
@@ -67,10 +66,10 @@
 #' head(williams_masked[c("subject", "ecology")])
 #'
 #' @export
-mask_variables <- function(data, ..., across_variables = FALSE) {
+mask_variables <- function(data, ..., .across_variables = FALSE) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
-  validate_logical_parameter(across_variables, "across_variables")
+  validate_logical_parameter(.across_variables, ".across_variables")
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -88,8 +87,8 @@ mask_variables <- function(data, ..., across_variables = FALSE) {
   # Apply masking
   result <- data
 
-  if (across_variables) {
-    # For across_variables masking, create shared mapping using mask_labels
+  if (.across_variables) {
+    # For .across_variables masking, create shared mapping using mask_labels
     # First, collect all unique values across all selected categorical columns
     all_values <- collect_unique_values(data, all_col_names)
 

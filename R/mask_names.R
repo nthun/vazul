@@ -21,8 +21,7 @@
 #' @return A data frame with the specified variables renamed to masked names.
 #'
 #' @seealso \code{\link{mask_labels}} for masking values in a vector,
-#' \code{\link{mask_variables}} for masking values in multiple variables, and
-#' \code{\link{mask_variables_rowwise}} for rowwise value masking.
+#' \code{\link{mask_variables}} for masking values in multiple variables.
 #'
 #' @examples
 #' df <- data.frame(

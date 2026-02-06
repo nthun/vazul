@@ -10,7 +10,7 @@ selected variables.
 ## Usage
 
 ``` r
-mask_variables(data, ..., across_variables = FALSE)
+mask_variables(data, ..., .across_variables = FALSE)
 ```
 
 ## Arguments
@@ -21,7 +21,7 @@ mask_variables(data, ..., across_variables = FALSE)
 
 - ...:
 
-  Columns to mask. Each can be:
+  Columns to mask using tidyselect semantics. Each can be:
 
   - Bare column names (e.g., `var1, var2`)
 
@@ -33,7 +33,7 @@ mask_variables(data, ..., across_variables = FALSE)
 
   Only character and factor columns will be processed.
 
-- across_variables:
+- .across_variables:
 
   logical. If `TRUE`, all selected variables will use the same set of
   masked labels. If `FALSE` (default), each variable gets its own
@@ -48,8 +48,6 @@ character and factor columns can be processed.
 
 [`mask_labels`](https://nthun.github.io/vazul/reference/mask_labels.md)
 for masking a single vector,
-[`mask_variables_rowwise`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
-for rowwise masking, and
 [`mask_names`](https://nthun.github.io/vazul/reference/mask_names.md)
 for masking variable names.
 
@@ -81,7 +79,7 @@ mask_variables(df, c("treatment", "outcome"))
 
 set.seed(456)
 # Shared masking across variables
-mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
+mask_variables(df, c("treatment", "outcome"), .across_variables = TRUE)
 #>         treatment         outcome score
 #> 1 masked_group_01 masked_group_03     1
 #> 2 masked_group_04 masked_group_02     2

@@ -1,4 +1,4 @@
-#' MARP: Many Analysts Religion Project Dataset
+#' MARP: Many analysts religion project dataset
 #'
 #' A cross-cultural dataset from the Many-Analysts Religion Project (MARP),
 #' which investigated the relationship between religiosity and well-being

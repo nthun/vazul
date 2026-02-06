@@ -19,8 +19,8 @@ mask_names(data, ..., prefix)
 
 - ...:
 
-  Columns to mask. All arguments are combined into a single set. Each
-  can be:
+  Columns to mask using tidyselect semantics. All arguments are combined
+  into a single set. Each can be:
 
   - Bare column names (e.g., `var1, var2`)
 
@@ -45,8 +45,7 @@ A data frame with the specified variables renamed to masked names.
 [`mask_labels`](https://nthun.github.io/vazul/reference/mask_labels.md)
 for masking values in a vector,
 [`mask_variables`](https://nthun.github.io/vazul/reference/mask_variables.md)
-for masking values in multiple variables, and
-[`mask_variables_rowwise`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
+for masking values in multiple variables, and `mask_variables_rowwise`
 for rowwise value masking.
 
 ## Examples
@@ -62,14 +61,6 @@ df <- data.frame(
 
 # Mask one set of variables
 library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 mask_names(df, starts_with("treat_"), prefix = "A_")
 #>   A_01 A_02 outcome_a outcome_b id
 #> 1    1    4         7        10  1

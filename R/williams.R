@@ -1,4 +1,4 @@
-#' Stereotyping of High-Wealth Individuals Across Ecologies
+#' Stereotyping of high-wealth individuals across ecologies
 #'
 #' Data from a study by Williams et al. testing whether high-wealth individuals
 #' are perceived as having faster life history strategies (e.g., more impulsive, less invested)

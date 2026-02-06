@@ -7,7 +7,13 @@ within-group scrambling.
 ## Usage
 
 ``` r
-scramble_variables(data, ..., .groups = NULL, together = FALSE)
+scramble_variables(
+  data,
+  ...,
+  .groups = NULL,
+  .together = FALSE,
+  .byrow = FALSE
+)
 ```
 
 ## Arguments
@@ -18,7 +24,7 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
 
 - ...:
 
-  Columns to scramble. Each can be:
+  Columns to scramble using tidyselect semantics. Each can be:
 
   - Bare column names (e.g., `var1, var2`)
 
@@ -34,14 +40,21 @@ scramble_variables(data, ..., .groups = NULL, together = FALSE)
   Supports the same tidyselect syntax as column selection. Grouping
   columns must not overlap with the columns selected in `...`. If `data`
   is already a grouped `dplyr` data frame, existing grouping is ignored
-  unless `.groups` is explicitly provided.
+  unless `.groups` is explicitly provided. Ignored if `.byrow = TRUE`.
 
-- together:
+- .together:
 
   logical. If `TRUE`, variables are scrambled together as a unit per
   row. Values across different variables are kept intact but assigned to
   different rows. If `FALSE` (default), each variable is scrambled
   independently.
+
+- .byrow:
+
+  logical. If `TRUE`, values are scrambled rowwise across the selected
+  columns. For each row, the values in the selected columns are shuffled
+  among themselves. This requires selected columns to have compatible
+  types. Cannot be combined with `.together = TRUE`.
 
 ## Value
 
@@ -51,9 +64,7 @@ specified, scrambling is done within each group.
 ## See also
 
 [`scramble_values`](https://nthun.github.io/vazul/reference/scramble_values.md)
-for scrambling a single vector, and
-[`scramble_variables_rowwise`](https://nthun.github.io/vazul/reference/scramble_variables_rowwise.md)
-for rowwise scrambling.
+for scrambling a single vector.
 
 ## Examples
 
@@ -85,8 +96,8 @@ df |> scramble_variables(c("x", "y"))
 #> 5 1 b     B
 #> 6 2 d     B
 
-# Example with together = TRUE. Variables scrambled together as a unit per row.
-df |> scramble_variables(c("x", "y"), together = TRUE)
+# Example with .together = TRUE. Variables scrambled together as a unit per row.
+df |> scramble_variables(c("x", "y"), .together = TRUE)
 #>   x y group
 #> 1 2 b     A
 #> 2 1 a     A
@@ -108,7 +119,7 @@ df |> scramble_variables("y", .groups = "group")
 #> 6     6 f     B    
 
 # Example combining grouping and together parameters
-df |> scramble_variables(c("x", "y"), .groups = "group", together = TRUE)
+df |> scramble_variables(c("x", "y"), .groups = "group", .together = TRUE)
 #> # A tibble: 6 × 3
 #>       x y     group
 #>   <int> <chr> <chr>
@@ -222,7 +233,7 @@ williams |> scramble_variables(c(1, 2), .groups = 3)
 #> #   Opport_6_r <dbl>, InvEdu_1_r <dbl>, InvEdu_2_r <dbl>, InvChild_1 <dbl>,
 #> #   InvChild_2_r <dbl>, age <dbl>, gender <dbl>, ecology <chr>,
 #> #   duration_in_seconds <dbl>, attention_1 <dbl>, attention_2 <dbl>
-williams |> scramble_variables(c("ecology", "age"), together = TRUE)
+williams |> scramble_variables(c("ecology", "age"), .together = TRUE)
 #> # A tibble: 112 × 25
 #>    subject   SexUnres_1 SexUnres_2 SexUnres_3 SexUnres_4_r SexUnres_5_r Impuls_1
 #>    <chr>          <dbl>      <dbl>      <dbl>        <dbl>        <dbl>    <dbl>
@@ -242,7 +253,7 @@ williams |> scramble_variables(c("ecology", "age"), together = TRUE)
 #> #   Opport_6_r <dbl>, InvEdu_1_r <dbl>, InvEdu_2_r <dbl>, InvChild_1 <dbl>,
 #> #   InvChild_2_r <dbl>, age <dbl>, gender <dbl>, ecology <chr>,
 #> #   duration_in_seconds <dbl>, attention_1 <dbl>, attention_2 <dbl>
-williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together = TRUE)
+williams |> scramble_variables(c("ecology", "age"), .groups = "gender", .together = TRUE)
 #> # A tibble: 112 × 25
 #>    subject   SexUnres_1 SexUnres_2 SexUnres_3 SexUnres_4_r SexUnres_5_r Impuls_1
 #>    <chr>          <dbl>      <dbl>      <dbl>        <dbl>        <dbl>    <dbl>
@@ -262,4 +273,12 @@ williams |> scramble_variables(c("ecology", "age"), .groups = "gender", together
 #> #   Opport_6_r <dbl>, InvEdu_1_r <dbl>, InvEdu_2_r <dbl>, InvChild_1 <dbl>,
 #> #   InvChild_2_r <dbl>, age <dbl>, gender <dbl>, ecology <chr>,
 #> #   duration_in_seconds <dbl>, attention_1 <dbl>, attention_2 <dbl>
+
+# Rowwise scrambling
+df_row <- data.frame(a = 1:3, b = 4:6, c = 7:9)
+df_row |> scramble_variables(a, b, c, .byrow = TRUE)
+#>   a b c
+#> 1 4 7 1
+#> 2 5 8 2
+#> 3 6 9 3
 ```

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@
 <li>
 <strong>Data frame level</strong>: <code><a href="../reference/mask_variables.html">mask_variables()</a></code> and <code><a href="../reference/scramble_variables.html">scramble_variables()</a></code> - operate on columns in a data frame</li>
 <li>
-<strong>Row-wise level</strong>: <code><a href="../reference/mask_variables_rowwise.html">mask_variables_rowwise()</a></code> and <code><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise()</a></code> - operate within rows across columns</li>
+<strong>Row-wise level</strong>: <code>scramble_variables(..., .byrow = TRUE)</code> - operates within rows across columns</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
@@ -120,7 +120,7 @@
 <span><span class="va">treatment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Mask the labels</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1037</span><span class="op">)</span></span>
 <span><span class="va">masked_treatment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">treatment</span><span class="op">)</span></span>
 <span><span class="va">masked_treatment</span></span>
 <span><span class="co">#&gt; [1] "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"</span></span>
@@ -201,7 +201,7 @@
 <li>
 <code>...</code>: Columns to mask (supports tidyselect helpers)</li>
 <li>
-<code>across_variables</code>: If <code>TRUE</code>, all selected variables share the same masked labels; if <code>FALSE</code> (default), each variable gets independent masked labels</li>
+<code>.across_variables</code>: If <code>TRUE</code>, all selected variables share the same masked labels; if <code>FALSE</code> (default), each variable gets independent masked labels</li>
 </ul></section><section class="level4"><h4 id="independent-masking-default">Independent Masking (Default)<a class="anchor" aria-label="anchor" href="#independent-masking-default"></a>
 </h4>
 <p>By default, each column gets its own set of masked labels with the column name as prefix:</p>
@@ -225,7 +225,7 @@
 <p>Notice that each column now has its own prefix (<code>treatment_group_</code>, <code>outcome_group_</code>).</p>
 </section><section class="level4"><h4 id="shared-masking-across-variables">Shared Masking Across Variables<a class="anchor" aria-label="anchor" href="#shared-masking-across-variables"></a>
 </h4>
-<p>When <code>across_variables = TRUE</code>, all selected columns share the same mapping:</p>
+<p>When <code>.across_variables = TRUE</code>, all selected columns share the same mapping:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -236,7 +236,7 @@
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
 <span><span class="va">result_shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">df2</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pre_condition"</span>, <span class="st">"post_condition"</span><span class="op">)</span>,</span>
-<span>                                across_variables <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>                                .across_variables <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">result_shared</span></span>
 <span><span class="co">#&gt;     pre_condition  post_condition score</span></span>
 <span><span class="co">#&gt; 1 masked_group_01 masked_group_03     1</span></span>
@@ -258,39 +258,6 @@
 <span><span class="co">#&gt; 3 treatment_group_01 outcome_group_02    78</span></span>
 <span><span class="co">#&gt; 4 treatment_group_02 outcome_group_01    88</span></span></code></pre></div>
 </div>
-</section></section><section class="level3"><h3 id="mask_variables_rowwise---row-level-masking">
-<code>mask_variables_rowwise()</code> - Row-Level Masking<a class="anchor" aria-label="anchor" href="#mask_variables_rowwise---row-level-masking"></a>
-</h3>
-<p>The <code><a href="../reference/mask_variables_rowwise.html">mask_variables_rowwise()</a></code> function applies consistent masking within each row across multiple columns. This is useful when you have repeated measures or matched conditions.</p>
-<section class="level4"><h4 id="parameters-2">Parameters<a class="anchor" aria-label="anchor" href="#parameters-2"></a>
-</h4>
-<ul>
-<li>
-<code>data</code>: A data frame</li>
-<li>
-<code>...</code>: Column sets to mask (supports tidyselect helpers)</li>
-<li>
-<code>prefix</code>: Character string to use as prefix for masked labels (default: <code>"masked_group_"</code>)</li>
-</ul></section><section class="level4"><h4 id="example-masking-repeated-conditions">Example: Masking Repeated Conditions<a class="anchor" aria-label="anchor" href="#example-masking-repeated-conditions"></a>
-</h4>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  treat_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"placebo"</span><span class="op">)</span>,</span>
-<span>  treat_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment"</span>, <span class="st">"placebo"</span>, <span class="st">"control"</span><span class="op">)</span>,</span>
-<span>  treat_3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"placebo"</span>, <span class="st">"control"</span>, <span class="st">"treatment"</span><span class="op">)</span>,</span>
-<span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mask_variables_rowwise.html">mask_variables_rowwise</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"treat_"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span></span>
-<span><span class="co">#&gt;           treat_1         treat_2         treat_3 id</span></span>
-<span><span class="co">#&gt; 1 masked_group_03 masked_group_01 masked_group_02  1</span></span>
-<span><span class="co">#&gt; 2 masked_group_01 masked_group_02 masked_group_03  2</span></span>
-<span><span class="co">#&gt; 3 masked_group_02 masked_group_03 masked_group_01  3</span></span></code></pre></div>
-</div>
-<p>Within each row, the original values are consistently mapped to masked labels, but the mapping is independent across rows.</p>
 </section></section></section><section class="level2"><h2 id="scrambling-functions">Scrambling Functions<a class="anchor" aria-label="anchor" href="#scrambling-functions"></a>
 </h2>
 <p>Scrambling functions randomize the order of values while preserving all original data content. This approach maintains the data distribution while breaking the connection between observations and their original values.</p>
@@ -298,7 +265,7 @@
 <code>scramble_values()</code> - Scramble Vector Order<a class="anchor" aria-label="anchor" href="#scramble_values---scramble-vector-order"></a>
 </h3>
 <p>The <code><a href="../reference/scramble_values.html">scramble_values()</a></code> function randomly reorders the elements of a vector.</p>
-<section class="level4"><h4 id="parameters-3">Parameters<a class="anchor" aria-label="anchor" href="#parameters-3"></a>
+<section class="level4"><h4 id="parameters-2">Parameters<a class="anchor" aria-label="anchor" href="#parameters-2"></a>
 </h4>
 <ul>
 <li>
@@ -306,7 +273,7 @@
 </ul></section><section class="level4"><h4 id="basic-usage-with-different-data-types">Basic Usage with Different Data Types<a class="anchor" aria-label="anchor" href="#basic-usage-with-different-data-types"></a>
 </h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Numeric data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">numbers</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
@@ -314,7 +281,7 @@
 <span><span class="co">#&gt;  [1]  3 10  2  8  6  9  1  7  5  4</span></span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Character data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
 <span><span class="va">letters_vec</span> <span class="op">&lt;-</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
@@ -322,7 +289,7 @@
 <span><span class="co">#&gt; [1] "e" "a" "c" "b" "d"</span></span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Factor data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">789</span><span class="op">)</span></span>
 <span><span class="va">conditions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span>
@@ -339,10 +306,14 @@
 <li>The distribution of values</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1037</span><span class="op">)</span></span>
 <span><span class="va">original</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">scrambled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="va">original</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The scrambled vector has the same values, just in a different order </span></span>
+<span><span class="va">scrambled</span></span>
+<span><span class="co">#&gt;  [1] 4 3 2 1 4 2 3 3 4 4</span></span>
 <span></span>
 <span><span class="co"># Same values, different order</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">original</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">scrambled</span><span class="op">)</span></span>
@@ -358,44 +329,11 @@
 <span><span class="co">#&gt; 1 2 3 4 </span></span>
 <span><span class="co">#&gt; 1 2 3 4</span></span></code></pre></div>
 </div>
-</section><section class="level4"><h4 id="practical-example-with-dataset-1">Practical Example with Dataset<a class="anchor" aria-label="anchor" href="#practical-example-with-dataset-1"></a>
-</h4>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">williams</span><span class="op">$</span><span class="va">age_scrambled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="va">williams</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># The values are the same, just reordered</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">williams</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;   21.00   26.00   32.00   34.04   38.00   71.00</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">williams</span><span class="op">$</span><span class="va">age_scrambled</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;   21.00   26.00   32.00   34.04   38.00   71.00</span></span>
-<span></span>
-<span><span class="co"># But individual correspondences are broken</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">williams</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"subject"</span>, <span class="st">"age"</span>, <span class="st">"age_scrambled"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 10 × 3</span></span>
-<span><span class="co">#&gt;    subject          age age_scrambled</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;          &lt;dbl&gt;         &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 A30MP4LXV4MIFD    34            25</span></span>
-<span><span class="co">#&gt;  2 A16X5FB3HAFCKN    30            26</span></span>
-<span><span class="co">#&gt;  3 A1E9D1OT9VJYDZ    40            25</span></span>
-<span><span class="co">#&gt;  4 A16FPOYD7566WI    35            38</span></span>
-<span><span class="co">#&gt;  5 A11NOTVHWST7Y3    26            25</span></span>
-<span><span class="co">#&gt;  6 A3TDR6MXS6UO5Z    33            28</span></span>
-<span><span class="co">#&gt;  7 A3OD4F0SA7EBCL    33            57</span></span>
-<span><span class="co">#&gt;  8 A123PBQDU71I5O    30            32</span></span>
-<span><span class="co">#&gt;  9 A25NGIY591U3DK    48            25</span></span>
-<span><span class="co">#&gt; 10 A11WCFPJSR5VZP    33            43</span></span></code></pre></div>
-</div>
 </section></section><section class="level3"><h3 id="scramble_variables---scramble-data-frame-columns">
 <code>scramble_variables()</code> - Scramble Data Frame Columns<a class="anchor" aria-label="anchor" href="#scramble_variables---scramble-data-frame-columns"></a>
 </h3>
 <p>The <code><a href="../reference/scramble_variables.html">scramble_variables()</a></code> function scrambles the values of specified columns in a data frame.</p>
-<section class="level4"><h4 id="parameters-4">Parameters<a class="anchor" aria-label="anchor" href="#parameters-4"></a>
+<section class="level4"><h4 id="parameters-3">Parameters<a class="anchor" aria-label="anchor" href="#parameters-3"></a>
 </h4>
 <ul>
 <li>
@@ -403,14 +341,14 @@
 <li>
 <code>...</code>: Columns to scramble (supports tidyselect helpers)</li>
 <li>
-<code>together</code>: If <code>TRUE</code>, variables are scrambled together as a unit per row; if <code>FALSE</code> (default), each variable is scrambled independently</li>
+<code>.together</code>: If <code>TRUE</code>, variables are scrambled together as a unit per row; if <code>FALSE</code> (default), each variable is scrambled independently</li>
 <li>
 <code>.groups</code>: Optional grouping columns for within-group scrambling. Grouping columns must not overlap with the columns selected in <code>...</code>. If <code>data</code> is already grouped (a <code>dplyr</code> grouped data frame), existing grouping is ignored unless <code>.groups</code> is explicitly provided.</li>
 </ul></section><section class="level4"><h4 id="independent-scrambling-default">Independent Scrambling (Default)<a class="anchor" aria-label="anchor" href="#independent-scrambling-default"></a>
 </h4>
 <p>Each column is scrambled independently:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,</span>
 <span>  y <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>,</span>
@@ -430,11 +368,11 @@
 <p>Notice that <code>x</code> and <code>y</code> are scrambled independently of each other.</p>
 </section><section class="level4"><h4 id="scrambling-together">Scrambling Together<a class="anchor" aria-label="anchor" href="#scrambling-together"></a>
 </h4>
-<p>When <code>together = TRUE</code>, the selected columns are scrambled as a unit, preserving row-level relationships:</p>
+<p>When <code>.together = TRUE</code>, the selected columns are scrambled as a unit, preserving row-level relationships:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, .together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   x y group</span></span>
 <span><span class="co">#&gt; 1 5 e     A</span></span>
 <span><span class="co">#&gt; 2 6 f     A</span></span>
@@ -448,7 +386,7 @@
 </h4>
 <p>Use the <code>.groups</code> parameter to scramble within groups:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"x"</span>, .groups <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
@@ -466,9 +404,9 @@
 </h4>
 <p>You can combine both parameters:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"group"</span>, together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"group"</span>, .together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
 <span><span class="co">#&gt;       x y     group</span></span>
 <span><span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;</span></span>
@@ -479,10 +417,10 @@
 <span><span class="co">#&gt; 5     4 d     B    </span></span>
 <span><span class="co">#&gt; 6     5 e     B</span></span></code></pre></div>
 </div>
-</section><section class="level4"><h4 id="practical-example-with-dataset-2">Practical Example with Dataset<a class="anchor" aria-label="anchor" href="#practical-example-with-dataset-2"></a>
+</section><section class="level4"><h4 id="practical-example-with-dataset-1">Practical Example with Dataset<a class="anchor" aria-label="anchor" href="#practical-example-with-dataset-1"></a>
 </h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Scramble age and ecology within gender groups</span></span>
@@ -509,23 +447,25 @@
 <span><span class="co">#&gt; 1      1     33.8</span></span>
 <span><span class="co">#&gt; 2      2     34.6</span></span></code></pre></div>
 </div>
-</section></section><section class="level3"><h3 id="scramble_variables_rowwise---row-level-scrambling">
-<code>scramble_variables_rowwise()</code> - Row-Level Scrambling<a class="anchor" aria-label="anchor" href="#scramble_variables_rowwise---row-level-scrambling"></a>
+</section></section><section class="level3"><h3 id="scramble_variables-----byrow-true---row-level-scrambling">
+<code>scramble_variables(..., .byrow = TRUE)</code> - Row-Level Scrambling<a class="anchor" aria-label="anchor" href="#scramble_variables-----byrow-true---row-level-scrambling"></a>
 </h3>
-<p>The <code><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise()</a></code> function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.</p>
-<section class="level4"><h4 id="parameters-5">Parameters<a class="anchor" aria-label="anchor" href="#parameters-5"></a>
+<p>The <code>scramble_variables(..., .byrow = TRUE)</code> function scrambles values within each row across specified columns. This is useful for scrambling repeated measures or item responses.</p>
+<section class="level4"><h4 id="parameters-4">Parameters<a class="anchor" aria-label="anchor" href="#parameters-4"></a>
 </h4>
 <ul>
 <li>
 <code>data</code>: A data frame</li>
 <li>
 <code>...</code>: Columns to scramble (supports tidyselect helpers). All selections are combined into a single set and scrambled together. If you want to scramble separate groups of columns independently, call the function multiple times.</li>
+<li>
+<code>.byrow</code>: Must be set to <code>TRUE</code> for row-wise scrambling.</li>
 </ul>
 <p>Rowwise scrambling moves values between columns, so selected columns must be type-compatible. This function requires all selected columns to have the same class (or be an integer/double mix). For factors, the selected columns must also have identical levels.</p>
 </section><section class="level4"><h4 id="example-scrambling-item-responses">Example: Scrambling Item Responses<a class="anchor" aria-label="anchor" href="#example-scrambling-item-responses"></a>
 </h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  item1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
 <span>  item2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>,</span>
@@ -534,7 +474,7 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item1"</span>, <span class="st">"item2"</span>, <span class="st">"item3"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item1"</span>, <span class="st">"item2"</span>, <span class="st">"item3"</span><span class="op">)</span>, .byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">result</span></span>
 <span><span class="co">#&gt;   item1 item2 item3 id</span></span>
 <span><span class="co">#&gt; 1     3     1     2  1</span></span>
@@ -546,7 +486,7 @@
 </h4>
 <p>Multiple selectors are combined into one set, so values can move between all selected columns:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  day_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
 <span>  day_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>,</span>
@@ -557,7 +497,7 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="va">df2</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"score_"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df2</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"score_"</span><span class="op">)</span>, .byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">result2</span></span>
 <span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
 <span><span class="co">#&gt; 1    20     3     2      10       1  1</span></span>
@@ -568,11 +508,11 @@
 </h4>
 <p>To scramble different groups of columns independently, call the function multiple times:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">result3</span> <span class="op">&lt;-</span> <span class="va">df2</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"score_"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"day_"</span><span class="op">)</span>, .byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"score_"</span><span class="op">)</span>, .byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">result3</span></span>
 <span><span class="co">#&gt;   day_1 day_2 day_3 score_a score_b id</span></span>
 <span><span class="co">#&gt; 1     1     3     2      20      10  1</span></span>
@@ -585,7 +525,7 @@
 </h3>
 <p>All masking functions preserve <code>NA</code> values in their original positions:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Vector with NA values</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="cn">NA</span>, <span class="st">"A"</span>, <span class="cn">NA</span>, <span class="st">"C"</span><span class="op">)</span></span>
 <span></span>
@@ -601,7 +541,7 @@
 </div>
 <p>If all values in a vector are <code>NA</code>, the function will issue a warning and return the vector unchanged:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_all_na</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_character_</span>, <span class="cn">NA_character_</span>, <span class="cn">NA_character_</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/mask_labels.html">mask_labels</a></span><span class="op">(</span><span class="va">x_all_na</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: All values in input are NA. Returning unchanged.</span></span>
@@ -611,7 +551,7 @@
 </h3>
 <p>Empty strings (<code>""</code>) are treated as valid categorical values and will be masked like any other value:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_with_empty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">""</span>, <span class="st">"B"</span>, <span class="st">""</span>, <span class="st">"C"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
@@ -680,7 +620,7 @@
 </h3>
 <p>The Many Analysts Religion Project (MARP) dataset contains 10,535 participants from 24 countries:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">marp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 10535    46</span></span>
@@ -706,7 +646,7 @@
 </h3>
 <p>The Williams study dataset contains 112 participants from a stereotyping study:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 112  25</span></span>
@@ -756,22 +696,17 @@
 <td>Mask multiple columns</td>
 </tr>
 <tr class="odd">
-<td><code><a href="../reference/mask_variables_rowwise.html">mask_variables_rowwise()</a></code></td>
-<td>Row-wise</td>
-<td>Consistent masking within rows</td>
-</tr>
-<tr class="even">
 <td><code><a href="../reference/scramble_values.html">scramble_values()</a></code></td>
 <td>Vector</td>
 <td>Randomize value order</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code><a href="../reference/scramble_variables.html">scramble_variables()</a></code></td>
 <td>Data frame</td>
 <td>Scramble multiple columns</td>
 </tr>
-<tr class="even">
-<td><code><a href="../reference/scramble_variables_rowwise.html">scramble_variables_rowwise()</a></code></td>
+<tr class="odd">
+<td><code>scramble_variables(..., .byrow = TRUE)</code></td>
 <td>Row-wise</td>
 <td>Scramble values within rows</td>
 </tr>

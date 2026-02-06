@@ -3,7 +3,7 @@
 \docType{data}
 \name{marp}
 \alias{marp}
-\title{MARP: Many Analysts Religion Project Dataset}
+\title{MARP: Many analysts religion project dataset}
 \format{
 A data frame with 10,535 rows (participants) and 48 variables:
 \describe{

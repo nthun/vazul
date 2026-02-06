@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,9 +66,9 @@
 </div>
 <!-- badges: start -->
 
-<p><strong>vazul</strong> is an R package for data blinding in research contexts. It offers two main approaches to anonymize data while preserving analytical validity: <strong>masking</strong> (replacing values with anonymous labels) and <strong>scrambling</strong> (randomizing the order of existing values).</p>
+<p><strong>vazul</strong> is an R package for analyis blinding in research contexts. It offers two main approaches to anonymize data while preserving analytical validity: <strong>masking</strong> (replacing values with anonymous labels) and <strong>scrambling</strong> (randomizing the order of existing values).</p>
 <div class="section level2">
-<h2 id="data-blinding-approaches">Data Blinding Approaches<a class="anchor" aria-label="anchor" href="#data-blinding-approaches"></a>
+<h2 id="analysis-blinding-approaches">Analysis Blinding Approaches<a class="anchor" aria-label="anchor" href="#analysis-blinding-approaches"></a>
 </h2>
 <p><strong>Masking</strong> replaces original values with anonymous labels, completely hiding the original information:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -83,9 +83,12 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
+<p>You can install the released version of vazul from CRAN with:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"nthun/vazul"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"vazul"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub with:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"nthun/vazul"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
@@ -98,7 +101,7 @@
 <h4 id="mask_labels---mask-vector-values">
 <code>mask_labels()</code> - Mask vector values<a class="anchor" aria-label="anchor" href="#mask_labels---mask-vector-values"></a>
 </h4>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nthun.github.io/vazul/">vazul</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Basic masking</span></span>
@@ -115,7 +118,7 @@
 <h4 id="mask_variables---mask-data-frame-columns">
 <code>mask_variables()</code> - Mask data frame columns<a class="anchor" aria-label="anchor" href="#mask_variables---mask-data-frame-columns"></a>
 </h4>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ctrl"</span>, <span class="st">"test"</span>, <span class="st">"ctrl"</span>, <span class="st">"test"</span><span class="op">)</span>,</span>
@@ -127,14 +130,16 @@
 <span></span>
 <span><span class="co"># Use tidyselect helpers</span></span>
 <span><span class="fu"><a href="reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu">where</span><span class="op">(</span><span class="va">is.character</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="mask_variables_rowwise---row-level-masking">
-<code>mask_variables_rowwise()</code> - Row-level masking<a class="anchor" aria-label="anchor" href="#mask_variables_rowwise---row-level-masking"></a>
-</h4>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Consistent masking across rows for categorical data</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/mask_variables_rowwise.html">mask_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"treatment"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The <code>.across_variables</code> parameter allows for consistent masking across multiple columns (e.g., longitudinal data in wide format).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  wave_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"A"</span><span class="op">)</span>,</span>
+<span>  wave_2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"B"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
+<span>  score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Mask across variables consistently</span></span>
+<span><span class="fu"><a href="reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu">starts_with</span><span class="op">(</span><span class="st">"wave_"</span><span class="op">)</span>, .across_variables <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -145,7 +150,7 @@
 <h4 id="scramble_values---scramble-vector-order">
 <code>scramble_values()</code> - Scramble vector order<a class="anchor" aria-label="anchor" href="#scramble_values---scramble-vector-order"></a>
 </h4>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Numeric data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="reference/scramble_values.html">scramble_values</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
@@ -159,7 +164,7 @@
 <h4 id="scramble_variables---scramble-data-frame-columns">
 <code>scramble_variables()</code> - Scramble data frame columns<a class="anchor" aria-label="anchor" href="#scramble_variables---scramble-data-frame-columns"></a>
 </h4>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Scramble across entire column</span></span>
@@ -173,22 +178,17 @@
 <span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="scramble_variables_rowwise---row-level-scrambling">
-<code>scramble_variables_rowwise()</code> - Row-level scrambling<a class="anchor" aria-label="anchor" href="#scramble_variables_rowwise---row-level-scrambling"></a>
+<h4 id="row-wise-scrambling-use-byrow--true-to-shuffle-values-within-each-row-across-the-selected-columns">Row-wise scrambling: Use <code>.byrow = TRUE</code> to shuffle values within each row across the selected columns.<a class="anchor" aria-label="anchor" href="#row-wise-scrambling-use-byrow--true-to-shuffle-values-within-each-row-across-the-selected-columns"></a>
 </h4>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Scramble values within each row</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df_items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  item1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">7</span><span class="op">)</span>,</span>
 <span>  item2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>, </span>
 <span>  item3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">9</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables_rowwise.html">scramble_variables_rowwise</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item1"</span>, <span class="st">"item2"</span>, <span class="st">"item3"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   item1 item2 item3</span></span>
-<span><span class="co">#&gt; 1     3     1     2</span></span>
-<span><span class="co">#&gt; 2     5     4     6  </span></span>
-<span><span class="co">#&gt; 3     8     9     7</span></span></code></pre></div>
+<span><span class="co"># Shuffles values horizontally within each row</span></span>
+<span><span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="va">df_items</span>, <span class="va">item1</span><span class="op">:</span><span class="va">item3</span>, .byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -228,10 +228,15 @@
 <strong>Tamás Nagy</strong> - Package author and maintainer<br>
 </li>
 <li>
-<strong>Alexandra Sarafoglou</strong> - Data contributor and author</li>
-<li>
 <strong>Márton Kovács</strong> - Author</li>
+<li>
+<strong>Alexandra Sarafoglou</strong> - Data contributor and author</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>Nagy, T., Kovács, M., &amp; Sarafoglou, A. (2026). vazul: An R package for analysis blinding. Zenodo. <a href="https://doi.org/10.5281/zenodo.18269711" class="external-link uri">https://doi.org/10.5281/zenodo.18269711</a></p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -242,6 +247,7 @@
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=vazul" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/nthun/vazul/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/nthun/vazul/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -278,6 +284,7 @@
 <li><a href="https://github.com/nthun/vazul/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/nthun/vazul/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://app.codecov.io/gh/nthun/vazul" class="external-link"><img src="https://codecov.io/gh/nthun/vazul/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><a href="https://CRAN.R-project.org/package=vazul" class="external-link"><img src="https://www.r-pkg.org/badges/version/vazul" alt="CRAN status"></a></li>
 </ul>
 </div>
 

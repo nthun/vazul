@@ -1,4 +1,4 @@
-# MARP: Many Analysts Religion Project Dataset
+# MARP: Many analysts religion project dataset
 
 A cross-cultural dataset from the Many-Analysts Religion Project (MARP),
 which investigated the relationship between religiosity and well-being
@@ -212,20 +212,42 @@ Brain & Behavior*.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 data(marp)
 # Dimensions
 dim(marp)
+#> [1] 10535    46
 # Quick overview
-dplyr::glimpse(marp)
-# Mean religiosity by country
-marp |>
-  dplyr::select(country, starts_with("rel_")) |>
-  dplyr::group_by(country) |>
-  dplyr::summarise(
-    across(starts_with("rel_"), ~ mean(.x, na.rm = TRUE)),
-    .groups = "drop"
-  )
-} # }
+if (requireNamespace("dplyr", quietly = TRUE)) {
+  library(dplyr)
+
+  marp |>
+    group_by(country) |>
+    summarise(
+      mean_wb = mean(wb_overall_mean, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+#> # A tibble: 24 × 2
+#>    country   mean_wb
+#>    <chr>       <dbl>
+#>  1 Australia    3.68
+#>  2 Belgium      3.77
+#>  3 Brazil       3.54
+#>  4 Canada       3.59
+#>  5 Chile        3.71
+#>  6 China        3.61
+#>  7 Croatia      3.82
+#>  8 Denmark      3.77
+#>  9 France       3.59
+#> 10 Germany      3.83
+#> # ℹ 14 more rows
 ```

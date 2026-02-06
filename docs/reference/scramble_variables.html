@@ -9,7 +9,7 @@ Supports independent scrambling, joint scrambling, and within-group scrambling."
 
     <a class="navbar-brand me-2" href="../index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,13 @@ Supports independent scrambling, joint scrambling, and within-group scrambling.<
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">scramble_variables</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span>, .groups <span class="op">=</span> <span class="cn">NULL</span>, together <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">scramble_variables</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  .groups <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .together <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  .byrow <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -58,7 +64,7 @@ Supports independent scrambling, joint scrambling, and within-group scrambling.<
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p><tidy-select> Columns to scramble. Each can be:</tidy-select></p><ul><li><p>Bare column names (e.g., <code>var1, var2</code>)</p></li>
+<dd><p>Columns to scramble using tidyselect semantics. Each can be:</p><ul><li><p>Bare column names (e.g., <code>var1, var2</code>)</p></li>
 <li><p>A tidyselect expression (e.g., <code>starts_with("treat_")</code>)</p></li>
 <li><p>A character vector of column names (e.g., <code>c("var1", "var2")</code>)</p></li>
 <li><p>Multiple sets can be provided as separate arguments</p></li>
@@ -66,16 +72,24 @@ Supports independent scrambling, joint scrambling, and within-group scrambling.<
 
 
 <dt id="arg--groups">.groups<a class="anchor" aria-label="anchor" href="#arg--groups"></a></dt>
-<dd><p><tidy-select> Optional grouping columns. Scrambling will be done within each group.
+<dd><p>Optional grouping columns. Scrambling will be done within each group.
 Supports the same tidyselect syntax as column selection. Grouping columns must not overlap with
 the columns selected in <code>...</code>. If <code>data</code> is already a grouped <code>dplyr</code> data frame,
-existing grouping is ignored unless <code>.groups</code> is explicitly provided.</tidy-select></p></dd>
+existing grouping is ignored unless <code>.groups</code> is explicitly provided.
+Ignored if <code>.byrow = TRUE</code>.</p></dd>
 
 
-<dt id="arg-together">together<a class="anchor" aria-label="anchor" href="#arg-together"></a></dt>
+<dt id="arg--together">.together<a class="anchor" aria-label="anchor" href="#arg--together"></a></dt>
 <dd><p>logical. If <code>TRUE</code>, variables are scrambled together as a unit per row.
 Values across different variables are kept intact but assigned to different rows.
 If <code>FALSE</code> (default), each variable is scrambled independently.</p></dd>
+
+
+<dt id="arg--byrow">.byrow<a class="anchor" aria-label="anchor" href="#arg--byrow"></a></dt>
+<dd><p>logical. If <code>TRUE</code>, values are scrambled rowwise across the selected columns.
+For each row, the values in the selected columns are shuffled among themselves.
+This requires selected columns to have compatible types.
+Cannot be combined with <code>.together = TRUE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -84,8 +98,7 @@ If <code>FALSE</code> (default), each variable is scrambled independently.</p></
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="scramble_values.html">scramble_values</a></code> for scrambling a single vector, and
-<code><a href="scramble_variables_rowwise.html">scramble_variables_rowwise</a></code> for rowwise scrambling.</p></div>
+    <div class="dont-index"><p><code><a href="scramble_values.html">scramble_values</a></code> for scrambling a single vector.</p></div>
     </div>
 
     <div class="section level2">
@@ -117,8 +130,8 @@ If <code>FALSE</code> (default), each variable is scrambled independently.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 1 b     B</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 2 d     B</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Example with together = TRUE. Variables scrambled together as a unit per row.</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Example with .together = TRUE. Variables scrambled together as a unit per row.</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, .together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   x y group</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 2 b     A</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 a     A</span>
@@ -140,7 +153,7 @@ If <code>FALSE</code> (default), each variable is scrambled independently.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     6 f     B    </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example combining grouping and together parameters</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"group"</span>, together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"group"</span>, .together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       x y     group</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
@@ -254,7 +267,7 @@ If <code>FALSE</code> (default), each variable is scrambled independently.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Opport_6_r &lt;dbl&gt;, InvEdu_1_r &lt;dbl&gt;, InvEdu_2_r &lt;dbl&gt;, InvChild_1 &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   InvChild_2_r &lt;dbl&gt;, age &lt;dbl&gt;, gender &lt;dbl&gt;, ecology &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   duration_in_seconds &lt;dbl&gt;, attention_1 &lt;dbl&gt;, attention_2 &lt;dbl&gt;</span></span>
-<span class="r-in"><span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ecology"</span>, <span class="st">"age"</span><span class="op">)</span>, together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ecology"</span>, <span class="st">"age"</span><span class="op">)</span>, .together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 112 × 25</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    subject   SexUnres_1 SexUnres_2 SexUnres_3 SexUnres_4_r SexUnres_5_r Impuls_1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -274,7 +287,7 @@ If <code>FALSE</code> (default), each variable is scrambled independently.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Opport_6_r &lt;dbl&gt;, InvEdu_1_r &lt;dbl&gt;, InvEdu_2_r &lt;dbl&gt;, InvChild_1 &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   InvChild_2_r &lt;dbl&gt;, age &lt;dbl&gt;, gender &lt;dbl&gt;, ecology &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   duration_in_seconds &lt;dbl&gt;, attention_1 &lt;dbl&gt;, attention_2 &lt;dbl&gt;</span></span>
-<span class="r-in"><span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ecology"</span>, <span class="st">"age"</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"gender"</span>, together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">williams</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ecology"</span>, <span class="st">"age"</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"gender"</span>, .together <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 112 × 25</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    subject   SexUnres_1 SexUnres_2 SexUnres_3 SexUnres_4_r SexUnres_5_r Impuls_1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -294,6 +307,14 @@ If <code>FALSE</code> (default), each variable is scrambled independently.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Opport_6_r &lt;dbl&gt;, InvEdu_1_r &lt;dbl&gt;, InvEdu_2_r &lt;dbl&gt;, InvChild_1 &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   InvChild_2_r &lt;dbl&gt;, age &lt;dbl&gt;, gender &lt;dbl&gt;, ecology &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   duration_in_seconds &lt;dbl&gt;, attention_1 &lt;dbl&gt;, attention_2 &lt;dbl&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Rowwise scrambling</span></span></span>
+<span class="r-in"><span><span class="va">df_row</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, b <span class="op">=</span> <span class="fl">4</span><span class="op">:</span><span class="fl">6</span>, c <span class="op">=</span> <span class="fl">7</span><span class="op">:</span><span class="fl">9</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">df_row</span> <span class="op">|&gt;</span> <span class="fu">scramble_variables</span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span>, <span class="va">c</span>, .byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   a b c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 4 7 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5 8 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 6 9 3</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

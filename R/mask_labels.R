@@ -12,7 +12,6 @@
 #' @return a vector of the same type as input with masked labels
 #'
 #' @seealso \code{\link{mask_variables}} for masking multiple variables in a data frame,
-#' \code{\link{mask_variables_rowwise}} for rowwise masking, and
 #' \code{\link{mask_names}} for masking variable names.
 #'
 #' @examples

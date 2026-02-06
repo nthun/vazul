@@ -1,4 +1,4 @@
-# Stereotyping of High-Wealth Individuals Across Ecologies
+# Stereotyping of high-wealth individuals across ecologies
 
 Data from a study by Williams et al. testing whether high-wealth
 individuals are perceived as having faster life history strategies
@@ -221,26 +221,29 @@ table(williams$ecology)
 #>        56        56 
 
 # Compute composite scores (example)
-library(dplyr)
-williams_composites <- williams |>
-  rowwise() |>
-  mutate(
-    sexual_unrestrictedness = mean(c(SexUnres_1, SexUnres_2, SexUnres_3,
-                                     8 - SexUnres_4_r, 8 - SexUnres_5_r), na.rm = TRUE),
-    impulsivity = mean(c(Impuls_1, 8 - Impuls_2_r, 8 - Impul_3_r), na.rm = TRUE),
-    opportunity = mean(c(Opport_1, Opport_2, Opport_3, Opport_4, Opport_5,
-                         8 - Opport_6_r), na.rm = TRUE),
-    investment = mean(c(8 - InvEdu_1_r, 8 - InvEdu_2_r, InvChild_1,
-                        8 - InvChild_2_r), na.rm = TRUE)
-  ) |>
-  ungroup()
+if (requireNamespace("dplyr", quietly = TRUE)) {
+  library(dplyr)
 
-summary(select(williams_composites, sexual_unrestrictedness, impulsivity, opportunity, investment))
-#>  sexual_unrestrictedness  impulsivity     opportunity      investment   
-#>  Min.   :3.000           Min.   :3.000   Min.   :1.667   Min.   :2.000  
-#>  1st Qu.:4.200           1st Qu.:4.667   1st Qu.:2.833   1st Qu.:4.500  
-#>  Median :4.800           Median :5.000   Median :4.167   Median :5.000  
-#>  Mean   :4.802           Mean   :5.027   Mean   :4.116   Mean   :4.951  
-#>  3rd Qu.:5.400           3rd Qu.:5.667   3rd Qu.:5.167   3rd Qu.:5.500  
-#>  Max.   :6.600           Max.   :7.000   Max.   :6.667   Max.   :6.500  
+  williams_composites <- williams |>
+    rowwise() |>
+    mutate(
+      sexual_unrestrictedness = mean(c(SexUnres_1, SexUnres_2, SexUnres_3,
+                                     8 - SexUnres_4_r, 8 - SexUnres_5_r), na.rm = TRUE),
+      impulsivity = mean(c(Impuls_1, 8 - Impuls_2_r, 8 - Impul_3_r), na.rm = TRUE),
+      opportunity = mean(c(Opport_1, Opport_2, Opport_3, Opport_4, Opport_5,
+                           8 - Opport_6_r), na.rm = TRUE),
+      investment = mean(c(8 - InvEdu_1_r, 8 - InvEdu_2_r, InvChild_1,
+                          8 - InvChild_2_r), na.rm = TRUE)
+    ) |>
+    ungroup()
+
+  summary(williams_composites[ , c("sexual_unrestrictedness", "impulsivity")])
+}
+#>  sexual_unrestrictedness  impulsivity   
+#>  Min.   :3.000           Min.   :3.000  
+#>  1st Qu.:4.200           1st Qu.:4.667  
+#>  Median :4.800           Median :5.000  
+#>  Mean   :4.802           Mean   :5.027  
+#>  3rd Qu.:5.400           3rd Qu.:5.667  
+#>  Max.   :6.600           Max.   :7.000  
 ```

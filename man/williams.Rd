@@ -3,7 +3,7 @@
 \docType{data}
 \name{williams}
 \alias{williams}
-\title{Stereotyping of High-Wealth Individuals Across Ecologies}
+\title{Stereotyping of high-wealth individuals across ecologies}
 \format{
 A data frame with 224 rows (one per participant) and 25 variables:
 \describe{

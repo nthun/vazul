@@ -26,11 +26,8 @@ Each approach is available at three levels:
   and
   [`scramble_variables()`](https://nthun.github.io/vazul/reference/scramble_variables.md) -
   operate on columns in a data frame
-- **Row-wise level**:
-  [`mask_variables_rowwise()`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
-  and
-  [`scramble_variables_rowwise()`](https://nthun.github.io/vazul/reference/scramble_variables_rowwise.md) -
-  operate within rows across columns
+- **Row-wise level**: `scramble_variables(..., .byrow = TRUE)` -
+  operates within rows across columns
 
 ``` r
 library(vazul)
@@ -63,7 +60,7 @@ value with a randomly assigned masked label.
 treatment <- c("control", "treatment", "control", "treatment", "control")
 
 # Mask the labels
-set.seed(123)
+set.seed(1037)
 masked_treatment <- mask_labels(treatment)
 masked_treatment
 #> [1] "masked_group_01" "masked_group_02" "masked_group_01" "masked_group_02"
@@ -150,7 +147,7 @@ simultaneously.
 
 - `data`: A data frame
 - `...`: Columns to mask (supports tidyselect helpers)
-- `across_variables`: If `TRUE`, all selected variables share the same
+- `.across_variables`: If `TRUE`, all selected variables share the same
   masked labels; if `FALSE` (default), each variable gets independent
   masked labels
 
@@ -181,7 +178,7 @@ Notice that each column now has its own prefix (`treatment_group_`,
 
 #### Shared Masking Across Variables
 
-When `across_variables = TRUE`, all selected columns share the same
+When `.across_variables = TRUE`, all selected columns share the same
 mapping:
 
 ``` r
@@ -193,7 +190,7 @@ df2 <- data.frame(
 
 set.seed(456)
 result_shared <- mask_variables(df2, c("pre_condition", "post_condition"),
-                                across_variables = TRUE)
+                                .across_variables = TRUE)
 result_shared
 #>     pre_condition  post_condition score
 #> 1 masked_group_01 masked_group_03     1
@@ -217,43 +214,6 @@ mask_variables(df, where(is.character))
 #> 3 treatment_group_01 outcome_group_02    78
 #> 4 treatment_group_02 outcome_group_01    88
 ```
-
-### `mask_variables_rowwise()` - Row-Level Masking
-
-The
-[`mask_variables_rowwise()`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md)
-function applies consistent masking within each row across multiple
-columns. This is useful when you have repeated measures or matched
-conditions.
-
-#### Parameters
-
-- `data`: A data frame
-- `...`: Column sets to mask (supports tidyselect helpers)
-- `prefix`: Character string to use as prefix for masked labels
-  (default: `"masked_group_"`)
-
-#### Example: Masking Repeated Conditions
-
-``` r
-df <- data.frame(
-  treat_1 = c("control", "treatment", "placebo"),
-  treat_2 = c("treatment", "placebo", "control"),
-  treat_3 = c("placebo", "control", "treatment"),
-  id = 1:3
-)
-
-set.seed(123)
-result <- mask_variables_rowwise(df, starts_with("treat_"))
-result
-#>           treat_1         treat_2         treat_3 id
-#> 1 masked_group_03 masked_group_01 masked_group_02  1
-#> 2 masked_group_01 masked_group_02 masked_group_03  2
-#> 3 masked_group_02 masked_group_03 masked_group_01  3
-```
-
-Within each row, the original values are consistently mapped to masked
-labels, but the mapping is independent across rows.
 
 ## Scrambling Functions
 
@@ -308,9 +268,13 @@ Scrambling preserves:
 - The distribution of values
 
 ``` r
-set.seed(100)
+set.seed(1037)
 original <- c(1, 2, 2, 3, 3, 3, 4, 4, 4, 4)
 scrambled <- scramble_values(original)
+
+# The scrambled vector has the same values, just in a different order 
+scrambled
+#>  [1] 4 3 2 1 4 2 3 3 4 4
 
 # Same values, different order
 sort(original) == sort(scrambled)
@@ -327,39 +291,6 @@ table(scrambled)
 #> 1 2 3 4
 ```
 
-#### Practical Example with Dataset
-
-``` r
-data(williams)
-
-set.seed(42)
-williams$age_scrambled <- scramble_values(williams$age)
-
-# The values are the same, just reordered
-summary(williams$age)
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>   21.00   26.00   32.00   34.04   38.00   71.00
-summary(williams$age_scrambled)
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>   21.00   26.00   32.00   34.04   38.00   71.00
-
-# But individual correspondences are broken
-head(williams[c("subject", "age", "age_scrambled")], 10)
-#> # A tibble: 10 × 3
-#>    subject          age age_scrambled
-#>    <chr>          <dbl>         <dbl>
-#>  1 A30MP4LXV4MIFD    34            25
-#>  2 A16X5FB3HAFCKN    30            26
-#>  3 A1E9D1OT9VJYDZ    40            25
-#>  4 A16FPOYD7566WI    35            38
-#>  5 A11NOTVHWST7Y3    26            25
-#>  6 A3TDR6MXS6UO5Z    33            28
-#>  7 A3OD4F0SA7EBCL    33            57
-#>  8 A123PBQDU71I5O    30            32
-#>  9 A25NGIY591U3DK    48            25
-#> 10 A11WCFPJSR5VZP    33            43
-```
-
 ### `scramble_variables()` - Scramble Data Frame Columns
 
 The
@@ -370,7 +301,7 @@ function scrambles the values of specified columns in a data frame.
 
 - `data`: A data frame
 - `...`: Columns to scramble (supports tidyselect helpers)
-- `together`: If `TRUE`, variables are scrambled together as a unit per
+- `.together`: If `TRUE`, variables are scrambled together as a unit per
   row; if `FALSE` (default), each variable is scrambled independently
 - `.groups`: Optional grouping columns for within-group scrambling.
   Grouping columns must not overlap with the columns selected in `...`.
@@ -403,12 +334,12 @@ Notice that `x` and `y` are scrambled independently of each other.
 
 #### Scrambling Together
 
-When `together = TRUE`, the selected columns are scrambled as a unit,
+When `.together = TRUE`, the selected columns are scrambled as a unit,
 preserving row-level relationships:
 
 ``` r
 set.seed(456)
-scramble_variables(df, c("x", "y"), together = TRUE)
+scramble_variables(df, c("x", "y"), .together = TRUE)
 #>   x y group
 #> 1 5 e     A
 #> 2 6 f     A
@@ -447,7 +378,7 @@ You can combine both parameters:
 
 ``` r
 set.seed(100)
-scramble_variables(df, c("x", "y"), .groups = "group", together = TRUE)
+scramble_variables(df, c("x", "y"), .groups = "group", .together = TRUE)
 #> # A tibble: 6 × 3
 #>       x y     group
 #>   <int> <chr> <chr>
@@ -489,12 +420,11 @@ williams_scrambled |>
 #> 2      2     34.6
 ```
 
-### `scramble_variables_rowwise()` - Row-Level Scrambling
+### `scramble_variables(..., .byrow = TRUE)` - Row-Level Scrambling
 
-The
-[`scramble_variables_rowwise()`](https://nthun.github.io/vazul/reference/scramble_variables_rowwise.md)
-function scrambles values within each row across specified columns. This
-is useful for scrambling repeated measures or item responses.
+The `scramble_variables(..., .byrow = TRUE)` function scrambles values
+within each row across specified columns. This is useful for scrambling
+repeated measures or item responses.
 
 #### Parameters
 
@@ -503,6 +433,7 @@ is useful for scrambling repeated measures or item responses.
   selections are combined into a single set and scrambled together. If
   you want to scramble separate groups of columns independently, call
   the function multiple times.
+- `.byrow`: Must be set to `TRUE` for row-wise scrambling.
 
 Rowwise scrambling moves values between columns, so selected columns
 must be type-compatible. This function requires all selected columns to
@@ -520,7 +451,7 @@ df <- data.frame(
 )
 
 set.seed(123)
-result <- scramble_variables_rowwise(df, c("item1", "item2", "item3"))
+result <- scramble_variables(df, c("item1", "item2", "item3"), .byrow = TRUE)
 result
 #>   item1 item2 item3 id
 #> 1     3     1     2  1
@@ -546,7 +477,7 @@ df2 <- data.frame(
 )
 
 set.seed(2)
-result2 <- scramble_variables_rowwise(df2, starts_with("day_"), starts_with("score_"))
+result2 <- scramble_variables(df2, starts_with("day_"), starts_with("score_"), .byrow = TRUE)
 result2
 #>   day_1 day_2 day_3 score_a score_b id
 #> 1    20     3     2      10       1  1
@@ -562,8 +493,8 @@ multiple times:
 ``` r
 set.seed(42)
 result3 <- df2 |>
-  scramble_variables_rowwise(starts_with("day_")) |>
-  scramble_variables_rowwise(starts_with("score_"))
+  scramble_variables(starts_with("day_"), .byrow = TRUE) |>
+  scramble_variables(starts_with("score_"), .byrow = TRUE)
 result3
 #>   day_1 day_2 day_3 score_a score_b id
 #> 1     1     3     2      20      10  1
@@ -719,10 +650,9 @@ The `vazul` package provides a comprehensive toolkit for data blinding:
 |----|----|----|
 | [`mask_labels()`](https://nthun.github.io/vazul/reference/mask_labels.md) | Vector | Replace categorical values with anonymous labels |
 | [`mask_variables()`](https://nthun.github.io/vazul/reference/mask_variables.md) | Data frame | Mask multiple columns |
-| [`mask_variables_rowwise()`](https://nthun.github.io/vazul/reference/mask_variables_rowwise.md) | Row-wise | Consistent masking within rows |
 | [`scramble_values()`](https://nthun.github.io/vazul/reference/scramble_values.md) | Vector | Randomize value order |
 | [`scramble_variables()`](https://nthun.github.io/vazul/reference/scramble_variables.md) | Data frame | Scramble multiple columns |
-| [`scramble_variables_rowwise()`](https://nthun.github.io/vazul/reference/scramble_variables_rowwise.md) | Row-wise | Scramble values within rows |
+| `scramble_variables(..., .byrow = TRUE)` | Row-wise | Scramble values within rows |
 
 These functions help researchers conduct unbiased analyses by separating
 the analyst from knowledge about treatment conditions, group

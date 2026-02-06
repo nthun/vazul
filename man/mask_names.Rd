@@ -67,7 +67,6 @@ williams |>
 }
 \seealso{
 \code{\link{mask_labels}} for masking values in a vector,
-\code{\link{mask_variables}} for masking values in multiple variables, and
-\code{\link{mask_variables_rowwise}} for rowwise value masking.
+\code{\link{mask_variables}} for masking values in multiple variables.
 }
 \keyword{mask}

@@ -1,11 +1,11 @@
 # vazul
 
-**vazul** is an R package for data blinding in research contexts. It
+**vazul** is an R package for analyis blinding in research contexts. It
 offers two main approaches to anonymize data while preserving analytical
 validity: **masking** (replacing values with anonymous labels) and
 **scrambling** (randomizing the order of existing values).
 
-## Data Blinding Approaches
+## Analysis Blinding Approaches
 
 **Masking** replaces original values with anonymous labels, completely
 hiding the original information:
@@ -25,9 +25,16 @@ scramble_values(treatment)
 
 ## Installation
 
+You can install the released version of vazul from CRAN with:
+
 ``` r
-# install.packages("devtools")
-devtools::install_github("nthun/vazul")
+install.packages("vazul")
+```
+
+Or the development version from GitHub with:
+
+``` r
+remotes::install_github("nthun/vazul")
 ```
 
 ## Functions
@@ -69,11 +76,18 @@ mask_variables(df, c("condition", "treatment"))
 mask_variables(df, where(is.character))
 ```
 
-#### `mask_variables_rowwise()` - Row-level masking
+The `.across_variables` parameter allows for consistent masking across
+multiple columns (e.g., longitudinal data in wide format).
 
 ``` r
-# Consistent masking across rows for categorical data
-df |> mask_variables_rowwise(c("condition", "treatment"))
+df <- data.frame(
+  wave_1 = c("A", "B", "A"),
+  wave_2 = c("B", "A", "B"),
+  score = c(10, 20, 30)
+)
+
+# Mask across variables consistently
+mask_variables(df, starts_with("wave_"), .across_variables = TRUE)
 ```
 
 ### Scrambling Functions
@@ -110,21 +124,17 @@ library(dplyr)
 df |> group_by(group) |> scramble_variables("x")
 ```
 
-#### `scramble_variables_rowwise()` - Row-level scrambling
+#### Row-wise scrambling: Use `.byrow = TRUE` to shuffle values within each row across the selected columns.
 
 ``` r
-# Scramble values within each row
-df <- data.frame(
+df_items <- data.frame(
   item1 = c(1, 4, 7),
   item2 = c(2, 5, 8), 
   item3 = c(3, 6, 9)
 )
 
-df |> scramble_variables_rowwise(c("item1", "item2", "item3"))
-#>   item1 item2 item3
-#> 1     3     1     2
-#> 2     5     4     6  
-#> 3     8     9     7
+# Shuffles values horizontally within each row
+scramble_variables(df_items, item1:item3, .byrow = TRUE)
 ```
 
 ## Datasets
@@ -156,8 +166,13 @@ king to become unfit for the throne. More info:
 ## Authors
 
 - **Tamás Nagy** - Package author and maintainer  
-- **Alexandra Sarafoglou** - Data contributor and author
 - **Márton Kovács** - Author
+- **Alexandra Sarafoglou** - Data contributor and author
+
+## Citation
+
+Nagy, T., Kovács, M., & Sarafoglou, A. (2026). vazul: An R package for
+analysis blinding. Zenodo. <https://doi.org/10.5281/zenodo.18269711>
 
 ## License
 

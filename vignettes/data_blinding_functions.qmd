@@ -25,7 +25,7 @@ Each approach is available at three levels:
 
 - **Vector level**: `mask_labels()` and `scramble_values()` - operate on single vectors
 - **Data frame level**: `mask_variables()` and `scramble_variables()` - operate on columns in a data frame
-- **Row-wise level**: `mask_variables_rowwise()` and `scramble_variables(..., .byrow = TRUE)` - operate within rows across columns
+- **Row-wise level**: `scramble_variables(..., .byrow = TRUE)` - operates within rows across columns
 
 ```{r}
 #| label: setup
@@ -55,7 +55,7 @@ The `mask_labels()` function takes a character or factor vector and replaces eac
 treatment <- c("control", "treatment", "control", "treatment", "control")
 
 # Mask the labels
-set.seed(123)
+set.seed(1037)
 masked_treatment <- mask_labels(treatment)
 masked_treatment
 ```
@@ -118,7 +118,7 @@ The `mask_variables()` function applies masking to multiple columns in a data fr
 
 - `data`: A data frame
 - `...`: Columns to mask (supports tidyselect helpers)
-- `across_variables`: If `TRUE`, all selected variables share the same masked labels; if `FALSE` (default), each variable gets independent masked labels
+- `.across_variables`: If `TRUE`, all selected variables share the same masked labels; if `FALSE` (default), each variable gets independent masked labels
 
 #### Independent Masking (Default)
 
@@ -140,7 +140,7 @@ Notice that each column now has its own prefix (`treatment_group_`, `outcome_gro
 
 #### Shared Masking Across Variables
 
-When `across_variables = TRUE`, all selected columns share the same mapping:
+When `.across_variables = TRUE`, all selected columns share the same mapping:
 
 ```{r}
 df2 <- data.frame(
@@ -151,7 +151,7 @@ df2 <- data.frame(
 
 set.seed(456)
 result_shared <- mask_variables(df2, c("pre_condition", "post_condition"),
-                                across_variables = TRUE)
+                                .across_variables = TRUE)
 result_shared
 ```
 
@@ -165,33 +165,6 @@ You can use tidyselect helpers to select columns:
 set.seed(789)
 mask_variables(df, where(is.character))
 ```
-
-### `mask_variables_rowwise()` - Row-Level Masking
-
-The `mask_variables_rowwise()` function applies consistent masking within each row across multiple columns. This is useful when you have repeated measures or matched conditions.
-
-#### Parameters
-
-- `data`: A data frame
-- `...`: Column sets to mask (supports tidyselect helpers)
-- `prefix`: Character string to use as prefix for masked labels (default: `"masked_group_"`)
-
-#### Example: Masking Repeated Conditions
-
-```{r}
-df <- data.frame(
-  treat_1 = c("control", "treatment", "placebo"),
-  treat_2 = c("treatment", "placebo", "control"),
-  treat_3 = c("placebo", "control", "treatment"),
-  id = 1:3
-)
-
-set.seed(123)
-result <- mask_variables_rowwise(df, starts_with("treat_"))
-result
-```
-
-Within each row, the original values are consistently mapped to masked labels, but the mapping is independent across rows.
 
 ## Scrambling Functions
 
@@ -237,9 +210,12 @@ Scrambling preserves:
 - The distribution of values
 
 ```{r}
-set.seed(100)
+set.seed(1037)
 original <- c(1, 2, 2, 3, 3, 3, 4, 4, 4, 4)
 scrambled <- scramble_values(original)
+
+# The scrambled vector has the same values, just in a different order 
+scrambled
 
 # Same values, different order
 sort(original) == sort(scrambled)
@@ -247,22 +223,6 @@ sort(original) == sort(scrambled)
 # Same frequency distribution
 table(original)
 table(scrambled)
-```
-
-#### Practical Example with Dataset
-
-```{r}
-data(williams)
-
-set.seed(42)
-williams$age_scrambled <- scramble_values(williams$age)
-
-# The values are the same, just reordered
-summary(williams$age)
-summary(williams$age_scrambled)
-
-# But individual correspondences are broken
-head(williams[c("subject", "age", "age_scrambled")], 10)
 ```
 
 ### `scramble_variables()` - Scramble Data Frame Columns
@@ -528,7 +488,6 @@ The `vazul` package provides a comprehensive toolkit for data blinding:
 |----------|-------|---------|
 | `mask_labels()` | Vector | Replace categorical values with anonymous labels |
 | `mask_variables()` | Data frame | Mask multiple columns |
-| `mask_variables_rowwise()` | Row-wise | Consistent masking within rows |
 | `scramble_values()` | Vector | Randomize value order |
 | `scramble_variables()` | Data frame | Scramble multiple columns |
 | `scramble_variables(..., .byrow = TRUE)` | Row-wise | Scramble values within rows |

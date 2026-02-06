@@ -1,3 +1,11 @@
+# vazul 1.1.0
+## 2026-02-06
+
+* Breaking Change: Removed `mask_variables_rowwise()` as row-wise masking is methodologically inconsistent with analysis blinding.
+* Breaking Change: `scramble_variables_rowwise()` is now internal. Its functionality has been consolidated into  `scramble_variables(..., .byrow = TRUE)`.
+* API Improvement: Arguments in `scramble_variables()` and `mask_variables()` parameters now use leading dots (e.g., .groups, .together) to avoid naming conflicts with data columns.
+* Update documentation, vignettes, and website to reflect changes in function names and parameters.
+
 # vazul 1.0.0
 ## 2026-01-16
 

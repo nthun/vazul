@@ -4,7 +4,7 @@
 \alias{mask_variables}
 \title{Mask categorical variables with random labels in a data frame}
 \usage{
-mask_variables(data, ..., across_variables = FALSE)
+mask_variables(data, ..., .across_variables = FALSE)
 }
 \arguments{
 \item{data}{a data frame}
@@ -18,7 +18,7 @@ mask_variables(data, ..., across_variables = FALSE)
 }
 Only character and factor columns will be processed.}
 
-\item{across_variables}{logical. If \code{TRUE}, all selected variables will
+\item{.across_variables}{logical. If \code{TRUE}, all selected variables will
 use the same set of masked labels. If \code{FALSE} (default), each variable
 gets its own independent set of masked labels using the column name as
 prefix.}
@@ -52,7 +52,7 @@ mask_variables(df, c("treatment", "outcome"))
 
 set.seed(456)
 # Shared masking across variables
-mask_variables(df, c("treatment", "outcome"), across_variables = TRUE)
+mask_variables(df, c("treatment", "outcome"), .across_variables = TRUE)
 
 # Using tidyselect helpers
 mask_variables(df, where(is.character))
@@ -76,7 +76,6 @@ head(williams_masked[c("subject", "ecology")])
 }
 \seealso{
 \code{\link{mask_labels}} for masking a single vector,
-\code{\link{mask_variables_rowwise}} for rowwise masking, and
 \code{\link{mask_names}} for masking variable names.
 }
 \keyword{mask}

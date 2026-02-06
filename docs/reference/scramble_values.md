@@ -21,9 +21,7 @@ the scrambled vector
 ## See also
 
 [`scramble_variables`](https://nthun.github.io/vazul/reference/scramble_variables.md)
-for scrambling multiple variables in a data frame, and
-[`scramble_variables_rowwise`](https://nthun.github.io/vazul/reference/scramble_variables_rowwise.md)
-for rowwise scrambling.
+for scrambling multiple variables in a data frame.
 
 ## Examples
 

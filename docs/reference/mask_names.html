@@ -13,7 +13,7 @@ call the function separately for each group."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,8 +64,8 @@ call the function separately for each group.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p><tidy-select> Columns to mask. All arguments are combined into
-a single set. Each can be:</tidy-select></p><ul><li><p>Bare column names (e.g., <code>var1, var2</code>)</p></li>
+<dd><p>Columns to mask using tidyselect semantics. All arguments are combined into
+a single set. Each can be:</p><ul><li><p>Bare column names (e.g., <code>var1, var2</code>)</p></li>
 <li><p>A tidyselect expression (e.g., <code>starts_with("treatment_")</code>)</p></li>
 <li><p>A character vector of column names (e.g., <code>c("var1", "var2")</code>)</p></li>
 </ul></dd>
@@ -86,7 +86,7 @@ The prefix is used as-is, so include a separator (e.g., underscore) if desired.<
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="mask_labels.html">mask_labels</a></code> for masking values in a vector,
 <code><a href="mask_variables.html">mask_variables</a></code> for masking values in multiple variables, and
-<code><a href="mask_variables_rowwise.html">mask_variables_rowwise</a></code> for rowwise value masking.</p></div>
+<code>mask_variables_rowwise</code> for rowwise value masking.</p></div>
     </div>
 
     <div class="section level2">
@@ -101,14 +101,6 @@ The prefix is used as-is, so include a separator (e.g., underscore) if desired.<
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Mask one set of variables</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: 'dplyr'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from 'package:stats':</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     filter, lag</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from 'package:base':</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     intersect, setdiff, setequal, union</span>
 <span class="r-in"><span><span class="fu">mask_names</span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"treat_"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="st">"A_"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   A_01 A_02 outcome_a outcome_b id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    1    4         7        10  1</span>
