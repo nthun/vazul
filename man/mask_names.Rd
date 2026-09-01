@@ -28,7 +28,8 @@ of the supplied strings will have that suffix appended verbatim to its
 masked name (e.g. \code{treat_1_r} becomes \code{A_02_r} rather than
 \code{A_02}). Multiple suffixes may be supplied (e.g.
 \code{c("_r", "_z")}); when more than one suffix matches, the longest
-match takes precedence. Duplicate entries are silently removed.
+match takes precedence and a warning reports the affected column(s) and
+the overlapping suffixes. Duplicate entries are silently removed.
 Defaults to \code{NULL} (no suffixes preserved).}
 }
 \value{

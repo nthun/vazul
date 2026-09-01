@@ -323,14 +323,37 @@ test_that("keep_suffixes longest match wins", {
   df <- data.frame(v_score_r = 1:3, v_r = 4:6)
 
   set.seed(42)
-  result <- mask_names(df, c("v_score_r", "v_r"), prefix = "A_",
-                       keep_suffixes = c("_r", "_score_r"))
+  result <- suppressWarnings(
+    mask_names(df, c("v_score_r", "v_r"), prefix = "A_",
+               keep_suffixes = c("_r", "_score_r"))
+  )
 
   masked <- names(result)
   expect_equal(sum(endsWith(masked, "_score_r")), 1)
   expect_equal(sum(endsWith(masked, "_r") & !endsWith(masked, "_score_r")), 1)
   score_r_col <- masked[endsWith(masked, "_score_r")]
   expect_equal(result[[score_r_col]], df$v_score_r)
+})
+
+test_that("keep_suffixes warns when multiple suffixes overlap on a column", {
+  df <- data.frame(v_score_r = 1:3, v_r = 4:6)
+
+  set.seed(42)
+  expect_warning(
+    mask_names(df, c("v_score_r", "v_r"), prefix = "A_",
+               keep_suffixes = c("_r", "_score_r")),
+    "v_score_r.*_r.*_score_r"
+  )
+})
+
+test_that("keep_suffixes does not warn when suffixes don't overlap", {
+  df <- data.frame(v_score_r = 1:3, v_z = 4:6)
+
+  set.seed(42)
+  expect_no_warning(
+    mask_names(df, c("v_score_r", "v_z"), prefix = "A_",
+               keep_suffixes = c("_r", "_z"))
+  )
 })
 
 test_that("keep_suffixes duplicate entries are silently deduped", {

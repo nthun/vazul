@@ -23,7 +23,8 @@
 #'   masked name (e.g. \code{treat_1_r} becomes \code{A_02_r} rather than
 #'   \code{A_02}). Multiple suffixes may be supplied (e.g.
 #'   \code{c("_r", "_z")}); when more than one suffix matches, the longest
-#'   match takes precedence. Duplicate entries are silently removed.
+#'   match takes precedence and a warning reports the affected column(s) and
+#'   the overlapping suffixes. Duplicate entries are silently removed.
 #'   Defaults to \code{NULL} (no suffixes preserved).
 #'
 #' @return A data frame with the specified variables renamed to masked names.
@@ -111,11 +112,29 @@ mask_names <- function(data, ..., prefix, keep_suffixes = NULL) {
   # aligned with mapping$values regardless of how create_mapping() resolves
   # its keys internally.
   if (!is.null(keep_suffixes)) {
-    matched_suffix <- vapply(mapping$keys, function(nm) {
-      hit <- keep_suffixes[endsWith(nm, keep_suffixes)]
+    suffix_hits <- lapply(mapping$keys, function(nm) {
+      keep_suffixes[endsWith(nm, keep_suffixes)]
+    })
+    matched_suffix <- vapply(suffix_hits, function(hit) {
       if (length(hit) == 0L) return("")
       hit[nchar(hit) == max(nchar(hit))][1L]
     }, character(1L))
+
+    # Warn when a column name ends with more than one supplied suffix, since
+    # only the longest match is kept and the shorter ones are silently ignored.
+    overlap_idx <- which(vapply(suffix_hits, length, integer(1L)) > 1L)
+    if (length(overlap_idx) > 0L) {
+      overlap_msgs <- vapply(overlap_idx, function(i) {
+        sprintf("%s (matches: %s; keeping '%s')",
+                mapping$keys[i],
+                paste(suffix_hits[[i]], collapse = ", "),
+                matched_suffix[i])
+      }, character(1L))
+      warning("Multiple 'keep_suffixes' entries match the same column ",
+              "name. The longest match is kept for each. Affected ",
+              "column(s): ", paste(overlap_msgs, collapse = "; "), ".",
+              call. = FALSE)
+    }
   } else {
     matched_suffix <- rep("", length(mapping$keys))
   }
