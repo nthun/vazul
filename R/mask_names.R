@@ -82,6 +82,7 @@
 mask_names <- function(data, ..., prefix, keep_suffixes = NULL) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
+  validate_unique_names(data)
 
   if (missing(prefix)) {
     stop("Parameter 'prefix' is required. Please provide a character string ",

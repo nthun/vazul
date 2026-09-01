@@ -33,6 +33,29 @@ validate_data_frame_not_empty <- function(data) {
   invisible(NULL)
 }
 
+#' Validate that a data frame has unique column names
+#'
+#' Internal helper function for validating that a data frame has no
+#' duplicated column names. Duplicate names are already rejected by
+#' \code{tibble()}/\code{as_tibble()} and by core \code{dplyr} verbs such as
+#' \code{group_by()} and \code{mutate(across(...))}, so this makes that same
+#' assumption explicit with a clear, package-level error instead of relying
+#' on inconsistent or absent errors from those dependencies.
+#'
+#' @param data The data frame to validate.
+#' @return NULL (invisibly). Throws an error if validation fails.
+#' @keywords internal
+#' @noRd
+validate_unique_names <- function(data) {
+  duplicated_names <- unique(names(data)[duplicated(names(data))])
+  if (length(duplicated_names) > 0) {
+    stop("Input 'data' must have unique column names. ",
+         "The following names are duplicated: ",
+         paste(duplicated_names, collapse = ", "), ".", call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 #' Validate that input is a vector
 #'
 #' Internal helper function for validating vector input.

@@ -218,6 +218,30 @@ test_that("scramble_variables validates input correctly", {
     )
 })
 
+test_that("scramble_variables rejects data frames with duplicate column names", {
+    df_dup <- data.frame(x = 1:5, x = 5:1, y = letters[1:5], check.names = FALSE)
+
+    expect_error(
+        scramble_variables(df_dup, "y"),
+        "Input 'data' must have unique column names.",
+        fixed = TRUE
+    )
+
+    # The .byrow path uses a separate implementation that does not go
+    # through dplyr, so it must be checked independently.
+    expect_error(
+        scramble_variables(df_dup, "y", .byrow = TRUE),
+        "Input 'data' must have unique column names.",
+        fixed = TRUE
+    )
+
+    expect_error(
+        scramble_variables(df_dup, "y", .together = TRUE),
+        "Input 'data' must have unique column names.",
+        fixed = TRUE
+    )
+})
+
 test_that("scramble_variables handles edge cases", {
     # Test with single row
     df_single <- data.frame(x = 1, y = "a")

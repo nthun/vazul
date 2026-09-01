@@ -73,6 +73,7 @@
 scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .byrow = FALSE) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
+  validate_unique_names(data)
   validate_logical_parameter(.together, ".together")
   validate_logical_parameter(.byrow, ".byrow")
 

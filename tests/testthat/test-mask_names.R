@@ -217,6 +217,13 @@ test_that("mask_names handles data frame input validation", {
     mask_names(data.frame(), c("var1"), prefix = "x_"),
     "Input 'data' cannot be an empty data frame"
   )
+
+  # Test data frame with duplicate column names
+  df_dup <- data.frame(var1 = 1:3, var1 = 4:6, var2 = 7:9, check.names = FALSE)
+  expect_error(
+    mask_names(df_dup, c("var2"), prefix = "x_"),
+    "Input 'data' must have unique column names."
+  )
 })
 
 test_that("mask_names works with multiple tidyselect calls", {
