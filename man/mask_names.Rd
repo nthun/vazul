@@ -24,6 +24,9 @@ The prefix is used as-is, so include a separator (e.g., underscore) if desired.}
 }
 \value{
 A data frame with the specified variables renamed to masked names.
+The masked columns are sorted alphabetically within their original positions;
+downstream code that accesses columns by integer index rather than name
+may be affected.
 }
 \description{
 Assigns new masked names to selected variables in a data frame.

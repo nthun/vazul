@@ -19,6 +19,9 @@
 #'   The prefix is used as-is, so include a separator (e.g., underscore) if desired.
 #'
 #' @return A data frame with the specified variables renamed to masked names.
+#'   The masked columns are sorted alphabetically within their original positions;
+#'   downstream code that accesses columns by integer index rather than name
+#'   may be affected.
 #'
 #' @seealso \code{\link{mask_labels}} for masking values in a vector,
 #' \code{\link{mask_variables}} for masking values in multiple variables.
@@ -106,6 +109,12 @@ mask_names <- function(data, ..., prefix) {
   # Apply the name changes to the data frame
   result <- data
   names(result)[match(names(final_mapping), names(result))] <- final_mapping
+
+  # Sort masked column names alphabetically within the positions they occupy.
+  # This breaks the link between a label's numeric suffix and the column's
+  # original position, without disturbing the layout of unmasked columns.
+  mask_positions <- which(names(result) %in% masked_names)
+  names(result)[mask_positions] <- sort(names(result)[mask_positions])
 
   return(result)
 }

@@ -23,6 +23,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Tamás Nagy \email{nagytamas.hungary@gmail.com} (\href{https://orcid.org/0000-0001-5244-0356}{ORCID})
   \item Alexandra Sarafoglou \email{alexandra.sarafoglou@gmail.com} (\href{https://orcid.org/0000-0003-0031-685X}{ORCID}) [data contributor]
   \item Márton Kovács \email{marton.balazs.kovacs@gmail.com} (\href{https://orcid.org/0000-0002-8142-8492}{ORCID})
 }
