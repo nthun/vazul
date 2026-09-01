@@ -100,9 +100,6 @@ scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .by
     data <- dplyr::ungroup(data)
   }
 
-  # Get column indices from resolved names
-  col_indices <- match(all_col_names, names(data))
-
   # Handle group selection with validation
   group_cols <- resolve_group_columns(
     rlang::enquo(.groups),
@@ -121,7 +118,7 @@ scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .by
       dplyr::mutate(.scrambled_rows = scramble_values(dplyr::row_number())) |>
       dplyr::mutate(
         dplyr::across(
-          .cols = tidyselect::all_of(col_indices),
+          .cols = tidyselect::all_of(all_col_names),
           .fns = ~ .x[.data$.scrambled_rows]
         )
       ) |>
@@ -131,7 +128,7 @@ scramble_variables <- function(data, ..., .groups = NULL, .together = FALSE, .by
     data <- dplyr::mutate(
       data,
       dplyr::across(
-        .cols = tidyselect::all_of(col_indices),
+        .cols = tidyselect::all_of(all_col_names),
         .fns = ~ scramble_values(.x)
       )
     )
