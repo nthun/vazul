@@ -34,11 +34,12 @@ Imports:
     rlang,
     tidyselect,
     stats
-Suggests: 
+Suggests:
     testthat,
     covr,
     knitr,
-    quarto
+    quarto,
+    tidyr
 VignetteBuilder: quarto
 Config/testthat/edition: 3
 Encoding: UTF-8

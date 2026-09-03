@@ -76,6 +76,73 @@ The loading table shows that factors are not necessarily loading to their origin
 
 Applying the same analysis on the original dataset reveals the names of the variables. Please note that the loadings may differ slightly due to the randomness in the factor analysis process.
 
+## Masking names with meaningful prefixes *and* suffixes
+
+Sometimes both the prefix and the suffix of a set of column names carry meaning that should
+stay consistent across columns. For example, `exp_pre`, `exp_post`, `ctl_pre`, and `ctl_post`
+encode both an experimental condition (`exp`/`ctl`) and a measurement occasion (`pre`/`post`).
+
+Masking these names directly with repeated `mask_names()` calls, as above, does not preserve
+that consistency: each call assigns new labels independently, so there is no guarantee that,
+say, `pre` is masked to the same label in the `exp_` columns as in the `ctl_` columns. In this
+situation we recommend reshaping the data to long format first, so that the condition and
+occasion information become *values* in their own columns rather than fragments of the column
+names. `mask_variables()` can then mask those columns directly, which guarantees that a given
+value (e.g. `"exp"` or `"pre"`) is always mapped to the same masked label everywhere it occurs.
+If a wide format is required for the confirmatory analysis, the masked data can be reshaped
+back afterward.
+
+```{r}
+#| message: false
+library(tidyr)
+
+wide_demo <- data.frame(
+  id = 1:4,
+  exp_pre = c(10, 12, 9, 11),
+  exp_post = c(15, 14, 13, 16),
+  ctl_pre = c(8, 9, 10, 7),
+  ctl_post = c(9, 10, 11, 8)
+)
+wide_demo
+```
+
+```{r}
+# 1) Reshape to long format, splitting the column names into
+#    a `condition` and a `time` variable
+long_demo <- wide_demo |>
+  pivot_longer(
+    cols = -id,
+    names_to = c("condition", "time"),
+    names_sep = "_"
+  )
+long_demo
+```
+
+```{r}
+# 2) Mask the condition and time variables. Each variable keeps its own,
+#    internally consistent mapping (every "exp" becomes the same masked
+#    label, every "pre" becomes the same masked label, and so on).
+set.seed(2024)
+long_masked <- long_demo |>
+  mask_variables(condition, time)
+
+long_masked |>
+  count(condition, time)
+```
+
+```{r}
+# 3) Reshape back to wide format if a wide layout is needed for analysis
+long_masked |>
+  unite(masked_name, condition, time) |>
+  pivot_wider(names_from = masked_name, values_from = value)
+```
+
+Because masking is applied to `condition` and `time` as data values rather than as fragments
+of the column names, the masked labels for `"exp"`/`"ctl"` and `"pre"`/`"post"` are consistent
+across every column, both before and after reshaping. We recommend this long-format workflow
+whenever meaningful prefixes and suffixes both need to be masked; `mask_names()` remains the
+simpler choice when only a single, non-overlapping piece of the name needs masking (see above).
+
 ```{r}
 set.seed(123)
 efa_orig <-
