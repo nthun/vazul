@@ -84,6 +84,46 @@ test_that("scramble_variables works with grouping", {
     expect_setequal(group_b_result, group_b_orig)
 })
 
+test_that("scramble_variables works when the grouping column precedes the target column", {
+    # Regression test: .groups columns positioned before the scrambled column
+    # used to make `across()` select past the end of the (grouping-excluded)
+    # column set, e.g. `long_demo |> scramble_variables(score, .groups = id)`.
+    df <- data.frame(
+        id = rep(c("A", "B"), each = 5),
+        filler1 = 1:10,
+        filler2 = 1:10,
+        target = 1:10
+    )
+
+    set.seed(42)
+    result <- expect_no_error(scramble_variables(df, "target", .groups = "id"))
+
+    expect_equal(result$id, df$id)
+    expect_setequal(result$target[result$id == "A"], df$target[df$id == "A"])
+    expect_setequal(result$target[result$id == "B"], df$target[df$id == "B"])
+})
+
+test_that("scramble_variables does not scramble the wrong column when a grouping column sits between target columns", {
+    # Regression test: with .groups positioned between two target columns,
+    # the old index-based implementation silently scrambled a column that was
+    # never selected instead of the intended target (found via
+    # `williams |> scramble_variables(c("ecology", "age"), .groups = "gender")`).
+    df <- data.frame(
+        before = 1:10,
+        group = rep(c("A", "B"), each = 5),
+        after = 1:10,
+        extra = 1:10
+    )
+
+    set.seed(42)
+    result <- scramble_variables(df, c("before", "after"), .groups = "group")
+
+    expect_setequal(result$before[result$group == "A"], df$before[df$group == "A"])
+    expect_setequal(result$after[result$group == "A"], df$after[df$group == "A"])
+    expect_true(!identical(result$after, df$after))
+    expect_equal(result$extra, df$extra)
+})
+
 test_that("scramble_variables preserves column order", {
     df <- data.frame(
         col1 = 1:5,
@@ -175,6 +215,30 @@ test_that("scramble_variables validates input correctly", {
         scramble_variables(df, 10),  # Column 10 doesn't exist
         "Can't select columns past the end.",
         fixed = FALSE  # Allow partial match
+    )
+})
+
+test_that("scramble_variables rejects data frames with duplicate column names", {
+    df_dup <- data.frame(x = 1:5, x = 5:1, y = letters[1:5], check.names = FALSE)
+
+    expect_error(
+        scramble_variables(df_dup, "y"),
+        "Input 'data' must have unique column names.",
+        fixed = TRUE
+    )
+
+    # The .byrow path uses a separate implementation that does not go
+    # through dplyr, so it must be checked independently.
+    expect_error(
+        scramble_variables(df_dup, "y", .byrow = TRUE),
+        "Input 'data' must have unique column names.",
+        fixed = TRUE
+    )
+
+    expect_error(
+        scramble_variables(df_dup, "y", .together = TRUE),
+        "Input 'data' must have unique column names.",
+        fixed = TRUE
     )
 })
 

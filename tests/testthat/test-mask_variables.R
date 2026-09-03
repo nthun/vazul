@@ -184,6 +184,16 @@ test_that("mask_variables validates input correctly", {
   )
 })
 
+test_that("mask_variables rejects data frames with duplicate column names", {
+  df_dup <- data.frame(x = c("A", "B"), x = c("C", "D"), y = c("X", "Y"), check.names = FALSE)
+
+  expect_error(
+    mask_variables(df_dup, "y"),
+    "Input 'data' must have unique column names.",
+    fixed = TRUE
+  )
+})
+
 test_that("mask_variables handles column selection errors", {
   df <- data.frame(x = c("A", "B"), y = c("X", "Y"))
 

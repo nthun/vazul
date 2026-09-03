@@ -17,8 +17,22 @@
 #'   This becomes the base prefix, with numeric suffixes appended (e.g.,
 #'   \code{prefix = "treatment_"} produces "treatment_01", "treatment_02", etc.).
 #'   The prefix is used as-is, so include a separator (e.g., underscore) if desired.
+#' @param keep_suffixes Optional character vector of suffixes to preserve in
+#'   masked names. When provided, any selected column whose name ends with one
+#'   of the supplied strings will have that suffix appended verbatim to its
+#'   masked name (e.g. \code{treat_1_r} becomes \code{A_02_r} rather than
+#'   \code{A_02}). Multiple suffixes may be supplied (e.g.
+#'   \code{c("_r", "_z")}); when more than one suffix matches, the longest
+#'   match takes precedence and a warning reports the affected column(s) and
+#'   the overlapping suffixes. Duplicate entries are silently removed.
+#'   Defaults to \code{NULL} (no suffixes preserved).
 #'
 #' @return A data frame with the specified variables renamed to masked names.
+#'   The masked columns are sorted by their base masked name alphabetically
+#'   within their original positions; downstream code that accesses columns by
+#'   integer index rather than name may be affected. When \code{keep_suffixes}
+#'   is provided, columns whose original names end with a matching suffix retain
+#'   that suffix in their masked name.
 #'
 #' @seealso \code{\link{mask_labels}} for masking values in a vector,
 #' \code{\link{mask_variables}} for masking values in multiple variables.
@@ -39,6 +53,15 @@
 #' # Using character vectors
 #' mask_names(df, c("treat_1", "treat_2"), prefix = "A_")
 #'
+#' # Preserve the _r suffix for reverse-scored items
+#' set.seed(42)
+#' df2 <- data.frame(
+#'   treat_1   = c(1, 2, 3),
+#'   treat_1_r = c(3, 2, 1),
+#'   id = 1:3
+#' )
+#' mask_names(df2, starts_with("treat_"), prefix = "A_", keep_suffixes = "_r")
+#'
 #' # Mask multiple sets separately
 #' # Note that the order of masking matters
 #' # Try to mix up the order of prefixes
@@ -57,15 +80,18 @@
 #'   colnames()
 #'
 #' @export
-mask_names <- function(data, ..., prefix) {
+mask_names <- function(data, ..., prefix, keep_suffixes = NULL) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
+  validate_unique_names(data)
 
   if (missing(prefix)) {
     stop("Parameter 'prefix' is required. Please provide a character string ",
          "to use as the prefix for masked names.", call. = FALSE)
   }
   validate_prefix(prefix)
+  validate_keep_suffixes(keep_suffixes)
+  keep_suffixes <- unique(keep_suffixes)  # silently drop duplicates
 
   # Capture all ... arguments as quosures
   column_sets <- rlang::enquos(...)
@@ -77,9 +103,43 @@ mask_names <- function(data, ..., prefix) {
     return(data)
   }
 
-  # Create mapping for column names
+  # Create mapping for column names (base names, without any suffix)
   mapping <- create_mapping(all_col_names, prefix = prefix)
-  masked_names <- mapping$values
+
+  # Determine which suffix (if any) each original column should retain.
+  # Longest match wins when multiple keep_suffixes entries match the same name.
+  # Derived from mapping$keys (not all_col_names) so it stays positionally
+  # aligned with mapping$values regardless of how create_mapping() resolves
+  # its keys internally.
+  if (!is.null(keep_suffixes)) {
+    suffix_hits <- lapply(mapping$keys, function(nm) {
+      keep_suffixes[endsWith(nm, keep_suffixes)]
+    })
+    matched_suffix <- vapply(suffix_hits, function(hit) {
+      if (length(hit) == 0L) return("")
+      hit[nchar(hit) == max(nchar(hit))][1L]
+    }, character(1L))
+
+    # Warn when a column name ends with more than one supplied suffix, since
+    # only the longest match is kept and the shorter ones are silently ignored.
+    overlap_idx <- which(vapply(suffix_hits, length, integer(1L)) > 1L)
+    if (length(overlap_idx) > 0L) {
+      overlap_msgs <- vapply(overlap_idx, function(i) {
+        sprintf("%s (matches: %s; keeping '%s')",
+                mapping$keys[i],
+                paste(suffix_hits[[i]], collapse = ", "),
+                matched_suffix[i])
+      }, character(1L))
+      warning("Multiple 'keep_suffixes' entries match the same column ",
+              "name. The longest match is kept for each. Affected ",
+              "column(s): ", paste(overlap_msgs, collapse = "; "), ".",
+              call. = FALSE)
+    }
+  } else {
+    matched_suffix <- rep("", length(mapping$keys))
+  }
+
+  masked_names <- paste0(mapping$values, matched_suffix)
 
   # Check for name collisions (before applying)
   existing_names <- setdiff(names(data), all_col_names)
@@ -100,12 +160,20 @@ mask_names <- function(data, ..., prefix) {
             call. = FALSE)
   }
 
-  # Create mapping from original to masked names
-  final_mapping <- stats::setNames(masked_names, all_col_names)
-
   # Apply the name changes to the data frame
+  final_mapping <- stats::setNames(masked_names, mapping$keys)
   result <- data
   names(result)[match(names(final_mapping), names(result))] <- final_mapping
+
+  # Rearrange masked columns alphabetically by their masked name.
+  # This breaks the link between the original column position and the masked
+  # label. Subsetting (not in-place assignment) also ensures
+  # that any preserved suffix always stays paired with the correct column data.
+  # Unmasked columns are left in their original positions.
+  mask_positions <- which(names(result) %in% masked_names)
+  new_col_order <- seq_len(ncol(result))
+  new_col_order[mask_positions] <- mask_positions[order(names(result)[mask_positions])]
+  result <- result[, new_col_order, drop = FALSE]
 
   return(result)
 }

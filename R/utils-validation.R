@@ -33,6 +33,29 @@ validate_data_frame_not_empty <- function(data) {
   invisible(NULL)
 }
 
+#' Validate that a data frame has unique column names
+#'
+#' Internal helper function for validating that a data frame has no
+#' duplicated column names. Duplicate names are already rejected by
+#' \code{tibble()}/\code{as_tibble()} and by core \code{dplyr} verbs such as
+#' \code{group_by()} and \code{mutate(across(...))}, so this makes that same
+#' assumption explicit with a clear, package-level error instead of relying
+#' on inconsistent or absent errors from those dependencies.
+#'
+#' @param data The data frame to validate.
+#' @return NULL (invisibly). Throws an error if validation fails.
+#' @keywords internal
+#' @noRd
+validate_unique_names <- function(data) {
+  duplicated_names <- unique(names(data)[duplicated(names(data))])
+  if (length(duplicated_names) > 0) {
+    stop("Input 'data' must have unique column names. ",
+         "The following names are duplicated: ",
+         paste(duplicated_names, collapse = ", "), ".", call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 #' Validate that input is a vector
 #'
 #' Internal helper function for validating vector input.
@@ -203,5 +226,35 @@ validate_columns_categorical <- function(data, col_names) {
     )
   }
   
+  invisible(NULL)
+}
+
+#' Validate keep_suffixes parameter
+#'
+#' Internal helper function for validating the keep_suffixes parameter.
+#' Checks that keep_suffixes is NULL, or a non-empty character vector with no
+#' empty strings.
+#'
+#' @param keep_suffixes The keep_suffixes parameter to validate.
+#' @return NULL (invisibly). Throws an error if validation fails.
+#' @keywords internal
+#' @noRd
+validate_keep_suffixes <- function(keep_suffixes) {
+  if (is.null(keep_suffixes)) return(invisible(NULL))
+
+  if (!is.character(keep_suffixes) || length(keep_suffixes) == 0L) {
+    stop(
+      "Parameter 'keep_suffixes' must be a non-empty character vector or NULL.",
+      call. = FALSE
+    )
+  }
+
+  if (any(nchar(keep_suffixes) == 0L)) {
+    stop(
+      "Parameter 'keep_suffixes' must not contain empty strings.",
+      call. = FALSE
+    )
+  }
+
   invisible(NULL)
 }

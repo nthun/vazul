@@ -4,7 +4,7 @@
 \alias{mask_names}
 \title{Mask variable names with anonymous labels}
 \usage{
-mask_names(data, ..., prefix)
+mask_names(data, ..., prefix, keep_suffixes = NULL)
 }
 \arguments{
 \item{data}{A data frame.}
@@ -21,9 +21,24 @@ a single set. Each can be:
 This becomes the base prefix, with numeric suffixes appended (e.g.,
 \code{prefix = "treatment_"} produces "treatment_01", "treatment_02", etc.).
 The prefix is used as-is, so include a separator (e.g., underscore) if desired.}
+
+\item{keep_suffixes}{Optional character vector of suffixes to preserve in
+masked names. When provided, any selected column whose name ends with one
+of the supplied strings will have that suffix appended verbatim to its
+masked name (e.g. \code{treat_1_r} becomes \code{A_02_r} rather than
+\code{A_02}). Multiple suffixes may be supplied (e.g.
+\code{c("_r", "_z")}); when more than one suffix matches, the longest
+match takes precedence and a warning reports the affected column(s) and
+the overlapping suffixes. Duplicate entries are silently removed.
+Defaults to \code{NULL} (no suffixes preserved).}
 }
 \value{
 A data frame with the specified variables renamed to masked names.
+The masked columns are sorted by their base masked name alphabetically
+within their original positions; downstream code that accesses columns by
+integer index rather than name may be affected. When \code{keep_suffixes}
+is provided, columns whose original names end with a matching suffix retain
+that suffix in their masked name.
 }
 \description{
 Assigns new masked names to selected variables in a data frame.
@@ -46,6 +61,15 @@ mask_names(df, starts_with("treat_"), prefix = "A_")
 
 # Using character vectors
 mask_names(df, c("treat_1", "treat_2"), prefix = "A_")
+
+# Preserve the _r suffix for reverse-scored items
+set.seed(42)
+df2 <- data.frame(
+  treat_1   = c(1, 2, 3),
+  treat_1_r = c(3, 2, 1),
+  id = 1:3
+)
+mask_names(df2, starts_with("treat_"), prefix = "A_", keep_suffixes = "_r")
 
 # Mask multiple sets separately
 # Note that the order of masking matters

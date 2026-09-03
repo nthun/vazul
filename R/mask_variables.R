@@ -69,6 +69,7 @@
 mask_variables <- function(data, ..., .across_variables = FALSE) {
   validate_data_frame(data)
   validate_data_frame_not_empty(data)
+  validate_unique_names(data)
   validate_logical_parameter(.across_variables, ".across_variables")
 
   # Capture all ... arguments as quosures
