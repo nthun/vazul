@@ -55,9 +55,9 @@
 #'   \item{attention_check}{Score on embedded attention check task (integer).}
 #' }
 #'
-#' @source Hoogeveen, S., Sarafoglou, A., Aczel, B., et al. (2022).
-#'   A many-analysts approach to the relation between religiosity and well-being.
-#'   \emph{Religion, Brain & Behavior}. \doi{10.1080/2153599X.2023.2254980}
+#' @source Hoogeveen, S., Sarafoglou, A., van Elk, M., & Wagenmakers, E.-J.
+#'   (2022a). A many-analysts approach to the relation between religiosity and
+#'   well-being: The dataset. PsyArXiv. \doi{10.31234/osf.io/dpex6}
 #'
 #' @usage data(marp)
 #' @keywords datasets religion well-being cross-cultural reproducibility

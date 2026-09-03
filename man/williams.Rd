@@ -40,19 +40,22 @@ A data frame with 224 rows (one per participant) and 25 variables:
 }
 }
 \source{
-Williams, S. A., Galak, J., & Kruger, D. J. (2019).
-The influence of ecology on social perceptions: When wealth signals faster life history strategies.
-\emph{Evolutionary Behavioral Sciences}, 13(4), 313–325.
-\doi{10.1037/ebs0000148}
+Williams, K. E. G., Sng, O., & Neuberg, S. L. (2016). Ecology-driven
+stereotypes override race stereotypes. \emph{Proceedings of the National
+Academy of Sciences}, 113(2), 310–315. \doi{10.1073/pnas.1519401113}
 
-Data based on materials available at: \url{https://osf.io/xyz12} (replace with real link if known)
+Data released as part of a large-scale direct replication by Holzmeister,
+F., Camerer, C., Chen, Y., Dreber, A., Hoogeveen, S., Huber, J., ...
+Waldén, V. (2024, November 19). Data and Analysis. Retrieved from
+\url{https://osf.io/47drs}
 }
 \usage{
 data(williams)
 }
 \description{
-Data from a study by Williams et al. testing whether high-wealth individuals
-are perceived as having faster life history strategies (e.g., more impulsive, less invested)
+Data from a large-scale direct replication of Williams, Sng, and Neuberg
+(2016), testing whether high-wealth individuals are perceived as having
+faster life history strategies (e.g., more impulsive, less invested)
 when associated with "desperate" ecological conditions compared to "hopeful" ones.
 }
 \examples{

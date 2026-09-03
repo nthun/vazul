@@ -133,11 +133,19 @@ scramble_variables(df_items, item1:item3, .byrow = TRUE)
 
 ## Datasets
 
-### MARP Dataset  
-Many Analysts Religion Project data: 10,535 participants across 24 countries studying religiosity and well-being.
+The `vazul` package includes two research datasets for demonstration and practice.
+
+### MARP Dataset
+The `marp` dataset contains cross-national survey data on religiosity: 10,535 participants across 24 countries studying religiosity and well-being (Hoogeveen, Sarafoglou, van Elk, & Wagenmakers, 2022a).
 
 ### Williams Dataset
-Experimental study data: 112 participants examining risk-taking behavior under different wealth conditions.
+The `williams` dataset contains experimental data from the large-scale direct replication of the stereotyping study by Williams, Sng, and Neuberg (2016), released by Holzmeister et al. (2024).
+
+### Dataset References
+
+- Hoogeveen, S., Sarafoglou, A., van Elk, M., & Wagenmakers, E.-J. (2022a). A many-analysts approach to the relation between religiosity and well-being: The dataset. *PsyArXiv*. https://doi.org/10.31234/osf.io/dpex6
+- Holzmeister, F., Camerer, C., Chen, Y., Dreber, A., Hoogeveen, S., Huber, J., … Waldén, V. (2024, November 19). Data and Analysis. Retrieved from osf.io/47drs
+- Williams, K. E. G., Sng, O., & Neuberg, S. L. (2016). Ecology-driven stereotypes override race stereotypes. *Proceedings of the National Academy of Sciences*, 113(2), 310–315. https://doi.org/10.1073/pnas.1519401113
 
 ## Explanation of the package name
 
