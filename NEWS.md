@@ -1,3 +1,13 @@
+# vazul 1.2.0
+## 2026-09-04
+
+* New Feature: `mask_names()` gains a `keep_suffixes` parameter to preserve a fixed suffix (e.g. `_r` for reverse-scored items) verbatim in masked names, instead of masking it away. When multiple supplied suffixes match the same column, the longest match is kept and a warning reports the affected column(s).
+* Behavior Change: `mask_names()` now sorts masked columns alphabetically by their masked name within their original positions, so column position no longer leaks which original variable a masked name refers to. Unmasked columns keep their original positions.
+* Bug Fix: `scramble_variables()` now selects target columns by name instead of by numeric index, fixing a bug where a `.groups` column positioned before or between target columns could cause the wrong column to be scrambled.
+* Validation: `mask_names()`, `mask_variables()`, and `scramble_variables()` now reject data frames with duplicate column names with a clear error, instead of relying on inconsistent errors from underlying dependencies.
+* Documentation: Corrected the source citations for the `williams` and `marp` example datasets, and removed a placeholder OSF link.
+* Update documentation and vignettes to reflect the new `keep_suffixes` parameter.
+
 # vazul 1.1.0
 ## 2026-02-06
 

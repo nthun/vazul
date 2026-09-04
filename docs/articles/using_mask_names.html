@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Masking variable names</h1>
+      <img src="../logo.png" class="logo" alt=""><h1></h1>
 
 
 
@@ -74,7 +74,7 @@
 
 
 
-    <p>In certain studies, variable names should be masked to prevent researcher bias. Examples can include exploratory factor analysis, network analysis, etc. The <code>vazul</code> package provides means to mask variable names in a dataset, ensuring that analyses can be conducted without preconceived notions about the variables.</p>
+    <header id="title-block-header" class="quarto-title-block"><h1 class="title">Masking variable names</h1></header><p>In certain studies, variable names should be masked to prevent researcher bias. Examples can include exploratory factor analysis, network analysis, etc. The <code>vazul</code> package provides means to mask variable names in a dataset, ensuring that analyses can be conducted without preconceived notions about the variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nthun.github.io/vazul/">vazul</a></span><span class="op">)</span></span>
@@ -87,48 +87,48 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"williams"</span>, package <span class="op">=</span> <span class="st">"vazul"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 6 × 25</span></span>
+<span><span class="co">#&gt; # A tibble: 6 x 25</span></span>
 <span><span class="co">#&gt;   subject    SexUnres_1 SexUnres_2 SexUnres_3 SexUnres_4_r SexUnres_5_r Impuls_1</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;           &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 A30MP4LXV…          5          3          2            3            2        3</span></span>
-<span><span class="co">#&gt; 2 A16X5FB3H…          7          7          7            4            2        6</span></span>
-<span><span class="co">#&gt; 3 A1E9D1OT9…          2          4          6            3            3        3</span></span>
-<span><span class="co">#&gt; 4 A16FPOYD7…          5          4          5            3            3        4</span></span>
-<span><span class="co">#&gt; 5 A11NOTVHW…          5          5          6            3            3        5</span></span>
-<span><span class="co">#&gt; 6 A3TDR6MXS…          5          6          6            3            2        5</span></span>
-<span><span class="co">#&gt; # ℹ 18 more variables: Impuls_2_r &lt;dbl&gt;, Impul_3_r &lt;dbl&gt;, Opport_1 &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; 1 A30MP4LXV~          5          3          2            3            2        3</span></span>
+<span><span class="co">#&gt; 2 A16X5FB3H~          7          7          7            4            2        6</span></span>
+<span><span class="co">#&gt; 3 A1E9D1OT9~          2          4          6            3            3        3</span></span>
+<span><span class="co">#&gt; 4 A16FPOYD7~          5          4          5            3            3        4</span></span>
+<span><span class="co">#&gt; 5 A11NOTVHW~          5          5          6            3            3        5</span></span>
+<span><span class="co">#&gt; 6 A3TDR6MXS~          5          6          6            3            2        5</span></span>
+<span><span class="co">#&gt; # i 18 more variables: Impuls_2_r &lt;dbl&gt;, Impul_3_r &lt;dbl&gt;, Opport_1 &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   Opport_2 &lt;dbl&gt;, Opport_3 &lt;dbl&gt;, Opport_4 &lt;dbl&gt;, Opport_5 &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   Opport_6_r &lt;dbl&gt;, InvEdu_1_r &lt;dbl&gt;, InvEdu_2_r &lt;dbl&gt;, InvChild_1 &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   InvChild_2_r &lt;dbl&gt;, age &lt;dbl&gt;, gender &lt;dbl&gt;, ecology &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   duration_in_seconds &lt;dbl&gt;, attention_1 &lt;dbl&gt;, attention_2 &lt;dbl&gt;</span></span>
-<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/pillar/man/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">williams</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 112</span></span>
 <span><span class="co">#&gt; Columns: 25</span></span>
-<span><span class="co">#&gt; $ subject             &lt;chr&gt; "A30MP4LXV4MIFD", "A16X5FB3HAFCKN", "A1E9D1OT9VJYD…</span></span>
-<span><span class="co">#&gt; $ SexUnres_1          &lt;dbl&gt; 5, 7, 2, 5, 5, 5, 5, 4, 6, 4, 5, 3, 5, 6, 3, 6, 2,…</span></span>
-<span><span class="co">#&gt; $ SexUnres_2          &lt;dbl&gt; 3, 7, 4, 4, 5, 6, 6, 6, 5, 4, 5, 2, 5, 3, 2, 3, 1,…</span></span>
-<span><span class="co">#&gt; $ SexUnres_3          &lt;dbl&gt; 2, 7, 6, 5, 6, 6, 5, 5, 6, 4, 7, 3, 5, 3, 3, 6, 3,…</span></span>
-<span><span class="co">#&gt; $ SexUnres_4_r        &lt;dbl&gt; 3, 4, 3, 3, 3, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 3, 4,…</span></span>
-<span><span class="co">#&gt; $ SexUnres_5_r        &lt;dbl&gt; 2, 2, 3, 3, 3, 2, 4, 3, 2, 1, 2, 2, 4, 6, 3, 1, 3,…</span></span>
-<span><span class="co">#&gt; $ Impuls_1            &lt;dbl&gt; 3, 6, 3, 4, 5, 5, 5, 6, 6, 1, 6, 2, 4, 7, 5, 4, 5,…</span></span>
-<span><span class="co">#&gt; $ Impuls_2_r          &lt;dbl&gt; 3, 2, 3, 4, 2, 3, 3, 2, 3, 1, 3, 2, 3, 6, 3, 3, 7,…</span></span>
-<span><span class="co">#&gt; $ Impul_3_r           &lt;dbl&gt; 2, 1, 3, 4, 4, 3, 2, 3, 2, 1, 4, 1, 4, 5, 3, 3, 5,…</span></span>
-<span><span class="co">#&gt; $ Opport_1            &lt;dbl&gt; 1, 5, 3, 4, 4, 4, 5, 5, 5, 1, 7, 3, 5, 7, 5, 2, 6,…</span></span>
-<span><span class="co">#&gt; $ Opport_2            &lt;dbl&gt; 2, 7, 5, 4, 6, 3, 5, 4, 4, 4, 6, 4, 6, 5, 2, 3, 4,…</span></span>
-<span><span class="co">#&gt; $ Opport_3            &lt;dbl&gt; 2, 7, 5, 4, 4, 4, 6, 5, 5, 1, 7, 3, 5, 5, 5, 3, 1,…</span></span>
-<span><span class="co">#&gt; $ Opport_4            &lt;dbl&gt; 3, 6, 3, 5, 4, 6, 5, 5, 4, 4, 6, 3, 6, 4, 4, 3, 3,…</span></span>
-<span><span class="co">#&gt; $ Opport_5            &lt;dbl&gt; 1, 6, 3, 4, 5, 4, 6, 6, 4, 1, 6, 3, 6, 5, 5, 4, 6,…</span></span>
-<span><span class="co">#&gt; $ Opport_6_r          &lt;dbl&gt; 3, 2, 3, 4, 3, 3, 2, 2, 3, 2, 1, 3, 1, 6, 4, 3, 4,…</span></span>
-<span><span class="co">#&gt; $ InvEdu_1_r          &lt;dbl&gt; 2, 3, 2, 3, 4, 3, 3, 3, 3, 2, 3, 4, 4, 4, 3, 1, 6,…</span></span>
-<span><span class="co">#&gt; $ InvEdu_2_r          &lt;dbl&gt; 3, 2, 3, 4, 3, 4, 2, 3, 4, 1, 2, 2, 3, 7, 4, 1, 3,…</span></span>
-<span><span class="co">#&gt; $ InvChild_1          &lt;dbl&gt; 2, 5, 6, 5, 5, 5, 6, 5, 6, 1, 5, 2, 4, 4, 5, 2, 6,…</span></span>
-<span><span class="co">#&gt; $ InvChild_2_r        &lt;dbl&gt; 3, 2, 3, 4, 3, 4, 2, 4, 3, 2, 4, 2, 3, 7, 3, 2, 6,…</span></span>
-<span><span class="co">#&gt; $ age                 &lt;dbl&gt; 34, 30, 40, 35, 26, 33, 33, 30, 48, 33, 40, 39, 25…</span></span>
-<span><span class="co">#&gt; $ gender              &lt;dbl&gt; 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1,…</span></span>
-<span><span class="co">#&gt; $ ecology             &lt;chr&gt; "Hopeful", "Desperate", "Desperate", "Hopeful", "D…</span></span>
-<span><span class="co">#&gt; $ duration_in_seconds &lt;dbl&gt; 164, 100, 47, 31, 40, 32, 98, 34, 32, 87, 71, 103,…</span></span>
-<span><span class="co">#&gt; $ attention_1         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,…</span></span>
-<span><span class="co">#&gt; $ attention_2         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ subject             &lt;chr&gt; "A30MP4LXV4MIFD", "A16X5FB3HAFCKN", "A1E9D1OT9VJYD~</span></span>
+<span><span class="co">#&gt; $ SexUnres_1          &lt;dbl&gt; 5, 7, 2, 5, 5, 5, 5, 4, 6, 4, 5, 3, 5, 6, 3, 6, 2,~</span></span>
+<span><span class="co">#&gt; $ SexUnres_2          &lt;dbl&gt; 3, 7, 4, 4, 5, 6, 6, 6, 5, 4, 5, 2, 5, 3, 2, 3, 1,~</span></span>
+<span><span class="co">#&gt; $ SexUnres_3          &lt;dbl&gt; 2, 7, 6, 5, 6, 6, 5, 5, 6, 4, 7, 3, 5, 3, 3, 6, 3,~</span></span>
+<span><span class="co">#&gt; $ SexUnres_4_r        &lt;dbl&gt; 3, 4, 3, 3, 3, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 3, 4,~</span></span>
+<span><span class="co">#&gt; $ SexUnres_5_r        &lt;dbl&gt; 2, 2, 3, 3, 3, 2, 4, 3, 2, 1, 2, 2, 4, 6, 3, 1, 3,~</span></span>
+<span><span class="co">#&gt; $ Impuls_1            &lt;dbl&gt; 3, 6, 3, 4, 5, 5, 5, 6, 6, 1, 6, 2, 4, 7, 5, 4, 5,~</span></span>
+<span><span class="co">#&gt; $ Impuls_2_r          &lt;dbl&gt; 3, 2, 3, 4, 2, 3, 3, 2, 3, 1, 3, 2, 3, 6, 3, 3, 7,~</span></span>
+<span><span class="co">#&gt; $ Impul_3_r           &lt;dbl&gt; 2, 1, 3, 4, 4, 3, 2, 3, 2, 1, 4, 1, 4, 5, 3, 3, 5,~</span></span>
+<span><span class="co">#&gt; $ Opport_1            &lt;dbl&gt; 1, 5, 3, 4, 4, 4, 5, 5, 5, 1, 7, 3, 5, 7, 5, 2, 6,~</span></span>
+<span><span class="co">#&gt; $ Opport_2            &lt;dbl&gt; 2, 7, 5, 4, 6, 3, 5, 4, 4, 4, 6, 4, 6, 5, 2, 3, 4,~</span></span>
+<span><span class="co">#&gt; $ Opport_3            &lt;dbl&gt; 2, 7, 5, 4, 4, 4, 6, 5, 5, 1, 7, 3, 5, 5, 5, 3, 1,~</span></span>
+<span><span class="co">#&gt; $ Opport_4            &lt;dbl&gt; 3, 6, 3, 5, 4, 6, 5, 5, 4, 4, 6, 3, 6, 4, 4, 3, 3,~</span></span>
+<span><span class="co">#&gt; $ Opport_5            &lt;dbl&gt; 1, 6, 3, 4, 5, 4, 6, 6, 4, 1, 6, 3, 6, 5, 5, 4, 6,~</span></span>
+<span><span class="co">#&gt; $ Opport_6_r          &lt;dbl&gt; 3, 2, 3, 4, 3, 3, 2, 2, 3, 2, 1, 3, 1, 6, 4, 3, 4,~</span></span>
+<span><span class="co">#&gt; $ InvEdu_1_r          &lt;dbl&gt; 2, 3, 2, 3, 4, 3, 3, 3, 3, 2, 3, 4, 4, 4, 3, 1, 6,~</span></span>
+<span><span class="co">#&gt; $ InvEdu_2_r          &lt;dbl&gt; 3, 2, 3, 4, 3, 4, 2, 3, 4, 1, 2, 2, 3, 7, 4, 1, 3,~</span></span>
+<span><span class="co">#&gt; $ InvChild_1          &lt;dbl&gt; 2, 5, 6, 5, 5, 5, 6, 5, 6, 1, 5, 2, 4, 4, 5, 2, 6,~</span></span>
+<span><span class="co">#&gt; $ InvChild_2_r        &lt;dbl&gt; 3, 2, 3, 4, 3, 4, 2, 4, 3, 2, 4, 2, 3, 7, 3, 2, 6,~</span></span>
+<span><span class="co">#&gt; $ age                 &lt;dbl&gt; 34, 30, 40, 35, 26, 33, 33, 30, 48, 33, 40, 39, 25~</span></span>
+<span><span class="co">#&gt; $ gender              &lt;dbl&gt; 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1,~</span></span>
+<span><span class="co">#&gt; $ ecology             &lt;chr&gt; "Hopeful", "Desperate", "Desperate", "Hopeful", "D~</span></span>
+<span><span class="co">#&gt; $ duration_in_seconds &lt;dbl&gt; 164, 100, 47, 31, 40, 32, 98, 34, 32, 87, 71, 103,~</span></span>
+<span><span class="co">#&gt; $ attention_1         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0,~</span></span>
+<span><span class="co">#&gt; $ attention_2         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,~</span></span></code></pre></div>
 </div>
 <p>We will apply masking to the variables related to life history strategy, which are prefixed with <code>SexUnres</code>, <code>Impuls</code>, <code>Opport</code>, <code>InvEdu</code>, and <code>InvChild</code>. We’ll mask each variable group separately with randomized letter prefixes (e.g., <code>C_01</code>, <code>A_01</code>, <code>E_01</code>, etc.). This way, variables within the same original scale keep a common prefix for the analysis, but analysts won’t know which prefix corresponds to which original scale due to the randomization.</p>
 <div class="cell">
@@ -140,11 +140,11 @@
 <span></span>
 <span><span class="va">masked_williams</span> <span class="op">&lt;-</span></span>
 <span>    <span class="va">williams</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"SexUnres"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Impul"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Opport"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvEdu"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvChild"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"SexUnres"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Impul"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"Opport"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvEdu"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"InvChild"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="va">random_prefixes</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Show the randomized prefixes used (but not which corresponds to which)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"_.*"</span>, <span class="st">"_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^[A-Z]_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">masked_williams</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -157,7 +157,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">efa_blind</span> <span class="op">&lt;-</span></span>
 <span>    <span class="va">masked_williams</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">matches</a></span><span class="op">(</span><span class="st">"^[A-Z]_"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">matches</a></span><span class="op">(</span><span class="st">"^[A-Z]_"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/factanal.html" class="external-link">factanal</a></span><span class="op">(</span>factors <span class="op">=</span> <span class="fl">5</span>, rotation <span class="op">=</span> <span class="st">"varimax"</span><span class="op">)</span></span>
 <span>    </span>
 <span><span class="co"># Get the loadings of the EFA on the masked data</span></span>
@@ -167,23 +167,23 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Loadings:</span></span>
 <span><span class="co">#&gt;      Factor1 Factor2 Factor3 Factor4 Factor5</span></span>
-<span><span class="co">#&gt; S_05  0.666           0.472                 </span></span>
-<span><span class="co">#&gt; S_03  0.701                                 </span></span>
 <span><span class="co">#&gt; S_01  0.749           0.331                 </span></span>
+<span><span class="co">#&gt; S_03  0.701                                 </span></span>
+<span><span class="co">#&gt; S_05  0.666           0.472                 </span></span>
 <span><span class="co">#&gt; V_01  0.762                                 </span></span>
-<span><span class="co">#&gt; P_03  0.893                                 </span></span>
-<span><span class="co">#&gt; P_06  0.834                                 </span></span>
 <span><span class="co">#&gt; P_01  0.870                                 </span></span>
+<span><span class="co">#&gt; P_03  0.893                                 </span></span>
 <span><span class="co">#&gt; P_04  0.758                                 </span></span>
 <span><span class="co">#&gt; P_05  0.853                                 </span></span>
+<span><span class="co">#&gt; P_06  0.834                                 </span></span>
 <span><span class="co">#&gt; L_01  0.766                                 </span></span>
-<span><span class="co">#&gt; S_04          0.735   0.335                 </span></span>
 <span><span class="co">#&gt; S_02          0.567           0.425         </span></span>
+<span><span class="co">#&gt; S_04          0.735   0.335                 </span></span>
 <span><span class="co">#&gt; V_02          0.867                         </span></span>
 <span><span class="co">#&gt; V_03          0.746                         </span></span>
 <span><span class="co">#&gt; P_02          0.715                         </span></span>
-<span><span class="co">#&gt; Y_02          0.699                         </span></span>
 <span><span class="co">#&gt; Y_01          0.839                         </span></span>
+<span><span class="co">#&gt; Y_02          0.699                         </span></span>
 <span><span class="co">#&gt; L_02          0.852                         </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                Factor1 Factor2 Factor3 Factor4 Factor5</span></span>
@@ -193,12 +193,121 @@
 </div>
 <p>The loading table shows that factors are not necessarily loading to their original category. By using masking, researchers may be able to make decisions without being biased on the variable names.</p>
 <p>Applying the same analysis on the original dataset reveals the names of the variables. Please note that the loadings may differ slightly due to the randomness in the factor analysis process.</p>
+<section class="section level3"><h3 id="preserving-a-fixed-suffix-with-keep_suffixes">Preserving a fixed suffix with <code>keep_suffixes</code>
+<a class="anchor" aria-label="anchor" href="#preserving-a-fixed-suffix-with-keep_suffixes"></a>
+</h3>
+<p>Some of the <code>williams</code> columns end in <code>_r</code>, marking items that are reverse-scored (e.g. <code>SexUnres_4_r</code>, <code>Impuls_2_r</code>). That suffix is not itself sensitive information to hide — it is a fixed analysis-relevant tag that a researcher needs to see in order to reverse-code the item correctly before scoring, even while the rest of the name stays masked. By default, <code><a href="../reference/mask_names.html">mask_names()</a></code> masks the suffix away along with everything else, so <code>SexUnres_4_r</code> becomes an opaque <code>C_02</code> with no indication that it needs to be reverse-coded.</p>
+<p>The <code>keep_suffixes</code> argument preserves one or more literal suffixes verbatim in the masked name, so the reverse-coding information survives masking:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">84</span><span class="op">)</span></span>
+<span><span class="va">masked_with_suffix</span> <span class="op">&lt;-</span></span>
+<span>    <span class="va">williams</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/mask_names.html">mask_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"SexUnres"</span><span class="op">)</span>, prefix <span class="op">=</span> <span class="st">"C_"</span>, keep_suffixes <span class="op">=</span> <span class="st">"_r"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">masked_with_suffix</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/tidyselect/man/starts_with.html" class="external-link">matches</a></span><span class="op">(</span><span class="st">"^C_"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "C_01_r" "C_02"   "C_03"   "C_04"   "C_05_r"</span></span></code></pre></div>
+</div>
+<p>Notice that the two reverse-scored columns keep their <code>_r</code> suffix (e.g. <code>C_01_r</code>) while the rest of the name is masked as usual, and that masked columns are also sorted alphabetically by their masked name. If more than one supplied suffix could match the same column, the longest match is kept and <code><a href="../reference/mask_names.html">mask_names()</a></code> issues a warning naming the affected column(s).</p>
+<p><code>keep_suffixes</code> covers the common case of a single, fixed suffix that should always be preserved literally (not remapped to a randomized label). When <em>both</em> the prefix and the suffix carry meaning that must be masked - but consistently, so the same value always maps to the same masked label - the long-format approach shown next is the right tool instead.</p>
+</section><section class="section level3"><h3 id="masking-names-with-meaningful-prefixes-and-suffixes">Masking names with meaningful prefixes <em>and</em> suffixes<a class="anchor" aria-label="anchor" href="#masking-names-with-meaningful-prefixes-and-suffixes"></a>
+</h3>
+<p>Sometimes both the prefix and the suffix of a set of column names carry meaning that should stay consistent across columns. For example, <code>exp_pre</code>, <code>exp_post</code>, <code>ctl_pre</code>, and <code>ctl_post</code> encode both an experimental condition (<code>exp</code>/<code>ctl</code>) and a measurement occasion (<code>pre</code>/<code>post</code>).</p>
+<p>Masking these names directly with repeated <code><a href="../reference/mask_names.html">mask_names()</a></code> calls, as above, does not preserve that consistency: each call assigns new labels independently, so there is no guarantee that, say, <code>pre</code> is masked to the same label in the <code>exp_</code> columns as in the <code>ctl_</code> columns. In this situation we recommend reshaping the data to long format first, so that the condition and occasion information become <em>values</em> in their own columns rather than fragments of the column names. <code><a href="../reference/mask_variables.html">mask_variables()</a></code> can then mask those columns directly, which guarantees that a given value (e.g. <code>"exp"</code> or <code>"pre"</code>) is always mapped to the same masked label everywhere it occurs. If a wide format is required for the confirmatory analysis, the masked data can be reshaped back afterward.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">wide_demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,</span>
+<span>  exp_pre <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">12</span>, <span class="fl">9</span>, <span class="fl">11</span><span class="op">)</span>,</span>
+<span>  exp_post <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">14</span>, <span class="fl">13</span>, <span class="fl">16</span><span class="op">)</span>,</span>
+<span>  ctl_pre <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">7</span><span class="op">)</span>,</span>
+<span>  ctl_post <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">9</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">wide_demo</span></span>
+<span><span class="co">#&gt;   id exp_pre exp_post ctl_pre ctl_post</span></span>
+<span><span class="co">#&gt; 1  1      10       15       8        9</span></span>
+<span><span class="co">#&gt; 2  2      12       14       9       10</span></span>
+<span><span class="co">#&gt; 3  3       9       13      10       11</span></span>
+<span><span class="co">#&gt; 4  4      11       16       7        8</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 1) Reshape to long format, splitting the column names into</span></span>
+<span><span class="co">#    a `condition` and a `time` variable</span></span>
+<span><span class="va">long_demo</span> <span class="op">&lt;-</span> <span class="va">wide_demo</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidyr/man/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
+<span>    cols <span class="op">=</span> <span class="op">-</span><span class="va">id</span>,</span>
+<span>    names_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"time"</span><span class="op">)</span>,</span>
+<span>    names_sep <span class="op">=</span> <span class="st">"_"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">long_demo</span></span>
+<span><span class="co">#&gt; # A tibble: 16 x 4</span></span>
+<span><span class="co">#&gt;       id condition time  value</span></span>
+<span><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1     1 exp       pre      10</span></span>
+<span><span class="co">#&gt;  2     1 exp       post     15</span></span>
+<span><span class="co">#&gt;  3     1 ctl       pre       8</span></span>
+<span><span class="co">#&gt;  4     1 ctl       post      9</span></span>
+<span><span class="co">#&gt;  5     2 exp       pre      12</span></span>
+<span><span class="co">#&gt;  6     2 exp       post     14</span></span>
+<span><span class="co">#&gt;  7     2 ctl       pre       9</span></span>
+<span><span class="co">#&gt;  8     2 ctl       post     10</span></span>
+<span><span class="co">#&gt;  9     3 exp       pre       9</span></span>
+<span><span class="co">#&gt; 10     3 exp       post     13</span></span>
+<span><span class="co">#&gt; 11     3 ctl       pre      10</span></span>
+<span><span class="co">#&gt; 12     3 ctl       post     11</span></span>
+<span><span class="co">#&gt; 13     4 exp       pre      11</span></span>
+<span><span class="co">#&gt; 14     4 exp       post     16</span></span>
+<span><span class="co">#&gt; 15     4 ctl       pre       7</span></span>
+<span><span class="co">#&gt; 16     4 ctl       post      8</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 2) Mask the condition and time variables. Each variable keeps its own,</span></span>
+<span><span class="co">#    internally consistent mapping (every "exp" becomes the same masked</span></span>
+<span><span class="co">#    label, every "pre" becomes the same masked label, and so on).</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2024</span><span class="op">)</span></span>
+<span><span class="va">long_masked</span> <span class="op">&lt;-</span> <span class="va">long_demo</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/mask_variables.html">mask_variables</a></span><span class="op">(</span><span class="va">condition</span>, <span class="va">time</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">long_masked</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">condition</span>, <span class="va">time</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 4 x 3</span></span>
+<span><span class="co">#&gt;   condition          time              n</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;              &lt;chr&gt;         &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1 condition_group_01 time_group_01     4</span></span>
+<span><span class="co">#&gt; 2 condition_group_01 time_group_02     4</span></span>
+<span><span class="co">#&gt; 3 condition_group_02 time_group_01     4</span></span>
+<span><span class="co">#&gt; 4 condition_group_02 time_group_02     4</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 3) Reshape back to wide format if a wide layout is needed for analysis</span></span>
+<span><span class="va">long_masked</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidyr/man/unite.html" class="external-link">unite</a></span><span class="op">(</span><span class="va">masked_name</span>, <span class="va">condition</span>, <span class="va">time</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidyr/man/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">masked_name</span>, values_from <span class="op">=</span> <span class="va">value</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 4 x 5</span></span>
+<span><span class="co">#&gt;      id condition_group_02_time_~1 condition_group_02_t~2 condition_group_01_t~3</span></span>
+<span><span class="co">#&gt;   &lt;int&gt;                      &lt;dbl&gt;                  &lt;dbl&gt;                  &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1     1                         10                     15                      8</span></span>
+<span><span class="co">#&gt; 2     2                         12                     14                      9</span></span>
+<span><span class="co">#&gt; 3     3                          9                     13                     10</span></span>
+<span><span class="co">#&gt; 4     4                         11                     16                      7</span></span>
+<span><span class="co">#&gt; # i abbreviated names: 1: condition_group_02_time_group_01,</span></span>
+<span><span class="co">#&gt; #   2: condition_group_02_time_group_02, 3: condition_group_01_time_group_01</span></span>
+<span><span class="co">#&gt; # i 1 more variable: condition_group_01_time_group_02 &lt;dbl&gt;</span></span></code></pre></div>
+</div>
+<p>Because masking is applied to <code>condition</code> and <code>time</code> as data values rather than as fragments of the column names, the masked labels for <code>"exp"</code>/<code>"ctl"</code> and <code>"pre"</code>/<code>"post"</code> are consistent across every column, both before and after reshaping. We recommend this long-format workflow whenever meaningful prefixes and suffixes both need to be masked; <code><a href="../reference/mask_names.html">mask_names()</a></code> remains the simpler choice when only a single, non-overlapping piece of the name needs masking, and <code>mask_names(..., keep_suffixes = ...)</code> covers the case of a fixed literal suffix that should be preserved as-is rather than masked (see above).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">efa_orig</span> <span class="op">&lt;-</span></span>
 <span>    <span class="va">williams</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">SexUnres_1</span><span class="op">:</span><span class="va">InvChild_2_r</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">SexUnres_1</span><span class="op">:</span><span class="va">InvChild_2_r</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/factanal.html" class="external-link">factanal</a></span><span class="op">(</span>factors <span class="op">=</span> <span class="fl">5</span>, rotation <span class="op">=</span> <span class="st">"varimax"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Get the loadings of the EFA on the original data</span></span>
@@ -233,93 +342,109 @@
 <span><span class="co">#&gt; Proportion Var   0.355   0.267   0.040   0.019   0.016</span></span>
 <span><span class="co">#&gt; Cumulative Var   0.355   0.623   0.663   0.682   0.698</span></span></code></pre></div>
 </div>
-
-
-
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-        }
-      }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
-        },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'light-border',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config);
+</section><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
     }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
         }
-      } else {
-        return undefined;
       }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'light-border',
+      placement: 'bottom-start',
     };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
+    if (contentFn) {
+      config.content = contentFn;
     }
-  });
-  </script></main>
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config);
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
@@ -328,7 +453,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.9000.</p>
 </div>
 
     </footer>

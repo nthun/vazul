@@ -5,57 +5,66 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="The vazul package provides functions for data blinding.">
 <title>vazul • vazul</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" sizes="any" href="favicon.ico">
-<link rel="manifest" href="site.webmanifest">
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="vazul">
-<meta name="description" content="The vazul package provides functions for data blinding.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="vazul">
 <meta property="og:description" content="The vazul package provides functions for data blinding.">
 <meta property="og:image" content="https://nthun.github.io/vazul/logo.png">
+<!-- mathjax --><script src="file:///usr/share/javascript/mathjax/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
+    
 
-
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
-
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    
     <a class="navbar-brand me-2" href="index.html">vazul</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
-
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/data_blinding_functions.html">Data Blinding with vazul</a></li>
-    <li><a class="dropdown-item" href="articles/using_mask_names.html">Masking variable names</a></li>
-  </ul>
+<li class="nav-item">
+  <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
-<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
+<li class="nav-item">
+  <a class="nav-link" href="news/index.html">Changelog</a>
+</li>
       </ul>
-<ul class="navbar-nav">
-<li class="nav-item"><form class="form-inline" role="search">
- <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
-</form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/nthun/vazul/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/nthun/vazul/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
 </div>
 
-
+    
   </div>
 </nav><div class="container template-home">
 <div class="row">
@@ -88,7 +97,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"vazul"</span><span class="op">)</span></span></code></pre></div>
 <p>Or the development version from GitHub with:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"nthun/vazul"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nthun/vazul"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
@@ -175,7 +184,7 @@
 <span></span>
 <span><span class="co"># Using dplyr grouping</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">df</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/scramble_variables.html">scramble_variables</a></span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="row-wise-scrambling-use-byrow--true-to-shuffle-values-within-each-row-across-the-selected-columns">Row-wise scrambling: Use <code>.byrow = TRUE</code> to shuffle values within each row across the selected columns.<a class="anchor" aria-label="anchor" href="#row-wise-scrambling-use-byrow--true-to-shuffle-values-within-each-row-across-the-selected-columns"></a>
@@ -195,15 +204,27 @@
 <div class="section level2">
 <h2 id="datasets">Datasets<a class="anchor" aria-label="anchor" href="#datasets"></a>
 </h2>
+<p>The <code>vazul</code> package includes two research datasets for demonstration and practice.</p>
 <div class="section level3">
 <h3 id="marp-dataset">MARP Dataset<a class="anchor" aria-label="anchor" href="#marp-dataset"></a>
 </h3>
-<p>Many Analysts Religion Project data: 10,535 participants across 24 countries studying religiosity and well-being.</p>
+<p>The <code>marp</code> dataset contains cross-national survey data on religiosity: 10,535 participants across 24 countries studying religiosity and well-being (Hoogeveen, Sarafoglou, van Elk, &amp; Wagenmakers, 2022a).</p>
 </div>
 <div class="section level3">
 <h3 id="williams-dataset">Williams Dataset<a class="anchor" aria-label="anchor" href="#williams-dataset"></a>
 </h3>
-<p>Experimental study data: 112 participants examining risk-taking behavior under different wealth conditions.</p>
+<p>The <code>williams</code> dataset contains experimental data from the large-scale direct replication of the stereotyping study by Williams, Sng, and Neuberg (2016), released by Holzmeister et al. (2024).</p>
+</div>
+<div class="section level3">
+<h3 id="dataset-references">Dataset References<a class="anchor" aria-label="anchor" href="#dataset-references"></a>
+</h3>
+<ul>
+<li>Hoogeveen, S., Sarafoglou, A., van Elk, M., &amp; Wagenmakers, E.-J. (2022a). A many-analysts approach to the relation between religiosity and well-being: The dataset. <em>PsyArXiv</em>. <a href="https://doi.org/10.31234/osf.io/dpex6" class="external-link uri">https://doi.org/10.31234/osf.io/dpex6</a>
+</li>
+<li>Holzmeister, F., Camerer, C., Chen, Y., Dreber, A., Hoogeveen, S., Huber, J., … Waldén, V. (2024, November 19). Data and Analysis. Retrieved from osf.io/47drs</li>
+<li>Williams, K. E. G., Sng, O., &amp; Neuberg, S. L. (2016). Ecology-driven stereotypes override race stereotypes. <em>Proceedings of the National Academy of Sciences</em>, 113(2), 310–315. <a href="https://doi.org/10.1073/pnas.1519401113" class="external-link uri">https://doi.org/10.1073/pnas.1519401113</a>
+</li>
+</ul>
 </div>
 </div>
 <div class="section level2">
@@ -247,7 +268,6 @@
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://cloud.r-project.org/package=vazul" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/nthun/vazul/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/nthun/vazul/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -272,9 +292,9 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Tamás Nagy <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-5244-0356" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Alexandra Sarafoglou <br><small class="roles"> Author, data contributor </small> <a href="https://orcid.org/0000-0003-0031-685X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Márton Kovács <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-8142-8492" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Tamás Nagy <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-5244-0356" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Alexandra Sarafoglou <br><small class="roles"> Author, data contributor </small> <a href="https://orcid.org/0000-0003-0031-685X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Márton Kovács <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-8142-8492" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
@@ -293,19 +313,21 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Tamás Nagy, Alexandra Sarafoglou, Márton Kovács.</p>
+  <p></p>
+<p>Developed by Tamás Nagy, Alexandra Sarafoglou, Márton Kovács.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
     </footer>
 </div>
 
+  
 
-
-
+  
 
   </body>
 </html>

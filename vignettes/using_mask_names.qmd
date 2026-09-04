@@ -76,6 +76,39 @@ The loading table shows that factors are not necessarily loading to their origin
 
 Applying the same analysis on the original dataset reveals the names of the variables. Please note that the loadings may differ slightly due to the randomness in the factor analysis process.
 
+## Preserving a fixed suffix with `keep_suffixes`
+
+Some of the `williams` columns end in `_r`, marking items that are reverse-scored (e.g.
+`SexUnres_4_r`, `Impuls_2_r`). That suffix is not itself sensitive information to hide — it is
+a fixed analysis-relevant tag that a researcher needs to see in order to reverse-code the item
+correctly before scoring, even while the rest of the name stays masked. By default, `mask_names()`
+masks the suffix away along with everything else, so `SexUnres_4_r` becomes an opaque `C_02`
+with no indication that it needs to be reverse-coded.
+
+The `keep_suffixes` argument preserves one or more literal suffixes verbatim in the masked name,
+so the reverse-coding information survives masking:
+
+```{r}
+set.seed(84)
+masked_with_suffix <-
+    williams |>
+    mask_names(starts_with("SexUnres"), prefix = "C_", keep_suffixes = "_r")
+
+masked_with_suffix |>
+    select(matches("^C_")) |>
+    names()
+```
+
+Notice that the two reverse-scored columns keep their `_r` suffix (e.g. `C_01_r`) while the
+rest of the name is masked as usual, and that masked columns are also sorted alphabetically by
+their masked name. If more than one supplied suffix could match the same column, the longest
+match is kept and `mask_names()` issues a warning naming the affected column(s).
+
+`keep_suffixes` covers the common case of a single, fixed suffix that should always be preserved
+literally (not remapped to a randomized label). When *both* the prefix and the suffix carry
+meaning that must be masked - but consistently, so the same value always maps to the same masked
+label - the long-format approach shown next is the right tool instead.
+
 ## Masking names with meaningful prefixes *and* suffixes
 
 Sometimes both the prefix and the suffix of a set of column names carry meaning that should
@@ -141,7 +174,9 @@ Because masking is applied to `condition` and `time` as data values rather than 
 of the column names, the masked labels for `"exp"`/`"ctl"` and `"pre"`/`"post"` are consistent
 across every column, both before and after reshaping. We recommend this long-format workflow
 whenever meaningful prefixes and suffixes both need to be masked; `mask_names()` remains the
-simpler choice when only a single, non-overlapping piece of the name needs masking (see above).
+simpler choice when only a single, non-overlapping piece of the name needs masking, and
+`mask_names(..., keep_suffixes = ...)` covers the case of a fixed literal suffix that should
+be preserved as-is rather than masked (see above).
 
 ```{r}
 set.seed(123)
