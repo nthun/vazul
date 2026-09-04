@@ -210,10 +210,13 @@ test_that("scramble_variables validates input correctly", {
         fixed = FALSE  # Allow partial match
     )
 
-    # Test invalid column indices — tidyselect handles this too
+    # Test invalid column indices — tidyselect handles this too.
+    # Match on "past the end" rather than the exact verb ("select"/"subset")
+    # tidyselect uses in its internal message, since that wording has changed
+    # between tidyselect versions.
     expect_error(
         scramble_variables(df, 10),  # Column 10 doesn't exist
-        "Can't select columns past the end.",
+        "past the end",
         fixed = FALSE  # Allow partial match
     )
 })
