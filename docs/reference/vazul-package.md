@@ -24,6 +24,9 @@ Useful links:
 
 Authors:
 
+- Tamás Nagy <nagytamas.hungary@gmail.com>
+  ([ORCID](https://orcid.org/0000-0001-5244-0356))
+
 - Alexandra Sarafoglou <alexandra.sarafoglou@gmail.com>
   ([ORCID](https://orcid.org/0000-0003-0031-685X)) \[data contributor\]
 

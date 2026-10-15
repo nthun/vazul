@@ -68,8 +68,9 @@ table(williams$ecology)         # Should show "Desperate: 56, Hopeful: 56"
 
 - **ALWAYS run the complete testing scenario above** after making any
   changes to verify functionality.
-- **ALWAYS run `lintr::lint_package()`** before committing changes to
-  check code style.
+- **ALWAYS run
+  [`lintr::lint_package()`](https://lintr.r-lib.org/reference/lint.html)**
+  before committing changes to check code style.
 - **ALWAYS run `R CMD check <tarball> --no-manual`** to validate package
   structure and documentation.
 - The package can be built and installed successfully, but:

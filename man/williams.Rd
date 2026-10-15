@@ -5,15 +5,15 @@
 \alias{williams}
 \title{Stereotyping of high-wealth individuals across ecologies}
 \format{
-A data frame with 224 rows (one per participant) and 25 variables:
+A data frame with 112 rows (one per participant) and 25 variables:
 \describe{
 \item{subject}{Unique subject identifier (integer).}
 \item{ecology}{Experimental condition: \code{"Desperate"} or \code{"Hopeful"} (character).}
 \item{age}{Participant's age in years (numeric).}
 \item{gender}{Self-reported gender: 1 = Male, 2 = Female (numeric); may be recoded as factor.}
 \item{duration_in_seconds}{Time taken to complete the survey (numeric).}
-\item{attention_1}{First attention check response: 1 = correct, 0 = incorrect (numeric).}
-\item{attention_2}{Second attention check response: 1 = correct, 0 = incorrect (numeric).}
+\item{attention_1}{First attention check response: 1 = correct, 0 = incorrect (numeric). Simulated for illustrative purposes; not actual participant responses.}
+\item{attention_2}{Second attention check response: 1 = correct, 0 = incorrect (numeric). Simulated for illustrative purposes; not actual participant responses.}
 
 \item{SexUnres_1}{Perceived sexual unrestrictedness: "likely to have short-term relationships" (1–7 Likert).}
 \item{SexUnres_2}{"likely to engage in casual sex" (1–7).}
@@ -57,6 +57,12 @@ Data from a large-scale direct replication of Williams, Sng, and Neuberg
 (2016), testing whether high-wealth individuals are perceived as having
 faster life history strategies (e.g., more impulsive, less invested)
 when associated with "desperate" ecological conditions compared to "hopeful" ones.
+}
+\details{
+Note that the \code{attention_1} and \code{attention_2} columns are not
+part of the original data. They contain simulated responses that were added
+by the package authors for illustrative purposes only, and do not reflect
+actual participant responses.
 }
 \examples{
 data(williams)

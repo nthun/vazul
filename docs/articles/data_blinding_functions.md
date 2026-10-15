@@ -646,13 +646,13 @@ williams_blinded |>
 
 The `vazul` package provides a comprehensive toolkit for data blinding:
 
-| Function | Level | Purpose |
-|----|----|----|
-| [`mask_labels()`](https://nthun.github.io/vazul/reference/mask_labels.md) | Vector | Replace categorical values with anonymous labels |
-| [`mask_variables()`](https://nthun.github.io/vazul/reference/mask_variables.md) | Data frame | Mask multiple columns |
-| [`scramble_values()`](https://nthun.github.io/vazul/reference/scramble_values.md) | Vector | Randomize value order |
-| [`scramble_variables()`](https://nthun.github.io/vazul/reference/scramble_variables.md) | Data frame | Scramble multiple columns |
-| `scramble_variables(..., .byrow = TRUE)` | Row-wise | Scramble values within rows |
+| Function                                                                                | Level      | Purpose                                          |
+|-----------------------------------------------------------------------------------------|------------|--------------------------------------------------|
+| [`mask_labels()`](https://nthun.github.io/vazul/reference/mask_labels.md)               | Vector     | Replace categorical values with anonymous labels |
+| [`mask_variables()`](https://nthun.github.io/vazul/reference/mask_variables.md)         | Data frame | Mask multiple columns                            |
+| [`scramble_values()`](https://nthun.github.io/vazul/reference/scramble_values.md)       | Vector     | Randomize value order                            |
+| [`scramble_variables()`](https://nthun.github.io/vazul/reference/scramble_variables.md) | Data frame | Scramble multiple columns                        |
+| `scramble_variables(..., .byrow = TRUE)`                                                | Row-wise   | Scramble values within rows                      |
 
 These functions help researchers conduct unbiased analyses by separating
 the analyst from knowledge about treatment conditions, group

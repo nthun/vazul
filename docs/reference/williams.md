@@ -1,9 +1,10 @@
 # Stereotyping of high-wealth individuals across ecologies
 
-Data from a study by Williams et al. testing whether high-wealth
-individuals are perceived as having faster life history strategies
-(e.g., more impulsive, less invested) when associated with "desperate"
-ecological conditions compared to "hopeful" ones.
+Data from a large-scale direct replication of Williams, Sng, and Neuberg
+(2016), testing whether high-wealth individuals are perceived as having
+faster life history strategies (e.g., more impulsive, less invested)
+when associated with "desperate" ecological conditions compared to
+"hopeful" ones.
 
 ## Usage
 
@@ -13,7 +14,7 @@ data(williams)
 
 ## Format
 
-A data frame with 224 rows (one per participant) and 25 variables:
+A data frame with 112 rows (one per participant) and 25 variables:
 
 - subject:
 
@@ -39,10 +40,12 @@ A data frame with 224 rows (one per participant) and 25 variables:
 - attention_1:
 
   First attention check response: 1 = correct, 0 = incorrect (numeric).
+  Simulated for illustrative purposes; not actual participant responses.
 
 - attention_2:
 
   Second attention check response: 1 = correct, 0 = incorrect (numeric).
+  Simulated for illustrative purposes; not actual participant responses.
 
 - SexUnres_1:
 
@@ -119,13 +122,22 @@ A data frame with 224 rows (one per participant) and 25 variables:
 
 ## Source
 
-Williams, S. A., Galak, J., & Kruger, D. J. (2019). The influence of
-ecology on social perceptions: When wealth signals faster life history
-strategies. *Evolutionary Behavioral Sciences*, 13(4), 313–325.
-[doi:10.1037/ebs0000148](https://doi.org/10.1037/ebs0000148)
+Williams, K. E. G., Sng, O., & Neuberg, S. L. (2016). Ecology-driven
+stereotypes override race stereotypes. *Proceedings of the National
+Academy of Sciences*, 113(2), 310–315.
+[doi:10.1073/pnas.1519401113](https://doi.org/10.1073/pnas.1519401113)
 
-Data based on materials available at: <https://osf.io/xyz12> (replace
-with real link if known)
+Data released as part of a large-scale direct replication by
+Holzmeister, F., Camerer, C., Chen, Y., Dreber, A., Hoogeveen, S.,
+Huber, J., ... Waldén, V. (2024, November 19). Data and Analysis.
+Retrieved from <https://osf.io/47drs>
+
+## Details
+
+Note that the `attention_1` and `attention_2` columns are not part of
+the original data. They contain simulated responses that were added by
+the package authors for illustrative purposes only, and do not reflect
+actual participant responses.
 
 ## Examples
 
@@ -214,7 +226,7 @@ str(williams)
 #>   .. ..- attr(*, "class")= chr [1:2] "collector_guess" "collector"
 #>   ..$ delim  : chr ";"
 #>   ..- attr(*, "class")= chr "col_spec"
-#>  - attr(*, "problems")=<externalptr> 
+#>  - attr(*, "problems")=<pointer: (nil)> 
 table(williams$ecology)
 #> 
 #> Desperate   Hopeful 

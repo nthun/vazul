@@ -204,21 +204,21 @@ A data frame with 10,535 rows (participants) and 48 variables:
 
 ## Source
 
-Hoogeveen, S., Sarafoglou, A., Aczel, B., et al. (2022). A many-analysts
-approach to the relation between religiosity and well-being. *Religion,
-Brain & Behavior*.
-[doi:10.1080/2153599X.2023.2254980](https://doi.org/10.1080/2153599X.2023.2254980)
+Hoogeveen, S., Sarafoglou, A., van Elk, M., & Wagenmakers, E.-J.
+(2022a). A many-analysts approach to the relation between religiosity
+and well-being: The dataset. PsyArXiv.
+[doi:10.31234/osf.io/dpex6](https://doi.org/10.31234/osf.io/dpex6)
 
 ## Examples
 
 ``` r
 library(dplyr)
 #> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
+#> Attaching package: ‘dplyr’
+#> The following objects are masked from ‘package:stats’:
 #> 
 #>     filter, lag
-#> The following objects are masked from 'package:base':
+#> The following objects are masked from ‘package:base’:
 #> 
 #>     intersect, setdiff, setequal, union
 data(marp)

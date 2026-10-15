@@ -110,23 +110,23 @@ efa_blind |>
 #> 
 #> Loadings:
 #>      Factor1 Factor2 Factor3 Factor4 Factor5
-#> S_05  0.666           0.472                 
-#> S_03  0.701                                 
 #> S_01  0.749           0.331                 
+#> S_03  0.701                                 
+#> S_05  0.666           0.472                 
 #> V_01  0.762                                 
-#> P_03  0.893                                 
-#> P_06  0.834                                 
 #> P_01  0.870                                 
+#> P_03  0.893                                 
 #> P_04  0.758                                 
 #> P_05  0.853                                 
+#> P_06  0.834                                 
 #> L_01  0.766                                 
-#> S_04          0.735   0.335                 
 #> S_02          0.567           0.425         
+#> S_04          0.735   0.335                 
 #> V_02          0.867                         
 #> V_03          0.746                         
 #> P_02          0.715                         
-#> Y_02          0.699                         
 #> Y_01          0.839                         
+#> Y_02          0.699                         
 #> L_02          0.852                         
 #> 
 #>                Factor1 Factor2 Factor3 Factor4 Factor5
@@ -142,6 +142,168 @@ make decisions without being biased on the variable names.
 Applying the same analysis on the original dataset reveals the names of
 the variables. Please note that the loadings may differ slightly due to
 the randomness in the factor analysis process.
+
+## Preserving a fixed suffix with `keep_suffixes`
+
+Some of the `williams` columns end in `_r`, marking items that are
+reverse-scored (e.g. `SexUnres_4_r`, `Impuls_2_r`). That suffix is not
+itself sensitive information to hide — it is a fixed analysis-relevant
+tag that a researcher needs to see in order to reverse-code the item
+correctly before scoring, even while the rest of the name stays masked.
+By default,
+[`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
+masks the suffix away along with everything else, so `SexUnres_4_r`
+becomes an opaque `C_02` with no indication that it needs to be
+reverse-coded.
+
+The `keep_suffixes` argument preserves one or more literal suffixes
+verbatim in the masked name, so the reverse-coding information survives
+masking:
+
+``` r
+set.seed(84)
+masked_with_suffix <-
+    williams |>
+    mask_names(starts_with("SexUnres"), prefix = "C_", keep_suffixes = "_r")
+
+masked_with_suffix |>
+    select(matches("^C_")) |>
+    names()
+#> [1] "C_01_r" "C_02"   "C_03"   "C_04"   "C_05_r"
+```
+
+Notice that the two reverse-scored columns keep their `_r` suffix
+(e.g. `C_01_r`) while the rest of the name is masked as usual, and that
+masked columns are also sorted alphabetically by their masked name. If
+more than one supplied suffix could match the same column, the longest
+match is kept and
+[`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
+issues a warning naming the affected column(s).
+
+`keep_suffixes` covers the common case of a single, fixed suffix that
+should always be preserved literally (not remapped to a randomized
+label). When *both* the prefix and the suffix carry meaning that must be
+masked - but consistently, so the same value always maps to the same
+masked label - the long-format approach shown next is the right tool
+instead.
+
+## Masking names with meaningful prefixes *and* suffixes
+
+Sometimes both the prefix and the suffix of a set of column names carry
+meaning that should stay consistent across columns. For example,
+`exp_pre`, `exp_post`, `ctl_pre`, and `ctl_post` encode both an
+experimental condition (`exp`/`ctl`) and a measurement occasion
+(`pre`/`post`).
+
+Masking these names directly with repeated
+[`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
+calls, as above, does not preserve that consistency: each call assigns
+new labels independently, so there is no guarantee that, say, `pre` is
+masked to the same label in the `exp_` columns as in the `ctl_` columns.
+In this situation we recommend reshaping the data to long format first,
+so that the condition and occasion information become *values* in their
+own columns rather than fragments of the column names.
+[`mask_variables()`](https://nthun.github.io/vazul/reference/mask_variables.md)
+can then mask those columns directly, which guarantees that a given
+value (e.g. `"exp"` or `"pre"`) is always mapped to the same masked
+label everywhere it occurs. If a wide format is required for the
+confirmatory analysis, the masked data can be reshaped back afterward.
+
+``` r
+library(tidyr)
+
+wide_demo <- data.frame(
+  id = 1:4,
+  exp_pre = c(10, 12, 9, 11),
+  exp_post = c(15, 14, 13, 16),
+  ctl_pre = c(8, 9, 10, 7),
+  ctl_post = c(9, 10, 11, 8)
+)
+wide_demo
+#>   id exp_pre exp_post ctl_pre ctl_post
+#> 1  1      10       15       8        9
+#> 2  2      12       14       9       10
+#> 3  3       9       13      10       11
+#> 4  4      11       16       7        8
+```
+
+``` r
+# 1) Reshape to long format, splitting the column names into
+#    a `condition` and a `time` variable
+long_demo <- wide_demo |>
+  pivot_longer(
+    cols = -id,
+    names_to = c("condition", "time"),
+    names_sep = "_"
+  )
+long_demo
+#> # A tibble: 16 × 4
+#>       id condition time  value
+#>    <int> <chr>     <chr> <dbl>
+#>  1     1 exp       pre      10
+#>  2     1 exp       post     15
+#>  3     1 ctl       pre       8
+#>  4     1 ctl       post      9
+#>  5     2 exp       pre      12
+#>  6     2 exp       post     14
+#>  7     2 ctl       pre       9
+#>  8     2 ctl       post     10
+#>  9     3 exp       pre       9
+#> 10     3 exp       post     13
+#> 11     3 ctl       pre      10
+#> 12     3 ctl       post     11
+#> 13     4 exp       pre      11
+#> 14     4 exp       post     16
+#> 15     4 ctl       pre       7
+#> 16     4 ctl       post      8
+```
+
+``` r
+# 2) Mask the condition and time variables. Each variable keeps its own,
+#    internally consistent mapping (every "exp" becomes the same masked
+#    label, every "pre" becomes the same masked label, and so on).
+set.seed(2024)
+long_masked <- long_demo |>
+  mask_variables(condition, time)
+
+long_masked |>
+  count(condition, time)
+#> # A tibble: 4 × 3
+#>   condition          time              n
+#>   <chr>              <chr>         <int>
+#> 1 condition_group_01 time_group_01     4
+#> 2 condition_group_01 time_group_02     4
+#> 3 condition_group_02 time_group_01     4
+#> 4 condition_group_02 time_group_02     4
+```
+
+``` r
+# 3) Reshape back to wide format if a wide layout is needed for analysis
+long_masked |>
+  unite(masked_name, condition, time) |>
+  pivot_wider(names_from = masked_name, values_from = value)
+#> # A tibble: 4 × 5
+#>      id condition_group_02_time_…¹ condition_group_02_t…² condition_group_01_t…³
+#>   <int>                      <dbl>                  <dbl>                  <dbl>
+#> 1     1                         10                     15                      8
+#> 2     2                         12                     14                      9
+#> 3     3                          9                     13                     10
+#> 4     4                         11                     16                      7
+#> # ℹ abbreviated names: ¹​condition_group_02_time_group_01,
+#> #   ²​condition_group_02_time_group_02, ³​condition_group_01_time_group_01
+#> # ℹ 1 more variable: condition_group_01_time_group_02 <dbl>
+```
+
+Because masking is applied to `condition` and `time` as data values
+rather than as fragments of the column names, the masked labels for
+`"exp"`/`"ctl"` and `"pre"`/`"post"` are consistent across every column,
+both before and after reshaping. We recommend this long-format workflow
+whenever meaningful prefixes and suffixes both need to be masked;
+[`mask_names()`](https://nthun.github.io/vazul/reference/mask_names.md)
+remains the simpler choice when only a single, non-overlapping piece of
+the name needs masking, and `mask_names(..., keep_suffixes = ...)`
+covers the case of a fixed literal suffix that should be preserved as-is
+rather than masked (see above).
 
 ``` r
 set.seed(123)
